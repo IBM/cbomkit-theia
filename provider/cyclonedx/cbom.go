@@ -1,13 +1,13 @@
 package cyclonedx
 
 import (
-	"encoding/json"
+	"bytes"
 	"fmt"
 	"log"
 	"os"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/xeipuuv/gojsonschema"
-	"google.golang.org/protobuf/encoding/protojson"
 )
 
 func Check(e error) {
@@ -37,25 +37,13 @@ func ParseCBOM(path string) {
 		}
 	}
 
-	var bom map[string]interface{}
+	test_bom := new(cdx.BOM)
+	decoder := cdx.NewBOMDecoder(bytes.NewReader(dat), cdx.BOMFileFormatJSON)
 
-	if err := json.Unmarshal(dat, &bom); err != nil {
+	if err = decoder.Decode(test_bom); err != nil {
 		panic(err)
 	}
 
-	protoBom := &Bom{}
-
-	log.Default().Println(bom)
-
-	options := protojson.UnmarshalOptions{
-		AllowPartial:   true,
-		DiscardUnknown: true,
-	}
-
-	if err = options.Unmarshal(dat, protoBom); err != nil {
-		panic(err)
-	}
-
-	log.Default().Printf("%+v", protoBom)
+	log.Default().Printf("Successfully decoded BOM")
 
 }
