@@ -5,6 +5,7 @@ import (
 	"ibm/container_cryptography_scanner/scanner"
 	"log"
 	"os"
+	"path/filepath"
 )
 
 func Check(e error) {
@@ -14,11 +15,16 @@ func Check(e error) {
 }
 
 func main() {
-	bom := cyclonedx.ParseBOM("provider/cyclonedx/testfiles/algorithm.json")
+	bomPath := filepath.Join("provider", "cyclonedx", "testfiles", "algorithm.json")
+	schemaPath := filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json")
+	bom, err := cyclonedx.ParseBOM(bomPath, schemaPath)
+	Check(err)
 
-	scanner := scanner.NewScanner("./scanner/openssl/testdata")
+	configPath := filepath.Join("scanner", "openssl", "testdata")
+	scanner := scanner.NewScanner(configPath)
 	newBom := scanner.Scan(*bom)
 
 	log.Default().Println("FINISHED SCANNING")
-	cyclonedx.WriteCBOM(&newBom, os.Stdout)
+	err = cyclonedx.WriteBOM(&newBom, os.Stdout)
+	Check(err)
 }

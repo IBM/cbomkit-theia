@@ -10,32 +10,34 @@ import (
 	"github.com/xeipuuv/gojsonschema"
 )
 
-func Check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
-func WriteCBOM(bom *cdx.BOM, file *os.File) {
+func WriteBOM(bom *cdx.BOM, file *os.File) error {
 	// Encode the BOM
 	err := cdx.NewBOMEncoder(file, cdx.BOMFileFormatJSON).
 		SetPretty(true).
 		Encode(bom)
-	Check(err)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func ParseBOM(path string) *cdx.BOM {
+func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	// Read BOM
 	dat, err := os.ReadFile(path)
-	Check(err)
+	if err != nil {
+		return new(cdx.BOM), err
+	}
+
 	log.Default().Println("Read BOM file successfully")
 
 	// JSON Validation via Schema
-	schemaLoader := gojsonschema.NewReferenceLoader("file://./provider/cyclonedx/bom-1.6.schema.json")
+	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
 	documentLoader := gojsonschema.NewStringLoader(string(dat))
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
-	Check(err)
+	if err != nil {
+		return new(cdx.BOM), err
+	}
 
 	if result.Valid() {
 		log.Default().Println("Provided BOM is valid.")
@@ -50,8 +52,10 @@ func ParseBOM(path string) *cdx.BOM {
 	bom := new(cdx.BOM)
 	decoder := cdx.NewBOMDecoder(bytes.NewReader(dat), cdx.BOMFileFormatJSON)
 	err = decoder.Decode(bom)
-	Check(err)
+	if err != nil {
+		return new(cdx.BOM), err
+	}
 	log.Default().Println("Successfully decoded BOM")
 
-	return bom
+	return bom, nil
 }
