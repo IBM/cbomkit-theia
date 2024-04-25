@@ -2,14 +2,41 @@ package openssl
 
 import (
 	"bufio"
+	"ibm/container_cryptography_scanner/scanner/config"
 	"log"
+	"os"
 	"strings"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
 )
+
+type OpenSSLPlugin struct {
+}
+
+func (openSSLPlugin OpenSSLPlugin) IsConfigFile(path string) bool {
+	return true
+}
+
+func (openSSLPlugin OpenSSLPlugin) GetConfigFromFile(path string) config.Config {
+	content, err := os.ReadFile(path)
+	if err != nil {
+		panic(err)
+	}
+	return ParseOpensslConf(string(content))
+}
 
 type Section struct {
 	sectionTitle string
 	raw          map[string]string
 	subSections  []Section
+}
+
+func (section Section) GetName() string {
+	return "OpenSSL"
+}
+
+func (section Section) IsComponentValid(cdx.Component) bool {
+	return true
 }
 
 func trimAll(input []string) []string {
@@ -57,7 +84,7 @@ func getSection(searchable string, sectionKey string) (Section, bool) {
 	}
 
 	/*
-	TODO: Add support for variables (e.g. $var)
+		TODO: Add support for variables (e.g. $var)
 	*/
 
 	var result string
