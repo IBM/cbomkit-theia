@@ -59,7 +59,9 @@ func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
 	for _, config := range scanner.configs {
 		for _, component := range *bom.Components {
 			_, ok := valid_components[component]
-			if !ok {
+			if !ok && 
+			component.Type == cdx.ComponentTypeCryptographicAsset && 
+			component.CryptoProperties != nil {
 				if config.IsComponentValid(component) {
 					valid_components[component] = struct{}{}
 				} else {

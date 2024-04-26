@@ -5,6 +5,7 @@ import (
 	"ibm/container_cryptography_scanner/scanner/config"
 	"log"
 	"os"
+	"path/filepath"
 	"strings"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -14,7 +15,8 @@ type OpenSSLPlugin struct {
 }
 
 func (openSSLPlugin OpenSSLPlugin) IsConfigFile(path string) bool {
-	return true
+	ext := filepath.Ext(path)
+	return ext == ".cnf" || ext == ".conf"
 }
 
 func (openSSLPlugin OpenSSLPlugin) GetConfigFromFile(path string) config.Config {
@@ -32,10 +34,44 @@ type Section struct {
 }
 
 func (section Section) GetName() string {
-	return "OpenSSL"
+	return "OpenSSLConfig"
 }
 
-func (section Section) IsComponentValid(cdx.Component) bool {
+func (section Section) IsComponentValid(component cdx.Component) bool {
+	// First we need to assess if the component is even from a source affected by this type of config (e.g. a python file for example)
+
+	if component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it
+		return true
+	}
+
+	occurrences := *component.Evidence.Occurrences
+
+	var isComponentFromRelevantFile bool
+	for _, occurrence := range occurrences {
+		if filepath.Ext(occurrence.Location) == ".py" { // TODO: Maybe expand this for more files that follow OpenSSL config
+			isComponentFromRelevantFile = true
+			break
+		}
+	}
+
+	if !isComponentFromRelevantFile {
+		return true
+	}
+
+	// Now, we assess the assetType and move to further analysis
+	switch component.CryptoProperties.AssetType {
+	case cdx.AssetTypeAlgorithm:
+		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+	case cdx.AssetTypeProtocol:
+		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+	case cdx.AssetTypeRelatedCryptoMaterial:
+		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+	case cdx.AssetTypeCertificate:
+		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+	default:
+		return true
+	}
+
 	return true
 }
 
@@ -66,8 +102,8 @@ func getSection(searchable string, sectionKey string) (Section, bool) {
 	scanner := bufio.NewScanner(strings.NewReader(searchable))
 
 	if sectionKey != "" {
-		scanable := true
-		for scanable {
+		scannable := true
+		for scannable {
 			current_line := strings.TrimSpace(scanner.Text())
 			if strings.HasPrefix(current_line, "[") && strings.HasSuffix(current_line, "]") {
 				extractedKey := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(current_line, "["), "]"))
@@ -75,10 +111,10 @@ func getSection(searchable string, sectionKey string) (Section, bool) {
 					break
 				}
 			}
-			scanable = scanner.Scan()
+			scannable = scanner.Scan()
 		}
 
-		if !scanable { // We did not find the sectionKey
+		if !scannable { // We did not find the sectionKey
 			return Section{}, false
 		}
 	}

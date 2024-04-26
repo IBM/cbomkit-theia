@@ -29,6 +29,13 @@
             "nistQuantumSecurityLevel": 1
           },
           "oid": "2.16.840.1.101.3.4.1.6"
+        },
+        "evidence" : {
+            "occurrences" : [
+                {
+                    "location": "test.py"
+                }
+            ]
         }
       },
       {
@@ -46,6 +53,13 @@
             "nistQuantumSecurityLevel": 0
           },
           "oid": "1.2.840.113549.1.1.13"
+        },
+        "evidence" : {
+            "occurrences" : [
+                {
+                    "location": "test.py"
+                }
+            ]
         }
       }
     ]
