@@ -14,17 +14,17 @@ import (
 type OpenSSLPlugin struct {
 }
 
-func (openSSLPlugin OpenSSLPlugin) IsConfigFile(path string) bool {
+func (openSSLPlugin *OpenSSLPlugin) IsConfigFile(path string) bool {
 	ext := filepath.Ext(path)
 	return ext == ".cnf" || ext == ".conf"
 }
 
-func (openSSLPlugin OpenSSLPlugin) GetConfigFromFile(path string) config.Config {
+func (openSSLPlugin *OpenSSLPlugin) GetConfigFromFile(path string) config.Config {
 	content, err := os.ReadFile(path)
 	if err != nil {
 		panic(err)
 	}
-	return ParseOpensslConf(string(content))
+	return parseOpensslConf(string(content))
 }
 
 type Section struct {
@@ -151,23 +151,8 @@ func getSection(searchable string, sectionKey string) (Section, bool) {
 	return section, true
 }
 
-func removeComments(input string) string {
-	scanner := bufio.NewScanner(strings.NewReader(input))
-
-	var result string
-
-	for scanner.Scan() {
-		currentLine := strings.TrimSpace(scanner.Text())
-		if !strings.HasPrefix(currentLine, "#") && currentLine != "" {
-			result += currentLine + "\n"
-		}
-	}
-
-	return result
-}
-
-func ParseOpensslConf(fileContent string) Section {
-	fileContent = removeComments(fileContent)
+func parseOpensslConf(fileContent string) Section {
+	fileContent = config.RemoveComments(fileContent, "#")
 	opensslConf, ok := getSection(fileContent, "")
 
 	if !ok {

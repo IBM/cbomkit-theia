@@ -3,6 +3,7 @@ package scanner
 import (
 	"ibm/container_cryptography_scanner/scanner/config"
 	openssl_conf "ibm/container_cryptography_scanner/scanner/openssl"
+	"ibm/container_cryptography_scanner/scanner/javasecurity"
 	"io/fs"
 	"log"
 	"path/filepath"
@@ -78,7 +79,8 @@ func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
 func NewScanner(directoryPath string) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
-		openssl_conf.OpenSSLPlugin{},
+		&openssl_conf.OpenSSLPlugin{},
+		&javasecurity.JavaSecurityPlugin{},
 	}
 	scanner.directoryPath = directoryPath
 

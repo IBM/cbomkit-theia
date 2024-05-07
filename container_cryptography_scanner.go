@@ -21,8 +21,17 @@ func main() {
 	Check(err)
 
 	configPath := filepath.Join("scanner", "openssl", "testdata")
-	scanner := scanner.NewScanner(configPath)
-	newBom := scanner.Scan(*bom)
+	scanner1 := scanner.NewScanner(configPath)
+	newBom := scanner1.Scan(*bom)
+
+	log.Default().Println("FINISHED SCANNING")
+	err = cyclonedx.WriteBOM(&newBom, os.Stdout)
+	Check(err)
+
+	// Java Testing
+	configPath = filepath.Join("scanner", "javasecurity", "testdata")
+	scanner2 := scanner.NewScanner(configPath)
+	newBom = scanner2.Scan(*bom)
 
 	log.Default().Println("FINISHED SCANNING")
 	err = cyclonedx.WriteBOM(&newBom, os.Stdout)
