@@ -87,6 +87,24 @@ func (policy Policy) IsComponentValid(component cdx.Component) bool {
 	return true
 }
 
+
+func semicolonSplit(data []byte, atEOF bool) (advance int, token []byte, err error) {
+
+	if atEOF && len(data) == 0 {
+		return 0, nil, nil
+	}
+
+	if i := strings.Index(string(data), ";"); i >= 0 {
+		return i + 1, data[0:i], nil
+	}
+
+	if atEOF {
+		return len(data), data, nil
+	}
+
+	return
+}
+
 func getPermissionFromString(line string) Permission {
 	line = strings.TrimSpace(line)
 	splitLine := strings.SplitAfterN(line, " ", 3)
@@ -96,9 +114,6 @@ func getPermissionFromString(line string) Permission {
 		parameter = strings.TrimSpace(parameter)
 		parameters[i] = strings.Trim(parameter, "\"")
 	}
-
-	// Polish the last element
-	parameters[len(parameters)-1] = strings.TrimRight(parameters[len(parameters)-1], ";")
 
 	return Permission{
 		raw:                 line,
@@ -119,9 +134,10 @@ func parseJavaPolicyFile(fileContent string) Policy {
 	}
 
 	scanner := bufio.NewScanner(strings.NewReader(fileContent))
+	scanner.Split(semicolonSplit)
 	var policy Policy
 
-	for scanner.Scan() { // TODO: Split by ; not by \n
+	for scanner.Scan() {
 		line := strings.TrimSpace(scanner.Text())
 		if line != "" {
 			policy.permissions = append(policy.permissions, getPermissionFromString(scanner.Text()))
