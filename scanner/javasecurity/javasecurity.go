@@ -94,7 +94,7 @@ func semicolonSplit(data []byte, atEOF bool) (advance int, token []byte, err err
 		return 0, nil, nil
 	}
 
-	if i := strings.Index(string(data), ";"); i >= 0 {
+	if i := strings.Index(string(data), ";"); i >= 0 { // TODO: This could be problematic when ; is used in strings
 		return i + 1, data[0:i], nil
 	}
 
