@@ -3,6 +3,7 @@ package openssl
 import (
 	"bufio"
 	"ibm/container_cryptography_scanner/scanner/config"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -12,19 +13,38 @@ import (
 )
 
 type OpenSSLPlugin struct {
+	sections []Section
 }
 
-func (openSSLPlugin *OpenSSLPlugin) IsConfigFile(path string) bool {
+func (openSSLPlugin *OpenSSLPlugin) GetName() string {
+	return "OpenSSLConfig"
+}
+
+func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(path string) error {
+	return filepath.WalkDir(path, openSSLPlugin.configWalkDirFunc)
+}
+
+func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components *[]cdx.Component) error { // Return
+	// (*components)[0] = cdx.Component{}
+	return nil
+}
+
+// Internal
+
+func (openSSLPlugin *OpenSSLPlugin) isConfigFile(path string) bool { // TODO: Make it more advanced
 	ext := filepath.Ext(path)
 	return ext == ".cnf" || ext == ".conf"
 }
 
-func (openSSLPlugin *OpenSSLPlugin) GetConfigFromFile(path string) config.Config {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		panic(err)
+func (openSSLPlugin *OpenSSLPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
+	if !d.IsDir() && openSSLPlugin.isConfigFile(path) {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
+		openSSLPlugin.sections = append(openSSLPlugin.sections, parseOpensslConf(string(content)))
 	}
-	return parseOpensslConf(string(content))
+	return err
 }
 
 type Section struct {
@@ -33,11 +53,7 @@ type Section struct {
 	subSections  []Section
 }
 
-func (section Section) GetName() string {
-	return "OpenSSLConfig"
-}
-
-func (section Section) IsComponentValid(component cdx.Component) bool {
+func (section Section) isComponentValid(component cdx.Component) bool {
 	// First we need to assess if the component is even from a source affected by this type of config (e.g. a python file for example)
 
 	if component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it

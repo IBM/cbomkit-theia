@@ -20,18 +20,10 @@ func main() {
 	bom, err := cyclonedx.ParseBOM(bomPath, schemaPath)
 	Check(err)
 
-	configPath := filepath.Join("scanner", "openssl", "testdata")
-	scanner1 := scanner.NewScanner(configPath)
-	newBom := scanner1.Scan(*bom)
-
-	log.Default().Println("FINISHED SCANNING")
-	err = cyclonedx.WriteBOM(&newBom, os.Stdout)
-	Check(err)
-
 	// Java Testing
-	configPath = filepath.Join("scanner", "javasecurity", "testdata")
+	configPath := filepath.Join("scanner", "javasecurity", "testdata")
 	scanner2 := scanner.NewScanner(configPath)
-	newBom = scanner2.Scan(*bom)
+	newBom := scanner2.Scan(*bom)
 
 	log.Default().Println("FINISHED SCANNING")
 	err = cyclonedx.WriteBOM(&newBom, os.Stdout)

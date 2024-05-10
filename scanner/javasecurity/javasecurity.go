@@ -3,6 +3,7 @@ package javasecurity
 import (
 	"bufio"
 	"ibm/container_cryptography_scanner/scanner/config"
+	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -13,41 +14,24 @@ import (
 
 type JavaSecurityPlugin struct {
 	policyDirName string
+	policies      []Policy
 }
 
-func getValueFromKey(key string, path string) (value string) {
-	pathFile, err := os.Open(path)
-	if err != nil {
-		panic(err)
-	}
-	scanner := bufio.NewScanner(pathFile)
-	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(text, key) {
-			splittedLine := strings.Split(text, "=")
-
-			// If this is true, this entry is weird and should be investigated
-			if len(splittedLine) != 2 || splittedLine[1] == "" {
-				log.Default().Printf("Cannot deal with the following entry: %+v \nContinuing...", splittedLine)
-				break
-			}
-
-			value = splittedLine[1]
-			for strings.HasSuffix(strings.TrimSpace(scanner.Text()), "\\") {
-				value = strings.TrimSuffix(value, "\\")
-				scanner.Scan()
-				var sb strings.Builder
-				sb.WriteString(value)
-				sb.WriteString(scanner.Text())
-				value = sb.String()
-			}
-			break
-		}
-	}
-	return
+func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
+	return "JavaSecurity Policy File"
 }
 
-func (javaSecurityPlugin *JavaSecurityPlugin) IsConfigFile(path string) bool {
+func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(path string) error {
+	return filepath.WalkDir(path, javaSecurityPlugin.configWalkDirFunc)
+}
+
+func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components *[]cdx.Component) error {
+	return nil
+}
+
+// Internal
+
+func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
 	ext := filepath.Ext(path)
 	switch ext {
@@ -61,12 +45,15 @@ func (javaSecurityPlugin *JavaSecurityPlugin) IsConfigFile(path string) bool {
 	}
 }
 
-func (javaSecurityPlugin *JavaSecurityPlugin) GetConfigFromFile(path string) config.Config {
-	content, err := os.ReadFile(path)
-	if err != nil {
-		panic(err)
+func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
+	if !d.IsDir() && javaSecurityPlugin.isConfigFile(path) {
+		content, err := os.ReadFile(path)
+		if err != nil {
+			panic(err)
+		}
+		javaSecurityPlugin.policies = append(javaSecurityPlugin.policies, parseJavaPolicyFile(string(content)))
 	}
-	return parseJavaPolicyFile(string(content))
+	return err
 }
 
 type Policy struct {
@@ -79,14 +66,32 @@ type Permission struct {
 	parameters          []string
 }
 
-func (policy Policy) GetName() string {
-	return "JavaSecurityPolicyFile"
-}
+func parseJavaPolicyFile(fileContent string) Policy {
+	fileContent = config.RemoveComments(fileContent, "//")
+	_, fileContent, found := strings.Cut(fileContent, "{")
+	if !found {
+		log.Fatal("Did not find { in the policy file! Exiting...")
+	}
+	fileContent, _, found = strings.Cut(fileContent, "}") // Get only the part in the "grant {}" object
+	if !found {
+		log.Fatal("Did not find } in the policy file! Exiting...")
+	}
 
-func (policy Policy) IsComponentValid(component cdx.Component) bool {
-	return true
-}
+	scanner := bufio.NewScanner(strings.NewReader(fileContent))
+	scanner.Split(semicolonSplit)
+	var policy Policy
 
+	for scanner.Scan() {
+		line := strings.TrimSpace(scanner.Text())
+		if line != "" {
+			policy.permissions = append(policy.permissions, getPermissionFromString(scanner.Text()))
+		}
+	}
+
+	log.Default().Printf("Parsed Java Policy Config:\n%+v", policy)
+
+	return policy
+}
 
 func semicolonSplit(data []byte, atEOF bool) (advance int, token []byte, err error) {
 
@@ -122,29 +127,34 @@ func getPermissionFromString(line string) Permission {
 	}
 }
 
-func parseJavaPolicyFile(fileContent string) Policy {
-	fileContent = config.RemoveComments(fileContent, "//")
-	_, fileContent, found := strings.Cut(fileContent, "{")
-	if !found {
-		log.Fatal("Did not find { in the policy file! Exiting...")
+func getValueFromKey(key string, path string) (value string) {
+	pathFile, err := os.Open(path)
+	if err != nil {
+		panic(err)
 	}
-	fileContent, _, found = strings.Cut(fileContent, "}") // Get only the part in the "grant {}" object
-	if !found {
-		log.Fatal("Did not find } in the policy file! Exiting...")
-	}
-
-	scanner := bufio.NewScanner(strings.NewReader(fileContent))
-	scanner.Split(semicolonSplit)
-	var policy Policy
-
+	scanner := bufio.NewScanner(pathFile)
 	for scanner.Scan() {
-		line := strings.TrimSpace(scanner.Text())
-		if line != "" {
-			policy.permissions = append(policy.permissions, getPermissionFromString(scanner.Text()))
+		text := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(text, key) {
+			splittedLine := strings.Split(text, "=")
+
+			// If this is true, this entry is weird and should be investigated
+			if len(splittedLine) != 2 || splittedLine[1] == "" {
+				log.Default().Printf("Cannot deal with the following entry: %+v \nContinuing...", splittedLine)
+				break
+			}
+
+			value = splittedLine[1]
+			for strings.HasSuffix(strings.TrimSpace(scanner.Text()), "\\") {
+				value = strings.TrimSuffix(value, "\\")
+				scanner.Scan()
+				var sb strings.Builder
+				sb.WriteString(value)
+				sb.WriteString(scanner.Text())
+				value = sb.String()
+			}
+			break
 		}
 	}
-
-	log.Default().Printf("Parsed Java Policy Config:\n%+v", policy)
-
-	return policy
+	return
 }
