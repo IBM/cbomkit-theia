@@ -3,6 +3,7 @@ package scanner
 import (
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/javasecurity"
+	"ibm/container_cryptography_scanner/provider/docker"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -15,12 +16,12 @@ func Check(e error) {
 
 type scanner struct {
 	configPlugins []config.ConfigPlugin
-	directoryPath string
+	scannableImage docker.ScannableImage
 }
 
 func (scanner *scanner) findConfigFiles() {
 	for _, plugin := range scanner.configPlugins {
-		err := plugin.ParseConfigsFromFilesystem(scanner.directoryPath)
+		err := plugin.ParseConfigsFromFilesystem(scanner.scannableImage)
 		if err != nil {
 			panic(err)
 		}
@@ -40,12 +41,12 @@ func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
 	return bom
 }
 
-func NewScanner(directoryPath string) scanner {
+func NewScanner(scannableImage docker.ScannableImage) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
 		&javasecurity.JavaSecurityPlugin{},
 	}
-	scanner.directoryPath = directoryPath
+	scanner.scannableImage = scannableImage
 
 	return scanner
 }

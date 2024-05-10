@@ -3,6 +3,7 @@ package main
 import (
 	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/scanner"
+	"ibm/container_cryptography_scanner/provider/docker"
 	"log"
 	"os"
 	"path/filepath"
@@ -21,8 +22,17 @@ func main() {
 	Check(err)
 
 	// Java Testing
-	configPath := filepath.Join("scanner", "javasecurity", "testdata")
-	scanner2 := scanner.NewScanner(configPath)
+	configPath := filepath.Join("testdata", "1", "filesystem")
+	dockerfilePath := filepath.Join("testdata", "1", "image", "policy.Dockerfile")
+
+	// Test Scannable Image
+	scannableImage := docker.ScannableImage {
+		Filesystem: docker.Filesystem{
+			Path: configPath,
+		},
+		DockerfilePath: dockerfilePath,
+	}
+	scanner2 := scanner.NewScanner(scannableImage)
 	newBom := scanner2.Scan(*bom)
 
 	log.Default().Println("FINISHED SCANNING")

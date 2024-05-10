@@ -2,6 +2,7 @@ package javasecurity
 
 import (
 	"bufio"
+	"ibm/container_cryptography_scanner/provider/docker"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"io/fs"
 	"log"
@@ -13,16 +14,23 @@ import (
 )
 
 type JavaSecurityPlugin struct {
-	policyDirName string
-	policies      []Policy
+	relevantPolicyDirs []string
+	policies           []Policy
+	scannableImage     docker.ScannableImage
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 	return "JavaSecurity Policy File"
 }
 
-func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(path string) error {
-	return filepath.WalkDir(path, javaSecurityPlugin.configWalkDirFunc)
+func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) error {
+	javaSecurityPlugin.scannableImage = scannableImage
+
+	err := filepath.WalkDir(scannableImage.Filesystem.Path, javaSecurityPlugin.configWalkDirFunc)
+
+	javaSecurityPlugin.checkDockerfile(scannableImage.DockerfilePath)
+
+	return err
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components *[]cdx.Component) error {
@@ -31,28 +39,39 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components *[]cdx
 
 // Internal
 
+func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile(path string) {
+	// TODO: Use https://pkg.go.dev/github.com/moby/buildkit/frontend/dockerfile/parser
+}
+
 func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
 	ext := filepath.Ext(path)
-	switch ext {
-	case ".security":
-		javaSecurityPlugin.policyDirName = getValueFromKey("crypto.policy", path)
-		return false // We do not need any more information from this file TODO: Maybe expand this for TLS and so on to also include java.security file
-	case ".policy":
-		return true
-	default:
-		return false
+	return ext == ".policy"
+}
+
+func (javaSecurityPlugin *JavaSecurityPlugin) extractAdditionalInfo(path string) {
+	// Check for java.security file
+	ext := filepath.Ext(path)
+	if ext == ".security" {
+		javaSecurityPlugin.relevantPolicyDirs = append(javaSecurityPlugin.relevantPolicyDirs, getValueFromKey("crypto.policy", path))
 	}
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
-	if !d.IsDir() && javaSecurityPlugin.isConfigFile(path) {
+	if d.IsDir() {
+		return nil
+	}
+
+	if javaSecurityPlugin.isConfigFile(path) {
 		content, err := os.ReadFile(path)
 		if err != nil {
 			panic(err)
 		}
 		javaSecurityPlugin.policies = append(javaSecurityPlugin.policies, parseJavaPolicyFile(string(content)))
 	}
+
+	javaSecurityPlugin.extractAdditionalInfo(path)
+
 	return err
 }
 
@@ -113,7 +132,11 @@ func semicolonSplit(data []byte, atEOF bool) (advance int, token []byte, err err
 func getPermissionFromString(line string) Permission {
 	line = strings.TrimSpace(line)
 	splitLine := strings.SplitAfterN(line, " ", 3)
-	parameters := strings.Split(splitLine[2], ",")
+	var parameters []string
+
+	if len(splitLine) >= 3 {
+		parameters = strings.Split(splitLine[2], ",")
+	}
 
 	for i, parameter := range parameters {
 		parameter = strings.TrimSpace(parameter)

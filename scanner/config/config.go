@@ -3,13 +3,13 @@ package config
 import (
 	"bufio"
 	"strings"
-
+	"ibm/container_cryptography_scanner/provider/docker"
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 type ConfigPlugin interface {
 	GetName() string
-	ParseConfigsFromFilesystem(path string) error
+	ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) error
 	UpdateComponents(components *[]cdx.Component) error
 }
 
