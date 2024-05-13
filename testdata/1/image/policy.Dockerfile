@@ -12,4 +12,4 @@ RUN set -ex \
 EXPOSE 1099
 EXPOSE 64000
 
-CMD ["bash", "-c", "java -Djava.rmi.server.hostname=${RMIIP} -Djava.rmi.server.useCodebaseOnly=false -Djava.security.policy== RemoteRMIServer"]
+CMD ["bash", "-c", "java -Djava.rmi.server.hostname=${RMIIP} -Djava.rmi.server.useCodebaseOnly=false -Djava.security.policy=unlimited RemoteRMIServer"]

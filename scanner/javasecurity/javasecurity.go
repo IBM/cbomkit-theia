@@ -10,13 +10,20 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/moby/buildkit/frontend/dockerfile/instructions"
+	"github.com/moby/buildkit/frontend/dockerfile/parser"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
+const POLICY_CMD_ARGUMENT = "-Djava.security.policy="
+
 type JavaSecurityPlugin struct {
-	relevantPolicyDirs []string
-	policies           []Policy
-	scannableImage     docker.ScannableImage
+	relevantPolicyDirs                   map[string]struct{} // Weird go-ish way of doing sets
+	ignoreEverythingButCMDArgumentPolicy bool
+	policies                             []Policy
+	security                             map[string]string
+	scannableImage                       docker.ScannableImage
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
@@ -28,7 +35,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 
 	err := filepath.WalkDir(scannableImage.Filesystem.Path, javaSecurityPlugin.configWalkDirFunc)
 
-	javaSecurityPlugin.checkDockerfile(scannableImage.DockerfilePath)
+	javaSecurityPlugin.checkDockerfile()
 
 	return err
 }
@@ -39,22 +46,75 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components *[]cdx
 
 // Internal
 
-func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile(path string) {
-	// TODO: Use https://pkg.go.dev/github.com/moby/buildkit/frontend/dockerfile/parser
+func (javaSecurityPlugin *JavaSecurityPlugin) addToPolicyDirs(value string) (err error) {
+	if javaSecurityPlugin.relevantPolicyDirs == nil {
+		javaSecurityPlugin.relevantPolicyDirs = make(map[string]struct{})
+	}
+	if !javaSecurityPlugin.ignoreEverythingButCMDArgumentPolicy {
+		javaSecurityPlugin.relevantPolicyDirs[value] = struct{}{}
+	}
+	return err
+}
+
+func (javaSecurityPlugin *JavaSecurityPlugin) getJavaPolicyFlagValue(command instructions.ShellDependantCmdLine) (ok bool) {
+	for _, str := range command.CmdLine {
+		index := strings.Index(str, POLICY_CMD_ARGUMENT)
+		if index != -1 {
+			ok = true
+			firstPartCutOff := str[index+len(POLICY_CMD_ARGUMENT):]
+			index = strings.Index(firstPartCutOff, " ") // TODO: Make this more secure
+			value := firstPartCutOff[:index]
+			if strings.HasPrefix(value, "=") { // The assignment is
+				javaSecurityPlugin.ignoreEverythingButCMDArgumentPolicy = true
+				value = value[1:]
+				javaSecurityPlugin.relevantPolicyDirs = map[string]struct{}{ // Delete everything but that one entry
+					value: {},
+				}
+				return ok
+			}
+			javaSecurityPlugin.addToPolicyDirs(value)
+		}
+	}
+	return ok
+}
+
+func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() {
+	reader, err := os.Open(javaSecurityPlugin.scannableImage.DockerfilePath)
+	if err != nil {
+		panic(err)
+	}
+	// We use the docker package to offload some work and do the validation there
+	result, err := parser.Parse(reader)
+	if err != nil {
+		panic(err)
+	}
+	result.PrintWarnings(os.Stderr)
+	stages, _, err := instructions.Parse(result.AST)
+	if err != nil {
+		panic(err)
+	}
+	log.Default().Print(stages)
+	// By now, the docker package should have validated the correctness of the file
+
+	if len(stages) < 1 { // This Dockerfile is empty
+		return
+	}
+
+	for _, command := range stages[0].Commands {
+		switch v := command.(type) {
+		case *instructions.EntrypointCommand: // TODO: Support for ENV Variables
+			javaSecurityPlugin.getJavaPolicyFlagValue(v.ShellDependantCmdLine)
+		case *instructions.CmdCommand:
+			javaSecurityPlugin.getJavaPolicyFlagValue(v.ShellDependantCmdLine)
+		}
+	}
+
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
 	ext := filepath.Ext(path)
 	return ext == ".policy"
-}
-
-func (javaSecurityPlugin *JavaSecurityPlugin) extractAdditionalInfo(path string) {
-	// Check for java.security file
-	ext := filepath.Ext(path)
-	if ext == ".security" {
-		javaSecurityPlugin.relevantPolicyDirs = append(javaSecurityPlugin.relevantPolicyDirs, getValueFromKey("crypto.policy", path))
-	}
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
@@ -70,7 +130,15 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d f
 		javaSecurityPlugin.policies = append(javaSecurityPlugin.policies, parseJavaPolicyFile(string(content)))
 	}
 
-	javaSecurityPlugin.extractAdditionalInfo(path)
+	// Check for java.security file
+	ext := filepath.Ext(path)
+	if ext == ".security" {
+		javaSecurityPlugin.parseJavaSecurityFile(path)
+		value, ok := javaSecurityPlugin.security["crypto.policy"]
+		if ok {
+			javaSecurityPlugin.addToPolicyDirs(value)
+		}
+	}
 
 	return err
 }
@@ -150,34 +218,36 @@ func getPermissionFromString(line string) Permission {
 	}
 }
 
-func getValueFromKey(key string, path string) (value string) {
+func (javaSecurityPlugin *JavaSecurityPlugin) parseJavaSecurityFile(path string) {
+	javaSecurityPlugin.security = make(map[string]string)
 	pathFile, err := os.Open(path)
 	if err != nil {
 		panic(err)
 	}
 	scanner := bufio.NewScanner(pathFile)
 	for scanner.Scan() {
-		text := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(text, key) {
-			splittedLine := strings.Split(text, "=")
-
-			// If this is true, this entry is weird and should be investigated
-			if len(splittedLine) != 2 || splittedLine[1] == "" {
-				log.Default().Printf("Cannot deal with the following entry: %+v \nContinuing...", splittedLine)
-				break
-			}
-
-			value = splittedLine[1]
-			for strings.HasSuffix(strings.TrimSpace(scanner.Text()), "\\") {
-				value = strings.TrimSuffix(value, "\\")
-				scanner.Scan()
-				var sb strings.Builder
-				sb.WriteString(value)
-				sb.WriteString(scanner.Text())
-				value = sb.String()
-			}
-			break
+		if strings.HasPrefix(scanner.Text(), "//") {
+			continue
 		}
+		text := strings.TrimSpace(scanner.Text())
+		splittedLine := strings.Split(text, "=")
+
+		// If this is true, this entry is weird and should be investigated
+		if len(splittedLine) != 2 || splittedLine[1] == "" {
+			log.Default().Printf("Cannot deal with the following entry: %+v \nContinuing...", splittedLine)
+			javaSecurityPlugin.security[splittedLine[0]] = ""
+			continue
+		}
+
+		value := splittedLine[1]
+		for strings.HasSuffix(strings.TrimSpace(scanner.Text()), "\\") { // TODO: This is broken
+			value = strings.TrimSuffix(value, "\\")
+			scanner.Scan()
+			var sb strings.Builder
+			sb.WriteString(value)
+			sb.WriteString(scanner.Text())
+			value = sb.String()
+		}
+		javaSecurityPlugin.security[splittedLine[0]] = value
 	}
-	return
 }
