@@ -12,6 +12,7 @@ import (
 
 	"github.com/moby/buildkit/frontend/dockerfile/instructions"
 	"github.com/moby/buildkit/frontend/dockerfile/parser"
+	"gopkg.in/ini.v1"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -22,7 +23,7 @@ type JavaSecurityPlugin struct {
 	relevantPolicyDirs                   map[string]struct{} // Weird go-ish way of doing sets
 	ignoreEverythingButCMDArgumentPolicy bool
 	policies                             []Policy
-	security                             map[string]string
+	security                             *ini.File
 	scannableImage                       docker.ScannableImage
 }
 
@@ -133,10 +134,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d f
 	// Check for java.security file
 	ext := filepath.Ext(path)
 	if ext == ".security" {
-		javaSecurityPlugin.parseJavaSecurityFile(path)
-		value, ok := javaSecurityPlugin.security["crypto.policy"]
-		if ok {
-			javaSecurityPlugin.addToPolicyDirs(value)
+		javaSecurityPlugin.parseJavaSecurityFile(path) 
+		if javaSecurityPlugin.security.Section("").HasKey("crypto.policy") {
+			javaSecurityPlugin.addToPolicyDirs(javaSecurityPlugin.security.Section("").Key("crypto.policy").String())
 		}
 	}
 
@@ -219,35 +219,10 @@ func getPermissionFromString(line string) Permission {
 }
 
 func (javaSecurityPlugin *JavaSecurityPlugin) parseJavaSecurityFile(path string) {
-	javaSecurityPlugin.security = make(map[string]string)
-	pathFile, err := os.Open(path)
+	var err error
+	javaSecurityPlugin.security, err = ini.Load(path)
+
 	if err != nil {
 		panic(err)
-	}
-	scanner := bufio.NewScanner(pathFile)
-	for scanner.Scan() {
-		if strings.HasPrefix(scanner.Text(), "//") {
-			continue
-		}
-		text := strings.TrimSpace(scanner.Text())
-		splittedLine := strings.Split(text, "=")
-
-		// If this is true, this entry is weird and should be investigated
-		if len(splittedLine) != 2 || splittedLine[1] == "" {
-			log.Default().Printf("Cannot deal with the following entry: %+v \nContinuing...", splittedLine)
-			javaSecurityPlugin.security[splittedLine[0]] = ""
-			continue
-		}
-
-		value := splittedLine[1]
-		for strings.HasSuffix(strings.TrimSpace(scanner.Text()), "\\") { // TODO: This is broken
-			value = strings.TrimSuffix(value, "\\")
-			scanner.Scan()
-			var sb strings.Builder
-			sb.WriteString(value)
-			sb.WriteString(scanner.Text())
-			value = sb.String()
-		}
-		javaSecurityPlugin.security[splittedLine[0]] = value
 	}
 }

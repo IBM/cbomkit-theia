@@ -6,6 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.8.0
 	github.com/moby/buildkit v0.13.2
 	github.com/xeipuuv/gojsonschema v1.2.0
+	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
