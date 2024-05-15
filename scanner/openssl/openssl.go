@@ -2,26 +2,31 @@ package openssl
 
 import (
 	"bufio"
-	"ibm/container_cryptography_scanner/scanner/config"
+	"ibm/container_cryptography_scanner/provider/docker"
 	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
+	"slices"
 	"strings"
+
+	"gopkg.in/ini.v1"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 type OpenSSLPlugin struct {
-	sections []Section
+	configs        []*ini.File
+	scannableImage docker.ScannableImage
 }
 
 func (openSSLPlugin *OpenSSLPlugin) GetName() string {
 	return "OpenSSLConfig"
 }
 
-func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(path string) error {
-	return filepath.WalkDir(path, openSSLPlugin.configWalkDirFunc)
+func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) error {
+	openSSLPlugin.scannableImage = scannableImage
+	return filepath.WalkDir(scannableImage.Filesystem.Path, openSSLPlugin.configWalkDirFunc)
 }
 
 func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { // Return
@@ -37,22 +42,17 @@ func (openSSLPlugin *OpenSSLPlugin) isConfigFile(path string) bool { // TODO: Ma
 
 func (openSSLPlugin *OpenSSLPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
 	if !d.IsDir() && openSSLPlugin.isConfigFile(path) {
-		content, err := os.ReadFile(path)
+		configBytes, err := openSSLPlugin.parseOpenSSLConfigFile(path)
+		config, err := ini.Load(configBytes)
 		if err != nil {
-			panic(err)
+			return err
 		}
-		openSSLPlugin.sections = append(openSSLPlugin.sections, parseOpensslConf(string(content)))
+		openSSLPlugin.configs = append(openSSLPlugin.configs, config)
 	}
 	return err
 }
 
-type Section struct {
-	sectionTitle string
-	raw          map[string]string
-	subSections  []Section
-}
-
-func (section Section) isComponentValid(component cdx.Component) bool {
+func (openSSLPlugin *OpenSSLPlugin) isComponentValid(component cdx.Component) bool {
 	// First we need to assess if the component is even from a source affected by this type of config (e.g. a python file for example)
 
 	if component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it
@@ -97,101 +97,45 @@ func trimAll(input []string) []string {
 	return input
 }
 
-func toMap(input string) map[string]string {
-	scanner := bufio.NewScanner(strings.NewReader(input))
+func replaceAtIndex(s []byte, toBeInserted []byte, start int, end int) []byte {
+	s = append(s[:start], s[end:]...)
+	s = slices.Insert(s, start, toBeInserted...)
 
-	res := make(map[string]string)
-
-	for scanner.Scan() {
-		current_line := strings.Split(scanner.Text(), "=")
-		current_line = trimAll(current_line)
-		if len(current_line) == 2 {
-			res[current_line[0]] = current_line[1]
-		}
-	}
-
-	return res
+	return s
 }
 
-func getSection(searchable string, sectionKey string) (Section, bool) {
-	scanner := bufio.NewScanner(strings.NewReader(searchable))
+func beautifyConfig(config []byte) []byte {
+	scanner := bufio.NewScanner(strings.NewReader(string(config)))
+	index := 0
 
-	if sectionKey != "" {
-		scannable := true
-		for scannable {
-			current_line := strings.TrimSpace(scanner.Text())
-			if strings.HasPrefix(current_line, "[") && strings.HasSuffix(current_line, "]") {
-				extractedKey := strings.TrimSpace(strings.TrimSuffix(strings.TrimPrefix(current_line, "["), "]"))
-				if extractedKey == sectionKey {
-					break
-				}
+	for scanner.Scan() {
+		current_line := strings.TrimSpace(scanner.Text())
+		if strings.HasPrefix(current_line, "[") && strings.HasSuffix(current_line, "]") {
+			notTrimmed := strings.TrimSuffix(strings.TrimPrefix(current_line, "["), "]")
+			trimmed := strings.TrimSpace(notTrimmed)
+
+			if trimmed != notTrimmed {
+				config = replaceAtIndex(config, []byte("["+trimmed+"]"), index, index+len(scanner.Text()))
+				index += (2 + len(trimmed)) - len(scanner.Text())
 			}
-			scannable = scanner.Scan()
-		}
 
-		if !scannable { // We did not find the sectionKey
-			return Section{}, false
 		}
+		index += len(scanner.Text()) + 1
 	}
+
+	return config
 
 	/*
 		TODO: Add support for variables (e.g. $var)
+		TODO: Add support for pragma etc.
 	*/
-
-	var result string
-	for scanner.Scan() {
-		current_line := scanner.Text()
-		if strings.HasPrefix(current_line, "[") {
-			break
-		} else if !strings.HasPrefix(current_line, "#") && current_line != "" {
-			result += scanner.Text()
-			result += "\n"
-		} else if strings.HasPrefix(current_line, ".include") || strings.HasPrefix(current_line, ".pragma") { // TODO: Implement inclusion of other config files
-			log.Default().Println("\".include\" or \".pragma\" is currently not supported! Continuing...")
-		}
-	}
-
-	section := Section{
-		sectionTitle: sectionKey,
-		raw:          toMap(result),
-	}
-
-	for _, value := range section.raw {
-		subsection, ok := getSection(searchable, value)
-		if ok {
-			section.subSections = append(section.subSections, subsection)
-		}
-	}
-
-	return section, true
 }
 
-func parseOpensslConf(fileContent string) Section {
-	fileContent = config.RemoveComments(fileContent, "#")
-	opensslConf, ok := getSection(fileContent, "")
+func (openSSLPlugin *OpenSSLPlugin) parseOpenSSLConfigFile(path string) (out []byte, err error) {
 
-	if !ok {
-		log.Fatal("The OpenSSL Config is malformed. Exiting.")
-	}
+	out, err = os.ReadFile(path)
 
-	/*
-		targets := []string{
-			"providers",
-			"alg_section",
-			"ssl_conf",
-			"engines",
-			"random",
-		}
+	out = beautifyConfig(out)
 
-		for _, target := range targets {
-			targetSectionKey, ok := opensslConfSection.raw[target]
-			if ok {
-				opensslConf[target] = getSection(fileContent, targetSectionKey)
-				log.Default().Printf("Adding Target Section %v -> %v", target, opensslConf[target])
-			}
-		}  */
-
-	log.Default().Printf("Parsed OpenSSL Config:\n%+v", opensslConf)
-
-	return opensslConf
+	return out, err
 }

@@ -3,6 +3,7 @@ package scanner
 import (
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/javasecurity"
+	"ibm/container_cryptography_scanner/scanner/openssl"
 	"ibm/container_cryptography_scanner/provider/docker"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -46,6 +47,7 @@ func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
 func NewScanner(scannableImage docker.ScannableImage) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
+		&openssl.OpenSSLPlugin{},
 		&javasecurity.JavaSecurityPlugin{},
 	}
 	scanner.scannableImage = scannableImage

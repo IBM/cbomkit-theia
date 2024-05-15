@@ -3,7 +3,6 @@ package javasecurity
 import (
 	"ibm/container_cryptography_scanner/provider/docker"
 	"io/fs"
-	"log"
 	"os"
 	"path/filepath"
 
