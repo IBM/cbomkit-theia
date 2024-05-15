@@ -24,9 +24,8 @@ func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(path string) erro
 	return filepath.WalkDir(path, openSSLPlugin.configWalkDirFunc)
 }
 
-func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components *[]cdx.Component) error { // Return
-	// (*components)[0] = cdx.Component{}
-	return nil
+func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { // Return
+	return nil, nil
 }
 
 // Internal

@@ -30,14 +30,16 @@ func (scanner *scanner) findConfigFiles() {
 
 func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
 	scanner.findConfigFiles()
+	newComponents := make([]cdx.Component, 0, len(*bom.Components))
 
 	for _, plugin := range scanner.configPlugins {
-		err := plugin.UpdateComponents(bom.Components)
+		updatedConfigComponents, err := plugin.UpdateComponents(*bom.Components)
+		newComponents = append(newComponents, updatedConfigComponents...)
 		if err != nil {
 			panic(err)
 		}
 	}
-
+	bom.Components = &newComponents
 	return bom
 }
 

@@ -41,11 +41,33 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 	return err
 }
 
-func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components *[]cdx.Component) error {
-	return nil
+func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+	for _, component := range components{
+		if component.Type == cdx.ComponentTypeCryptographicAsset && component.CryptoProperties != nil {
+			updatedComponent, err := javaSecurityPlugin.updateComponent(component)
+			
+			if err != nil {
+				return nil, err
+			} 
+
+			if updatedComponent == nil {
+				continue
+			} else {
+				updatedComponents = append(updatedComponents, *updatedComponent)
+			}
+		}
+	}
+	return updatedComponents, err
 }
 
 // Internal
+
+func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
+	
+
+	// log.Default().Printf("The following component is not valid due to %v config:\n%+v", javaSecurityPlugin.GetName(), component)
+	return nil, err
+}
 
 func (javaSecurityPlugin *JavaSecurityPlugin) addToPolicyDirs(value string) (err error) {
 	if javaSecurityPlugin.relevantPolicyDirs == nil {
