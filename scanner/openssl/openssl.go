@@ -73,16 +73,14 @@ func (openSSLPlugin *OpenSSLPlugin) isComponentValid(component cdx.Component) bo
 		return true
 	}
 
+	log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+
 	// Now, we assess the assetType and move to further analysis
 	switch component.CryptoProperties.AssetType {
-	case cdx.AssetTypeAlgorithm:
-		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
-	case cdx.AssetTypeProtocol:
-		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
-	case cdx.AssetTypeRelatedCryptoMaterial:
-		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
-	case cdx.AssetTypeCertificate:
-		log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+	case cdx.CryptoAssetTypeAlgorithm:
+	case cdx.CryptoAssetTypeProtocol:
+	case cdx.CryptoAssetTypeRelatedCryptoMaterial:
+	case cdx.CryptoAssetTypeCertificate:
 	default:
 		return true
 	}
