@@ -3,7 +3,6 @@ package javasecurity
 import (
 	"fmt"
 	"io/fs"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -11,8 +10,6 @@ import (
 	"gopkg.in/ini.v1"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/moby/buildkit/frontend/dockerfile/instructions"
-	"github.com/moby/buildkit/frontend/dockerfile/parser"
 )
 
 /*
@@ -113,6 +110,7 @@ container image related
 
 // Checks the Dockerfile for potentially relevant information and adds it to the plugin
 // THIS FUNCTION IS CURRENTLY DOING NOTHING
+/*
 func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() {
 	reader, err := os.Open(javaSecurityPlugin.scannableImage.DockerfilePath)
 	if err != nil {
@@ -137,3 +135,4 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() {
 	// TODO: Check for relevant parameters here
 
 }
+*/

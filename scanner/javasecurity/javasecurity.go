@@ -29,7 +29,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 		return err
 	}
 
-	javaSecurityPlugin.checkDockerfile()
+	// javaSecurityPlugin.checkDockerfile()
 
 	err = javaSecurityPlugin.security.extractTLSRules()
 	if err != nil {
