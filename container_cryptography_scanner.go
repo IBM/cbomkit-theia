@@ -16,7 +16,7 @@ func Check(e error) {
 }
 
 func main() {
-	bomPath := filepath.Join("provider", "cyclonedx", "testfiles", "algorithm.json")
+	bomPath := filepath.Join("provider", "cyclonedx", "testfiles", "protocol.json")
 	schemaPath := filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json")
 	bom, err := cyclonedx.ParseBOM(bomPath, schemaPath)
 	Check(err)

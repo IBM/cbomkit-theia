@@ -24,6 +24,7 @@ type JavaSecurityPlugin struct {
 
 type JavaSecurity struct {
 	*ini.File
+	bomRefMap             map[cdx.BOMReference]*cdx.Component
 	tlsDisablesAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
@@ -58,6 +59,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
 	for _, component := range components {
 		if component.Type == cdx.ComponentTypeCryptographicAsset && component.CryptoProperties != nil {
+			javaSecurityPlugin.createCryptoComponentBOMRefMap(components)
 			updatedComponent, err := javaSecurityPlugin.updateComponent(component)
 
 			if err != nil {
@@ -74,6 +76,8 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 	return updatedComponents, err
 }
 
+// TODO: Make a method to check for protocol restrictions
+
 // Internal
 func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
 	allowed = true
@@ -82,10 +86,13 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 		return allowed, fmt.Errorf("scanner: cannot evaluate components other than algorithm for applying restrictions")
 	}
 
-	subAlgorithms := strings.Split(component.Name, "with")
+	subAlgorithms := strings.Split(javaSecurityAlgorithmRestriction.name, "with")
 
 	for _, subAlgorithm := range subAlgorithms {
 		if subAlgorithm == component.Name {
+			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
+				return allowed, err
+			}
 			param, err := strconv.Atoi(component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier)
 			if err != nil {
 				return allowed, err
@@ -103,8 +110,10 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 				allowed = !(param >= javaSecurityAlgorithmRestriction.keySize)
 			case ">":
 				allowed = !(param > javaSecurityAlgorithmRestriction.keySize)
+			case "":
+				allowed = false
 			default:
-				return allowed, fmt.Errorf("scanner: invalid keySizeOperator in JavaSecurityAlgorithmRestriction")
+				return allowed, fmt.Errorf("scanner: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
 			}
 		}
 
@@ -153,7 +162,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) extractTLSRules() (err error) {
 func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component cdx.Component) bool {
 	// First we need to assess if the component is even from a source affected by this type of config (e.g. a java file)
 
-	if component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it
+	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it
 		return false
 	}
 
@@ -168,6 +177,14 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 	return false
 }
 
+func (javaSecurityPlugin *JavaSecurityPlugin) createCryptoComponentBOMRefMap(components []cdx.Component) {
+	for _, component := range components {
+		if component.BOMRef != "" {
+			javaSecurityPlugin.security.bomRefMap[cdx.BOMReference(component.BOMRef)] = &component
+		}
+	}
+}
+
 func (javaSecurityPlugin *JavaSecurityPlugin) updateProtocolComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
 	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
 		return &component, fmt.Errorf("scanner: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
@@ -176,9 +193,21 @@ func (javaSecurityPlugin *JavaSecurityPlugin) updateProtocolComponent(component 
 	switch component.CryptoProperties.ProtocolProperties.Type {
 	case cdx.CryptoProtocolTypeTLS:
 		for _, cipherSuites := range *component.CryptoProperties.ProtocolProperties.CipherSuites {
-			for algorithmRef := range *cipherSuites.Algorithms {
+			for _, algorithmRef := range *cipherSuites.Algorithms {
 				// TODO: Dereference Algorithm REFs and extract algorithm objects
-				log.Default().Printf("Found algorithmRef: %v", algorithmRef)
+				algo, ok := javaSecurityPlugin.security.bomRefMap[algorithmRef]
+				if ok {
+					for _, rule := range javaSecurityPlugin.security.tlsDisablesAlgorithms {
+						ok, err = rule.eval(*algo)
+						if err != nil {
+							return updatedComponent, err
+						}
+
+						if !ok {
+							return nil, nil
+						}
+					}
+				}
 			}
 		}
 	default:
@@ -247,6 +276,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d f
 		config, err = ini.Load(path)
 		javaSecurityPlugin.security = JavaSecurity{
 			config,
+			make(map[cdx.BOMReference]*cdx.Component),
 			[]JavaSecurityAlgorithmRestriction{},
 		}
 	}
