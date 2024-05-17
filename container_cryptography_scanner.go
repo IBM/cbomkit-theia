@@ -1,10 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"flag"
 	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/provider/docker"
 	"ibm/container_cryptography_scanner/scanner"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -29,7 +31,7 @@ func main() {
 	run(bomPath, filesystemPath)
 }
 
-func run(bomPath *string, filesystemPath *string) {
+func run(bomPath *string, filesystemPath *string) string {
 	schemaPath := filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json")
 	bom, err := cyclonedx.ParseBOM(*bomPath, schemaPath)
 	Check(err)
@@ -48,6 +50,11 @@ func run(bomPath *string, filesystemPath *string) {
 	newBom := scanner2.Scan(*bom)
 
 	log.Default().Println("FINISHED SCANNING")
+
 	err = cyclonedx.WriteBOM(&newBom, os.Stdout)
 	Check(err)
+
+	var buf bytes.Buffer
+	io.Copy(&buf, os.Stdout)
+	return buf.String()
 }
