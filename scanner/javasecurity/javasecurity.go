@@ -1,43 +1,26 @@
 package javasecurity
 
 import (
-	"fmt"
 	"ibm/container_cryptography_scanner/provider/docker"
-	"io/fs"
 	"log"
-	"os"
 	"path/filepath"
-	"strconv"
-	"strings"
-
-	"github.com/moby/buildkit/frontend/dockerfile/instructions"
-	"github.com/moby/buildkit/frontend/dockerfile/parser"
-	"gopkg.in/ini.v1"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
+// Represents the java security plugin in a specific scanning context
+// Implements the config/ConfigPlugin interface
 type JavaSecurityPlugin struct {
 	security       JavaSecurity
 	scannableImage docker.ScannableImage
 }
 
-type JavaSecurity struct {
-	*ini.File
-	bomRefMap             map[cdx.BOMReference]*cdx.Component
-	tlsDisablesAlgorithms []JavaSecurityAlgorithmRestriction
-}
-
-type JavaSecurityAlgorithmRestriction struct {
-	name            string
-	keySizeOperator string
-	keySize         int
-}
-
+// Get the name of the plugin for debugging purposes
 func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 	return "JavaSecurity Policy File"
 }
 
+// Parses all relevant information from the filesystem and creates underlying data structure for evaluation
 func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) (err error) {
 	javaSecurityPlugin.scannableImage = scannableImage
 
@@ -48,7 +31,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 
 	javaSecurityPlugin.checkDockerfile()
 
-	err = javaSecurityPlugin.extractTLSRules()
+	err = javaSecurityPlugin.security.extractTLSRules()
 	if err != nil {
 		return err
 	}
@@ -56,10 +39,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 	return err
 }
 
+// High-level function to update a list of components (e.g. remove components and add new ones)
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
 	for _, component := range components {
 		if component.Type == cdx.ComponentTypeCryptographicAsset && component.CryptoProperties != nil {
-			javaSecurityPlugin.createCryptoComponentBOMRefMap(components)
+			javaSecurityPlugin.security.createCryptoComponentBOMRefMap(components)
 			updatedComponent, err := javaSecurityPlugin.updateComponent(component)
 
 			if err != nil {
@@ -76,92 +60,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 	return updatedComponents, err
 }
 
-// TODO: Make a method to check for protocol restrictions
-
-// Internal
-func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
-	allowed = true
-
-	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-		return allowed, fmt.Errorf("scanner: cannot evaluate components other than algorithm for applying restrictions")
-	}
-
-	subAlgorithms := strings.Split(javaSecurityAlgorithmRestriction.name, "with")
-
-	for _, subAlgorithm := range subAlgorithms {
-		if subAlgorithm == component.Name {
-			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
-				return allowed, err
-			}
-			param, err := strconv.Atoi(component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier)
-			if err != nil {
-				return allowed, err
-			}
-			switch javaSecurityAlgorithmRestriction.keySizeOperator {
-			case "<=":
-				allowed = !(param <= javaSecurityAlgorithmRestriction.keySize)
-			case "<":
-				allowed = !(param < javaSecurityAlgorithmRestriction.keySize)
-			case "==":
-				allowed = !(param == javaSecurityAlgorithmRestriction.keySize)
-			case "!=":
-				allowed = !(param != javaSecurityAlgorithmRestriction.keySize)
-			case ">=":
-				allowed = !(param >= javaSecurityAlgorithmRestriction.keySize)
-			case ">":
-				allowed = !(param > javaSecurityAlgorithmRestriction.keySize)
-			case "":
-				allowed = false
-			default:
-				return allowed, fmt.Errorf("scanner: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
-			}
-		}
-
-		if !allowed {
-			return allowed, err
-		}
-	}
-
-	return allowed, err
-}
-
-func (javaSecurityPlugin *JavaSecurityPlugin) extractTLSRules() (err error) {
-	if javaSecurityPlugin.security.Section("").HasKey("jdk.tls.disabledAlgorithms") {
-		algorithms := javaSecurityPlugin.security.Section("").Key("jdk.tls.disabledAlgorithms").Strings(",")
-		for _, algorithm := range algorithms {
-			keySize := 0
-			keySizeOperator := ""
-			name := algorithm
-
-			if strings.Contains(algorithm, "keySize") {
-				split := strings.Split(algorithm, "keySize")
-				if len(split) > 2 {
-					return fmt.Errorf("scanner: sanity check failed, %v contains too many elements", split)
-				}
-				name = strings.TrimSpace(split[0])
-				split[1] = strings.TrimSpace(split[1])
-				keyRestrictions := strings.Split(split[1], " ")
-				keySizeOperator = keyRestrictions[0]
-				keySize, err = strconv.Atoi(keyRestrictions[1])
-				if err != nil {
-					return err
-				}
-			}
-
-			javaSecurityPlugin.security.tlsDisablesAlgorithms = append(javaSecurityPlugin.security.tlsDisablesAlgorithms, JavaSecurityAlgorithmRestriction{
-				name:            name,
-				keySize:         keySize,
-				keySizeOperator: keySizeOperator,
-			})
-		}
-	}
-
-	return nil
-}
-
+// Assesses if the component is from a source affected by this type of config (e.g. a java file)
+// Require "Evidence" and "Occurrences" to be present in the BOM
 func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component cdx.Component) bool {
-	// First we need to assess if the component is even from a source affected by this type of config (e.g. a java file)
-
 	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it
 		return false
 	}
@@ -177,46 +78,8 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 	return false
 }
 
-func (javaSecurityPlugin *JavaSecurityPlugin) createCryptoComponentBOMRefMap(components []cdx.Component) {
-	for _, component := range components {
-		if component.BOMRef != "" {
-			javaSecurityPlugin.security.bomRefMap[cdx.BOMReference(component.BOMRef)] = &component
-		}
-	}
-}
-
-func (javaSecurityPlugin *JavaSecurityPlugin) updateProtocolComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
-	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
-		return &component, fmt.Errorf("scanner: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
-	}
-
-	switch component.CryptoProperties.ProtocolProperties.Type {
-	case cdx.CryptoProtocolTypeTLS:
-		for _, cipherSuites := range *component.CryptoProperties.ProtocolProperties.CipherSuites {
-			for _, algorithmRef := range *cipherSuites.Algorithms {
-				// TODO: Dereference Algorithm REFs and extract algorithm objects
-				algo, ok := javaSecurityPlugin.security.bomRefMap[algorithmRef]
-				if ok {
-					for _, rule := range javaSecurityPlugin.security.tlsDisablesAlgorithms {
-						ok, err = rule.eval(*algo)
-						if err != nil {
-							return updatedComponent, err
-						}
-
-						if !ok {
-							return nil, nil
-						}
-					}
-				}
-			}
-		}
-	default:
-		return &component, nil
-	}
-
-	return &component, nil
-}
-
+// Update a single component
+// Returns nil if component is not allowed
 func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
 
 	if !javaSecurityPlugin.isComponentAffectedByConfig(component) {
@@ -227,59 +90,8 @@ func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Comp
 
 	switch component.CryptoProperties.AssetType {
 	case cdx.CryptoAssetTypeProtocol:
-		return javaSecurityPlugin.updateProtocolComponent(component)
+		return javaSecurityPlugin.security.updateProtocolComponent(component)
 	default:
 		return &component, nil
 	}
-
-	// log.Default().Printf("The following component is not valid due to %v config:\n%+v", javaSecurityPlugin.GetName(), component)
-}
-
-func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() {
-	reader, err := os.Open(javaSecurityPlugin.scannableImage.DockerfilePath)
-	if err != nil {
-		panic(err)
-	}
-	// We use the docker package to offload some work and do the validation there
-	result, err := parser.Parse(reader)
-	if err != nil {
-		panic(err)
-	}
-	result.PrintWarnings(os.Stderr)
-	stages, _, err := instructions.Parse(result.AST)
-	if err != nil {
-		panic(err)
-	}
-	// By now, the docker package should have validated the correctness of the file
-
-	if len(stages) < 1 { // This Dockerfile is empty
-		return
-	}
-
-	// TODO: Check for relevant parameters here
-
-}
-
-func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
-	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
-	ext := filepath.Ext(path)
-	return ext == ".security"
-}
-
-func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
-	if d.IsDir() {
-		return nil
-	}
-
-	if javaSecurityPlugin.isConfigFile(path) {
-		var config *ini.File
-		config, err = ini.Load(path)
-		javaSecurityPlugin.security = JavaSecurity{
-			config,
-			make(map[cdx.BOMReference]*cdx.Component),
-			[]JavaSecurityAlgorithmRestriction{},
-		}
-	}
-
-	return err
 }
