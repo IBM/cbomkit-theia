@@ -12,9 +12,22 @@ import (
 // Represents a single restriction on algorithms by the java.security file
 type JavaSecurityAlgorithmRestriction struct {
 	name            string
-	keySizeOperator string
+	keySizeOperator keySizeOperator
 	keySize         int
 }
+
+// keySizeOperator holds operators for the possible comparison functions (e.g. greater than etc.)
+type keySizeOperator int
+
+const (
+	keySizeOperatorGreaterEqual    keySizeOperator = iota + 1
+	keySizeOperatorGreater
+	keySizeOperatorLowerEqual
+	keySizeOperatorLower
+	keySizeOperatorEqual
+	keySizeOperatorNotEqual
+	keySizeOperatorNone
+)
 
 // High-Level function to update a protocol component based on the restriction in the JavaSecurity object
 // Returns nil if the updateComponent is not allowed
@@ -72,19 +85,19 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 				return allowed, err
 			}
 			switch javaSecurityAlgorithmRestriction.keySizeOperator {
-			case "<=":
+			case keySizeOperatorLowerEqual:
 				allowed = !(param <= javaSecurityAlgorithmRestriction.keySize)
-			case "<":
+			case keySizeOperatorLower:
 				allowed = !(param < javaSecurityAlgorithmRestriction.keySize)
-			case "==":
+			case keySizeOperatorEqual:
 				allowed = !(param == javaSecurityAlgorithmRestriction.keySize)
-			case "!=":
+			case keySizeOperatorNotEqual:
 				allowed = !(param != javaSecurityAlgorithmRestriction.keySize)
-			case ">=":
+			case keySizeOperatorGreaterEqual:
 				allowed = !(param >= javaSecurityAlgorithmRestriction.keySize)
-			case ">":
+			case keySizeOperatorGreater:
 				allowed = !(param > javaSecurityAlgorithmRestriction.keySize)
-			case "":
+			case keySizeOperatorNone:
 				allowed = false
 			default:
 				return allowed, fmt.Errorf("scanner: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)

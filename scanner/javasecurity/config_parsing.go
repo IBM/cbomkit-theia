@@ -72,7 +72,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 		algorithms := javaSecurity.Section("").Key("jdk.tls.disabledAlgorithms").Strings(",")
 		for _, algorithm := range algorithms {
 			keySize := 0
-			keySizeOperator := ""
+			keySizeOperator := keySizeOperatorNone
 			name := algorithm
 
 			// TODO: Include directives other than "keySize" (see java.security for reference)
@@ -84,7 +84,24 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				name = strings.TrimSpace(split[0])
 				split[1] = strings.TrimSpace(split[1])
 				keyRestrictions := strings.Split(split[1], " ")
-				keySizeOperator = keyRestrictions[0]
+
+				switch keyRestrictions[0] {
+				case "<=":
+					keySizeOperator = keySizeOperatorLowerEqual
+				case "<":
+					keySizeOperator = keySizeOperatorLower
+				case "==":
+					keySizeOperator = keySizeOperatorEqual
+				case "!=":
+					keySizeOperator = keySizeOperatorNotEqual
+				case ">=":
+					keySizeOperator = keySizeOperatorGreaterEqual
+				case ">":
+					keySizeOperator = keySizeOperatorGreater
+				case "":
+					keySizeOperator = keySizeOperatorNone
+				}
+
 				keySize, err = strconv.Atoi(keyRestrictions[1])
 				if err != nil {
 					return err
