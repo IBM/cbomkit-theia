@@ -20,16 +20,17 @@ type scanner struct {
 	scannableImage docker.ScannableImage
 }
 
-func (scanner *scanner) findConfigFiles() {
+func (scanner *scanner) findConfigFiles() error {
 	for _, plugin := range scanner.configPlugins {
 		err := plugin.ParseConfigsFromFilesystem(scanner.scannableImage)
 		if err != nil {
-			panic(err)
+			return err
 		}
 	}
+	return nil
 }
 
-func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
+func (scanner *scanner) Scan(bom cdx.BOM) (cdx.BOM, error) {
 	scanner.findConfigFiles()
 	newComponents := make([]cdx.Component, 0, len(*bom.Components))
 
@@ -37,11 +38,11 @@ func (scanner *scanner) Scan(bom cdx.BOM) cdx.BOM {
 		updatedConfigComponents, err := plugin.UpdateComponents(*bom.Components)
 		newComponents = append(newComponents, updatedConfigComponents...)
 		if err != nil {
-			panic(err)
+			return bom, err
 		}
 	}
 	bom.Components = &newComponents
-	return bom
+	return bom, nil
 }
 
 func NewScanner(scannableImage docker.ScannableImage) scanner {

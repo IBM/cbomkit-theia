@@ -27,7 +27,6 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 	case cdx.CryptoProtocolTypeTLS:
 		for _, cipherSuites := range *component.CryptoProperties.ProtocolProperties.CipherSuites {
 			for _, algorithmRef := range *cipherSuites.Algorithms {
-				// TODO: Dereference Algorithm REFs and extract algorithm objects
 				algo, ok := javaSecurity.bomRefMap[algorithmRef]
 				if ok {
 					for _, rule := range javaSecurity.tlsDisablesAlgorithms {

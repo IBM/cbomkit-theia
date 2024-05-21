@@ -1,12 +1,10 @@
 package main
 
 import (
-	"bytes"
 	"flag"
 	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/provider/docker"
 	"ibm/container_cryptography_scanner/scanner"
-	"io"
 	"log"
 	"os"
 	"path/filepath"
@@ -28,13 +26,15 @@ func main() {
 		log.Fatal("Missing required command line parameter")
 	}
 
-	run(bomPath, filesystemPath)
+	run(bomPath, filesystemPath, os.Stdout)
 }
 
-func run(bomPath *string, filesystemPath *string) string {
+func run(bomPath *string, filesystemPath *string, target *os.File) error {
 	schemaPath := filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json")
 	bom, err := cyclonedx.ParseBOM(*bomPath, schemaPath)
-	Check(err)
+	if err != nil {
+		return err
+	}
 
 	// Java Testing
 	configPath := *filesystemPath
@@ -47,14 +47,17 @@ func run(bomPath *string, filesystemPath *string) string {
 		DockerfilePath: "",
 	}
 	scanner2 := scanner.NewScanner(scannableImage)
-	newBom := scanner2.Scan(*bom)
+	newBom, err := scanner2.Scan(*bom)
+	if err != nil {
+		return err
+	}
 
 	log.Default().Println("FINISHED SCANNING")
 
-	err = cyclonedx.WriteBOM(&newBom, os.Stdout)
-	Check(err)
+	err = cyclonedx.WriteBOM(&newBom, target)
+	if err != nil {
+		return nil
+	}
 
-	var buf bytes.Buffer
-	io.Copy(&buf, os.Stdout)
-	return buf.String()
+	return nil 
 }
