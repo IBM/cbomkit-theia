@@ -13,4 +13,4 @@ require (
 	github.com/xeipuuv/gojsonreference v0.0.0-20180127040603-bd5ef7bd5415 // indirect
 )
 
-replace github.com/CycloneDX/cyclonedx-go => /Users/bengtwegner/Documents/Repos/cyclonedx-go
+replace github.com/CycloneDX/cyclonedx-go => github.com/CycloneDX/cyclonedx-go v0.8.1-0.20240518102919-61ce29004c2e
