@@ -58,7 +58,7 @@ type JavaSecurity struct {
 	tlsDisablesAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
-// TODO: Include Java JDK to make sure that it is even using the disabledAlgorithms Properties
+// TODO: Include Java JDK to make sure that it is even using the disabledAlgorithms Properties (most is only supported by OpenJDK)
 
 // Creates a map from BOMReferences to Components to allow for fast reference
 func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cdx.Component) {
@@ -69,10 +69,35 @@ func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cd
 	}
 }
 
+func removeFromSlice[T interface{}](slice []T, s int) []T {
+	return append(slice[:s], slice[s+1:]...)
+}
+
+func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string) {
+	if javaSecurity.Section("").HasKey(key) {
+		values = javaSecurity.Section("").Key(key).Strings(",")
+	}
+	toBeRemoved := []int{}
+	for i, value := range values {
+		if strings.HasPrefix(value, "include") {
+			toBeRemoved = append(toBeRemoved, i)
+			split := strings.Split(value, " ")
+			if len(split) > 1 {
+				values = append(values, javaSecurity.getPropertyValues(split[1])...)
+			}
+		}
+	}
+	for remove := range toBeRemoved {
+		values = removeFromSlice(values, remove)
+	}
+	return values
+}
+
 // Parses the TLS Rules from the java.security file
 func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
-	if javaSecurity.Section("").HasKey("jdk.tls.disabledAlgorithms") {
-		algorithms := javaSecurity.Section("").Key("jdk.tls.disabledAlgorithms").Strings(",")
+	algorithms := javaSecurity.getPropertyValues("jdk.tls.disabledAlgorithms")
+	algorithms = append(algorithms, javaSecurity.getPropertyValues("jdk.disabled.NamedCurves")...)
+	if len(algorithms) > 0 {
 		for _, algorithm := range algorithms {
 			keySize := 0
 			keySizeOperator := keySizeOperatorNone

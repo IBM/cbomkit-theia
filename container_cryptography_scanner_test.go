@@ -4,8 +4,8 @@ import (
 	"os"
 	"testing"
 
-	"github.com/stretchr/testify/require"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 )
 
 var testfileFolder string = "./testdata"
@@ -17,7 +17,8 @@ var tests = []struct {
 	in  string
 	err bool
 }{
-	{"/1", false},
+	{"/1_exclude_single_algorithm", false},
+	{"/2_include_directive", false},
 }
 
 func TestScan(t *testing.T) {
@@ -37,7 +38,7 @@ func TestScan(t *testing.T) {
 			} else {
 				assert.NoError(t, err, "scan did fail although it should not")
 			}
-			
+
 			output, err := os.ReadFile(tempTarget.Name())
 			if err != nil {
 				panic(err)
