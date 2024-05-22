@@ -73,7 +73,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 		}
 	}
 
-	// TODO: Check if security property were changed dynamically
+	// TODO: Check if security property were changed dynamically via System.setProperty
 
 	return false
 }

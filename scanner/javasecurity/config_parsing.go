@@ -3,6 +3,7 @@ package javasecurity
 import (
 	"fmt"
 	"io/fs"
+	"log"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -57,6 +58,8 @@ type JavaSecurity struct {
 	tlsDisablesAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
+// TODO: Include Java JDK to make sure that it is even using the disabledAlgorithms Properties
+
 // Creates a map from BOMReferences to Components to allow for fast reference
 func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cdx.Component) {
 	for _, component := range components {
@@ -76,6 +79,13 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 			name := algorithm
 
 			// TODO: Include directives other than "keySize" (see java.security for reference)
+			if strings.Contains(algorithm, "jdkCA") ||
+				strings.Contains(algorithm, "denyAfter") ||
+				strings.Contains(algorithm, "usage") {
+				log.Default().Printf("Found constraint in java.security that is not supported: %v continuing", algorithm)
+				continue
+			}
+
 			if strings.Contains(algorithm, "keySize") {
 				split := strings.Split(algorithm, "keySize")
 				if len(split) > 2 {
