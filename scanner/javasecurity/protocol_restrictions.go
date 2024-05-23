@@ -20,7 +20,7 @@ type JavaSecurityAlgorithmRestriction struct {
 type keySizeOperator int
 
 const (
-	keySizeOperatorGreaterEqual    keySizeOperator = iota + 1
+	keySizeOperatorGreaterEqual keySizeOperator = iota + 1
 	keySizeOperatorGreater
 	keySizeOperatorLowerEqual
 	keySizeOperatorLower
@@ -41,7 +41,7 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 		for _, cipherSuites := range *component.CryptoProperties.ProtocolProperties.CipherSuites {
 			// Test the protocol itself
 			protocolAllowed, err := evalAll(&javaSecurity.tlsDisablesAlgorithms, component)
-			
+
 			if err != nil {
 				return updatedComponent, err
 			}
@@ -50,7 +50,6 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 				log.Default().Printf("Component %v is not valid", component.Name)
 				return nil, nil
 			}
-
 
 			// Test all algorithms in the protocol
 			for _, algorithmRef := range *cipherSuites.Algorithms {
@@ -85,25 +84,26 @@ func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestricti
 	return true, nil
 }
 
-
 // Evaluates if a single component is allowed based on a single restriction
 // Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
 func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
 	allowed = true
 	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm &&
-	component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
+		component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
 		return allowed, fmt.Errorf("scanner: cannot evaluate components other than algorithm for applying restrictions")
 	}
 
-	subRestrictions := strings.Split(javaSecurityAlgorithmRestriction.name, "with")
+	// Format could be: <digest>with<encryption>and<mgf>
+	replacer := strings.NewReplacer("with", " ", "and", " ")
+	subRestrictions := strings.Fields(replacer.Replace(javaSecurityAlgorithmRestriction.name))
 
 	for _, subRestriction := range subRestrictions {
 		if strings.EqualFold(subRestriction, component.Name) {
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
 				// The component is a protocol and we do not have any parameters to compare
 
-				return false, err 
-			} 
+				return false, err
+			}
 
 			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
 				return true, err
@@ -115,7 +115,7 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 
 			if param <= 0 || param > 2147483647 {
 				return false, err // Following Java reference implementation (see https://github.com/openjdk/jdk/blob/4f1a10f84bcfadef263a0890b6834ccd3d5bb52f/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java#L944 and https://github.com/openjdk/jdk/blob/4f1a10f84bcfadef263a0890b6834ccd3d5bb52f/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java#L843)
-			} 
+			}
 
 			switch javaSecurityAlgorithmRestriction.keySizeOperator {
 			case keySizeOperatorLowerEqual:
