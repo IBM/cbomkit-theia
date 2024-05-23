@@ -95,19 +95,26 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 
 	// Format could be: <digest>with<encryption>and<mgf>
 	replacer := strings.NewReplacer("with", " ", "and", " ")
-	subRestrictions := strings.Fields(replacer.Replace(javaSecurityAlgorithmRestriction.name))
+	subAlgorithms := strings.Fields(replacer.Replace(component.Name))
 
-	for _, subRestriction := range subRestrictions {
-		if strings.EqualFold(subRestriction, component.Name) {
+	// We also need to test the full name
+	if len(subAlgorithms) > 1 {
+		subAlgorithms = append(subAlgorithms, component.Name)
+	}
+
+	for _, subAlgorithm := range subAlgorithms {
+		if strings.EqualFold(javaSecurityAlgorithmRestriction.name, subAlgorithm) {
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
 				// The component is a protocol and we do not have any parameters to compare
-
 				return false, err
 			}
 
-			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
+			// There is no need to test further if the component does not provide a keySize when we need one
+			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" && javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
 				return true, err
 			}
+
+			// Parsing the key size
 			param, err := strconv.Atoi(component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier)
 			if err != nil {
 				return true, err
