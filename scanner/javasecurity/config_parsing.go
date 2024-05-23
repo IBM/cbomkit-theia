@@ -96,7 +96,6 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 // Parses the TLS Rules from the java.security file
 func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 	algorithms := javaSecurity.getPropertyValues("jdk.tls.disabledAlgorithms")
-	algorithms = append(algorithms, javaSecurity.getPropertyValues("jdk.disabled.NamedCurves")...)
 	if len(algorithms) > 0 {
 		for _, algorithm := range algorithms {
 			keySize := 0
