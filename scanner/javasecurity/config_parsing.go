@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/fs"
 	"log"
+	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -11,6 +12,8 @@ import (
 	"gopkg.in/ini.v1"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/moby/buildkit/frontend/dockerfile/instructions"
+	"github.com/moby/buildkit/frontend/dockerfile/parser"
 )
 
 /*
@@ -159,31 +162,82 @@ container image related
 =======
 */
 
+const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
+
 // Checks the Dockerfile for potentially relevant information and adds it to the plugin
-// THIS FUNCTION IS CURRENTLY DOING NOTHING
-/*
-func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() {
+
+func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() error {
 	reader, err := os.Open(javaSecurityPlugin.scannableImage.DockerfilePath)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// We use the docker package to offload some work and do the validation there
 	result, err := parser.Parse(reader)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	result.PrintWarnings(os.Stderr)
 	stages, _, err := instructions.Parse(result.AST)
 	if err != nil {
-		panic(err)
+		return err
 	}
 	// By now, the docker package should have validated the correctness of the file
 
 	if len(stages) < 1 { // This Dockerfile is empty
-		return
+		return err
 	}
 
-	// TODO: Check for relevant parameters here
-
+	return javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(stages)
 }
-*/
+
+func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(stages []instructions.Stage) error {
+	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
+	overridePropertiesFile, err := javaSecurityPlugin.security.Section("").Key("security.overridePropertiesFile").Bool()
+	if err != nil || !overridePropertiesFile {
+		return err
+	}
+
+	// Now, let's check for additional files added via CMD
+	var value string
+	var override bool
+	var ok bool
+
+	for _, command := range stages[0].Commands {
+		switch v := command.(type) {
+		case *instructions.EntrypointCommand: // TODO: Support for ENV Variables
+			value, override, ok = getJavaFlagValue(v.ShellDependantCmdLine, SECURITY_CMD_ARGUMENT)
+		case *instructions.CmdCommand:
+			value, override, ok = getJavaFlagValue(v.ShellDependantCmdLine, SECURITY_CMD_ARGUMENT)
+		}
+
+		if ok {
+			if override {
+				javaSecurityPlugin.security = JavaSecurity{
+					ini.Empty(), // We override the current loaded ini files with an empty object
+					javaSecurityPlugin.security.bomRefMap,
+					javaSecurityPlugin.security.tlsDisablesAlgorithms,
+				}
+			}
+
+			return javaSecurityPlugin.security.Append(value)
+		}
+	}
+
+	return err
+}
+
+func getJavaFlagValue(command instructions.ShellDependantCmdLine, flag string) (value string, overwrite bool, ok bool) {
+	for _, str := range command.CmdLine {
+		split := strings.Split(str, flag)
+		if len(split) == 2 {
+			split = strings.Fields(split[1])
+			value = split[0]
+			if strings.HasPrefix(value, "=") { // The assignment is
+				overwrite = true
+				value = value[1:]
+			}
+			return value, overwrite, true
+		}
+	}
+	return value, overwrite, false
+}

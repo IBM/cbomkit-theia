@@ -19,32 +19,30 @@ func Check(e error) {
 func main() {
 	bomPath := flag.String("bom", "", "path to v1.6 CycloneDX BOM file")
 	filesystemPath := flag.String("filesystem", "", "path to filesystem to scan")
+	dockerfilePath := flag.String("dockerfile", "", "path to the dockerfile")
 
 	flag.Parse()
 
-	if *bomPath == "" || *filesystemPath == "" {
+	if *bomPath == "" || *filesystemPath == "" || *dockerfilePath == "" {
 		log.Fatal("Missing required command line parameter")
 	}
 
-	run(bomPath, filesystemPath, os.Stdout)
+	run(bomPath, filesystemPath, dockerfilePath, os.Stdout)
 }
 
-func run(bomPath *string, filesystemPath *string, target *os.File) error {
+func run(bomPath *string, filesystemPath *string, dockerfilePath *string, target *os.File) error {
 	schemaPath := filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json")
 	bom, err := cyclonedx.ParseBOM(*bomPath, schemaPath)
 	if err != nil {
 		return err
 	}
 
-	// Java Testing
-	configPath := *filesystemPath
-
 	// Test Scannable Image
 	scannableImage := docker.ScannableImage{
 		Filesystem: docker.Filesystem{
-			Path: configPath,
+			Path: *filesystemPath,
 		},
-		DockerfilePath: "",
+		DockerfilePath: *dockerfilePath,
 	}
 	scanner2 := scanner.NewScanner(scannableImage)
 	newBom, err := scanner2.Scan(*bom)
@@ -59,5 +57,5 @@ func run(bomPath *string, filesystemPath *string, target *os.File) error {
 		return nil
 	}
 
-	return nil 
+	return nil
 }

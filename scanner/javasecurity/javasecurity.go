@@ -29,7 +29,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannab
 		return err
 	}
 
-	// javaSecurityPlugin.checkDockerfile()
+	err = javaSecurityPlugin.checkDockerfile()
+	if err != nil {
+		return err
+	}
 
 	err = javaSecurityPlugin.security.extractTLSRules()
 	if err != nil {
@@ -63,7 +66,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 // Assesses if the component is from a source affected by this type of config (e.g. a java file)
 // Require "Evidence" and "Occurrences" to be present in the BOM
 func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component cdx.Component) bool {
-	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a python file, we cannot assess it
+	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
 		return false
 	}
 

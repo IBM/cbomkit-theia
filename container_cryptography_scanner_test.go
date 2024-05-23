@@ -12,6 +12,7 @@ var testfileFolder string = "./testdata"
 var filesystemExtension string = "/filesystem"
 var outputExtension string = "/out/bom.json"
 var bomFolderExtension string = "/in/bom.json"
+var dockerfileExtension string = "/image/Dockerfile"
 
 var tests = []struct {
 	in  string
@@ -26,13 +27,14 @@ func TestScan(t *testing.T) {
 		t.Run(test.in+", BOM: "+test.in, func(t *testing.T) {
 			bomFolder := testfileFolder + test.in + bomFolderExtension
 			filesystemPath := testfileFolder + test.in + filesystemExtension
+			dockerfilePath := testfileFolder + test.in + dockerfileExtension
 
 			tempTarget, err := os.CreateTemp("", "TestParseBOM")
 			if err != nil {
 				panic(err)
 			}
 
-			err = run(&bomFolder, &filesystemPath, tempTarget)
+			err = run(&bomFolder, &filesystemPath, &dockerfilePath, tempTarget)
 			if test.err {
 				assert.Error(t, err, "scan did not fail although it should")
 			} else {
