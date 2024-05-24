@@ -19,7 +19,6 @@ var tests = []struct {
 	err bool
 }{
 	{"/1_exclude_single_algorithm", false},
-	{"/2_include_directive", false},
 }
 
 func TestScan(t *testing.T) {

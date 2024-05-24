@@ -44,6 +44,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d f
 // Checks whether the current file at path is a java.security config file
 func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
+	// TODO: Make this smart so that it does not just take the first file that is a java.security file
 	ext := filepath.Ext(path)
 	return ext == ".security"
 }
@@ -90,7 +91,7 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 			}
 		}
 	}
-	for remove := range toBeRemoved {
+	for _, remove := range toBeRemoved {
 		values = removeFromSlice(values, remove)
 	}
 	return values
@@ -137,6 +138,8 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 					keySizeOperator = keySizeOperatorGreater
 				case "":
 					keySizeOperator = keySizeOperatorNone
+				default:
+					return fmt.Errorf("scanner: could not parse the following keySizeOperator %v", keyRestrictions[0])
 				}
 
 				keySize, err = strconv.Atoi(keyRestrictions[1])
