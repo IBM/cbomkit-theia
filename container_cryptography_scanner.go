@@ -44,8 +44,8 @@ func run(bomPath *string, filesystemPath *string, dockerfilePath *string, target
 		},
 		DockerfilePath: *dockerfilePath,
 	}
-	scanner2 := scanner.NewScanner(scannableImage)
-	newBom, err := scanner2.Scan(*bom)
+	scanner := scanner.NewScanner(scannableImage)
+	newBom, err := scanner.Scan(*bom)
 	if err != nil {
 		return err
 	}
