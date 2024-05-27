@@ -212,6 +212,7 @@ func tearDown(filesToDelete []string) {
 
 func TestCMDArgumentAdditionalCMD(t *testing.T) {
 	javaSecurityPlugin, filesToDelete := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "CMD", true)
+	defer tearDown(filesToDelete)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
@@ -223,12 +224,11 @@ func TestCMDArgumentAdditionalCMD(t *testing.T) {
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("originalkey").String() == "originalvalue")
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
 	})
-
-	tearDown(filesToDelete)
 }
 
 func TestCMDArgumentAdditionalENTRYPOINT(t *testing.T) {
 	javaSecurityPlugin, filesToDelete := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "ENTRYPOINT", true)
+	defer tearDown(filesToDelete)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
@@ -240,12 +240,11 @@ func TestCMDArgumentAdditionalENTRYPOINT(t *testing.T) {
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("originalkey").String() == "originalvalue")
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
 	})
-
-	tearDown(filesToDelete)
 }
 
 func TestCMDArgumentOverride(t *testing.T) {
 	javaSecurityPlugin, filesToDelete := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", true)
+	defer tearDown(filesToDelete)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
@@ -256,12 +255,11 @@ func TestCMDArgumentOverride(t *testing.T) {
 		assert.False(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "THISSHOULDNOTBEHERE")
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
 	})
-
-	tearDown(filesToDelete)
 }
 
 func TestCMDArgumentNoArgument(t *testing.T) {
 	javaSecurityPlugin, filesToDelete := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "", "CMD", true)
+	defer tearDown(filesToDelete)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
@@ -272,12 +270,11 @@ func TestCMDArgumentNoArgument(t *testing.T) {
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "THISSHOULDNOTBEHERE")
 		assert.False(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
 	})
-
-	tearDown(filesToDelete)
 }
 
 func TestCMDArgumentNotAllowed(t *testing.T) {
 	javaSecurityPlugin, filesToDelete := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", false)
+	defer tearDown(filesToDelete)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
@@ -288,6 +285,4 @@ func TestCMDArgumentNotAllowed(t *testing.T) {
 		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "THISSHOULDNOTBEHERE")
 		assert.False(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
 	})
-
-	tearDown(filesToDelete)
 }
