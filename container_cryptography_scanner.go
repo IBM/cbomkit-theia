@@ -27,7 +27,10 @@ func main() {
 		log.Fatal("Missing required command line parameter")
 	}
 
-	run(bomPath, filesystemPath, dockerfilePath, os.Stdout)
+	err := run(bomPath, filesystemPath, dockerfilePath, os.Stdout)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func run(bomPath *string, filesystemPath *string, dockerfilePath *string, target *os.File) error {
