@@ -2,10 +2,11 @@ package docker
 
 import (
 	"context"
-	"fmt"
+	"encoding/json"
 	"io"
-	"os"
+	"log"
 	"path/filepath"
+	"strings"
 
 	"ibm/container_cryptography_scanner/provider/filesystem"
 
@@ -14,13 +15,33 @@ import (
 	"github.com/anchore/stereoscope"
 	"github.com/anchore/stereoscope/pkg/image"
 	"github.com/docker/docker/api/types"
+	docker_api_types_image "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
+	"github.com/docker/docker/pkg/archive"
 )
 
 type Image struct {
 	*image.Image
 	dockerfilePath string // This is empty if no Dockerfile is present
-	tags []string
+	id             string
+	client         *client.Client
+}
+
+func (image Image) TearDown() {
+	log.Default().Printf("Removing Image: %v", image.id)
+
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+	
+	err := image.Cleanup()
+	if err != nil {
+		panic(err)
+	}
+
+	_, err = image.client.ImageRemove(ctx, image.id, docker_api_types_image.RemoveOptions{})
+	if err != nil {
+		log.Default().Printf("Could not remove temporary docker image. Continuing. Error: %v", err)
+	}
 }
 
 func (image Image) GetDockerfilePath() (path string, ok bool) {
@@ -31,41 +52,71 @@ func (image Image) GetDockerfilePath() (path string, ok bool) {
 	}
 }
 
+// Build new image from a dockerfile
+// Caller is responsible to call image.TearDown() after usage
 func BuildNewImage(dockerfilePath string) (image Image, err error) {
-	ctx := context.Background()
+	log.Default().Printf("Building Docker image from %v", dockerfilePath)
+	
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
+
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
 		return Image{}, err
 	}
 
-	dockerBuildContext, err := os.Open(dockerfilePath)
+	tar, err := archive.Tar(filepath.Dir(dockerfilePath), archive.Gzip)
 	if err != nil {
 		return Image{}, err
 	}
-	defer dockerBuildContext.Close()
+	defer tar.Close()
 
 	buildOptions := types.ImageBuildOptions{
-		Dockerfile: filepath.Base(dockerfilePath),
-		Tags:       []string{"your_image_name:tag"}, // TODO from here
+		Dockerfile:     filepath.Base(dockerfilePath),
+		SuppressOutput: true,
 	}
 
-	imageBuildResponse, err := cli.ImageBuild(ctx, dockerBuildContext, buildOptions)
+	imageBuildResponse, err := cli.ImageBuild(ctx, tar, buildOptions)
 	if err != nil {
-		panic(err)
+		return Image{}, err
 	}
 	defer imageBuildResponse.Body.Close()
 
-	_, err = io.Copy(os.Stdout, imageBuildResponse.Body)
+	responseBytes, err := io.ReadAll(imageBuildResponse.Body)
 	if err != nil {
-		panic(err)
+		return Image{}, err
 	}
 
-	fmt.Println("Docker image built successfully!")
+	var responseStruct struct {
+		DigestID string `json:"stream"`
+	}
+
+	err = json.Unmarshal(responseBytes, &responseStruct)
+	if err != nil {
+		return Image{}, err
+	}
+
+	imageID := getImgIDWithoutDigest(responseStruct.DigestID)
+
+	log.Default().Printf("Docker image built successfully! ImageID: %v", imageID)
+
+	stereoscopeImage, err := stereoscope.GetImage(ctx, imageID) // TODO: add specific host here
+	if err != nil {
+		return Image{}, err
+	}
+
+	return Image{
+		stereoscopeImage,
+		dockerfilePath,
+		imageID,
+		cli,
+	}, err
 }
 
 // Parses a DockerImage from an identifier, possibly pulling it from a registry
-// Caller is responsible to call image.Cleanup() after usage
+// Caller is responsible to call image.TearDown() after usage
 func GetPrebuiltImage(name string) (image Image, err error) {
+	log.Default().Printf("Getting prebuilt image %v", name)
 	// context for network requests
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -79,10 +130,25 @@ func GetPrebuiltImage(name string) (image Image, err error) {
 	}
 	stereoscope.SetLogger(lctx)
 
-	stereoscopeImage, err := stereoscope.GetImage(ctx, os.Args[1])
+	stereoscopeImage, err := stereoscope.GetImage(ctx, name)
+	if err != nil {
+		return Image{}, err
+	}
+
+	imageID := getImgIDWithoutDigest(stereoscopeImage.Metadata.ID)
+
+	log.Default().Printf("Successfully acquired image %v with id %v", name, imageID)
+
+	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
+	if err != nil {
+		return Image{}, err
+	}
+
 	return Image{
 		stereoscopeImage,
 		"",
+		imageID,
+		cli,
 	}, err
 }
 
@@ -95,4 +161,9 @@ func GetSquashedFilesystemAtIndex(image Image, index int) filesystem.Filesystem 
 		index: index,
 		image: image,
 	}
+}
+
+func getImgIDWithoutDigest(in string) string {
+	imageID := strings.Split(in, ":")[1]
+	return strings.TrimSpace(imageID)
 }

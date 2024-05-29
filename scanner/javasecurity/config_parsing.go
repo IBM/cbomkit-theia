@@ -2,7 +2,6 @@ package javasecurity
 
 import (
 	"fmt"
-	"io/fs"
 	"log"
 	"os"
 	"path/filepath"
@@ -23,14 +22,17 @@ General
 */
 
 // Checks single files while walking a file tree and parses a config if possible
-func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
-	if d.IsDir() {
-		return nil
-	}
-
+func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
 		var config *ini.File
-		config, err = ini.Load(path)
+		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		config, err = ini.Load(content)
+		if err != nil {
+			return err
+		}
 		javaSecurityPlugin.security = JavaSecurity{
 			config,
 			make(map[cdx.BOMReference]*cdx.Component),
@@ -66,6 +68,7 @@ type JavaSecurity struct {
 
 // Creates a map from BOMReferences to Components to allow for fast reference
 func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cdx.Component) {
+	javaSecurity.bomRefMap = make(map[cdx.BOMReference]*cdx.Component)
 	for _, component := range components {
 		if component.BOMRef != "" {
 			javaSecurity.bomRefMap[cdx.BOMReference(component.BOMRef)] = &component
@@ -78,6 +81,10 @@ func removeFromSlice[T interface{}](slice []T, s int) []T {
 }
 
 func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string) {
+	if javaSecurity.File == nil {
+		return values
+	}
+
 	if javaSecurity.Section("").HasKey(key) {
 		values = javaSecurity.Section("").Key(key).Strings(",")
 	}
@@ -170,7 +177,11 @@ const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 // Checks the Dockerfile for potentially relevant information and adds it to the plugin
 
 func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() error {
-	reader, err := os.Open(javaSecurityPlugin.scannableImage.DockerfilePath)
+	path, ok := javaSecurityPlugin.filesystem.GetDockerfilePath()
+	if !ok {
+		return nil
+	}
+	reader, err := os.Open(path)
 	if err != nil {
 		return err
 	}
@@ -195,6 +206,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() error {
 
 func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(stages []instructions.Stage) error {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
+
+	if javaSecurityPlugin.security.File == nil { // We do not have a security file
+		return nil
+	}
+
 	overridePropertiesFile, err := javaSecurityPlugin.security.Section("").Key("security.overridePropertiesFile").Bool()
 	if err != nil || !overridePropertiesFile {
 		return err

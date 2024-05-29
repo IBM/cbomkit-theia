@@ -1,13 +1,13 @@
 package config
 
 import (
-	"ibm/container_cryptography_scanner/provider/docker"
+	"ibm/container_cryptography_scanner/provider/filesystem"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 type ConfigPlugin interface {
 	GetName() string
-	ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) error
+	ParseConfigsFromFilesystem(filesystem filesystem.Filesystem) error
 	UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error)
 }

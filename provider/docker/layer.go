@@ -25,19 +25,19 @@ func (layer Layer) WalkDir(fn filesystem.WalkDirFunc) error {
 		}, nil)
 }
 
-func (layer Layer) ReadFile(path string) (string, error) {
+func (layer Layer) ReadFile(path string) ([]byte, error) {
 	readCloser, err := layer.image.Layers[layer.index].OpenPathFromSquash(file.Path(path))
 	if err != nil {
-		return "", err
+		return []byte{}, err
 	}
 
 	defer readCloser.Close()
 
 	contentBytes, err := io.ReadAll(readCloser)
 
-	return string(contentBytes), err
+	return contentBytes, err
 }
- 
+
 func (layer Layer) GetDockerfilePath() (path string, ok bool) {
 	return layer.image.GetDockerfilePath()
 }

@@ -10,12 +10,18 @@ type WalkDirFunc func(path string) error
 
 type Filesystem interface {
 	WalkDir(fn WalkDirFunc) (err error)
-	ReadFile(path string) (content string, err error)
+	ReadFile(path string) (content []byte, err error)
 	GetDockerfilePath() (path string, ok bool)
 }
 
 type PlainFilesystem struct { // implements Filesystem
 	rootPath string
+}
+
+func NewPlainFilesystem(rootPath string) PlainFilesystem {
+	return PlainFilesystem{
+		rootPath: rootPath,
+	}
 }
 
 func (plainFilesystem PlainFilesystem) WalkDir(fn WalkDirFunc) error {
@@ -28,9 +34,9 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn WalkDirFunc) error {
 	})
 }
 
-func (plainFilesystem PlainFilesystem) ReadFile(path string) (string, error) {
+func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
 	contentBytes, err := os.ReadFile(path)
-	return string(contentBytes), err
+	return contentBytes, err
 }
 
 func (plainFilesystem PlainFilesystem) GetDockerfilePath() (path string, ok bool) {

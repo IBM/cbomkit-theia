@@ -1,7 +1,7 @@
 package javasecurity
 
 import (
-	"ibm/container_cryptography_scanner/provider/docker"
+	"ibm/container_cryptography_scanner/provider/filesystem"
 	"log"
 	"path/filepath"
 
@@ -12,7 +12,7 @@ import (
 // Implements the config/ConfigPlugin interface
 type JavaSecurityPlugin struct {
 	security       JavaSecurity
-	scannableImage docker.ScannableImage
+	filesystem filesystem.Filesystem
 }
 
 // Get the name of the plugin for debugging purposes
@@ -21,10 +21,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 }
 
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
-func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) (err error) {
-	javaSecurityPlugin.scannableImage = scannableImage
+func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(filesystem filesystem.Filesystem) (err error) {
+	javaSecurityPlugin.filesystem = filesystem
 
-	err = filepath.WalkDir(scannableImage.Filesystem.Path, javaSecurityPlugin.configWalkDirFunc)
+	err = filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc)
 	if err != nil {
 		return err
 	}

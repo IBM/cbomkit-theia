@@ -14,3 +14,6 @@ Input:
 
 Output:
 - A revised and validated CBOM
+
+## Notes
+- `DOCKER_HOST` environment variable must be to the running docker unix socket

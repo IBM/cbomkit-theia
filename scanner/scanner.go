@@ -1,10 +1,9 @@
 package scanner
 
 import (
+	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/javasecurity"
-	"ibm/container_cryptography_scanner/scanner/openssl"
-	"ibm/container_cryptography_scanner/provider/docker"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -17,12 +16,12 @@ func Check(e error) {
 
 type scanner struct {
 	configPlugins []config.ConfigPlugin
-	scannableImage docker.ScannableImage
+	filesystem    filesystem.Filesystem
 }
 
 func (scanner *scanner) findConfigFiles() error {
 	for _, plugin := range scanner.configPlugins {
-		err := plugin.ParseConfigsFromFilesystem(scanner.scannableImage)
+		err := plugin.ParseConfigsFromFilesystem(scanner.filesystem)
 		if err != nil {
 			return err
 		}
@@ -31,7 +30,11 @@ func (scanner *scanner) findConfigFiles() error {
 }
 
 func (scanner *scanner) Scan(bom cdx.BOM) (cdx.BOM, error) {
-	scanner.findConfigFiles()
+	err := scanner.findConfigFiles()
+	if err != nil {
+		return cdx.BOM{}, err
+	}
+	
 	newComponents := make([]cdx.Component, 0, len(*bom.Components))
 
 	for _, plugin := range scanner.configPlugins {
@@ -45,13 +48,12 @@ func (scanner *scanner) Scan(bom cdx.BOM) (cdx.BOM, error) {
 	return bom, nil
 }
 
-func NewScanner(scannableImage docker.ScannableImage) scanner {
+func NewScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
-		&openssl.OpenSSLPlugin{},
 		&javasecurity.JavaSecurityPlugin{},
 	}
-	scanner.scannableImage = scannableImage
+	scanner.filesystem = filesystem
 
 	return scanner
 }
