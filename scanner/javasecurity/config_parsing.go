@@ -8,7 +8,7 @@ import (
 	"strconv"
 	"strings"
 
-	"gopkg.in/ini.v1"
+	"github.com/magiconair/properties"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/moby/buildkit/frontend/dockerfile/instructions"
@@ -24,15 +24,11 @@ General
 // Checks single files while walking a file tree and parses a config if possible
 func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
-		var config *ini.File
 		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
 		if err != nil {
 			return err
 		}
-		config, err = ini.Load(content)
-		if err != nil {
-			return err
-		}
+		config := properties.MustLoadString(string(content))
 		javaSecurityPlugin.security = JavaSecurity{
 			config,
 			make(map[cdx.BOMReference]*cdx.Component),
@@ -59,7 +55,7 @@ java.security related
 
 // JavaSecurity represents the java.security file(s) found on the system
 type JavaSecurity struct {
-	*ini.File
+	*properties.Properties
 	bomRefMap             map[cdx.BOMReference]*cdx.Component
 	tlsDisablesAlgorithms []JavaSecurityAlgorithmRestriction
 }
@@ -81,12 +77,16 @@ func removeFromSlice[T interface{}](slice []T, s int) []T {
 }
 
 func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string) {
-	if javaSecurity.File == nil {
+	if javaSecurity.Properties == nil {
 		return values
 	}
 
-	if javaSecurity.Section("").HasKey(key) {
-		values = javaSecurity.Section("").Key(key).Strings(",")
+	fullString, ok := javaSecurity.Get(key)
+	if ok {
+		values = strings.Split(fullString, ",")
+		for i, value := range values {
+			values[i] = strings.TrimSpace(value)
+		}
 	}
 	toBeRemoved := []int{}
 	for i, value := range values {
@@ -204,16 +204,16 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkDockerfile() error {
 	return javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(stages)
 }
 
-func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(stages []instructions.Stage) error {
+func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(stages []instructions.Stage) (err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
 
-	if javaSecurityPlugin.security.File == nil { // We do not have a security file
+	if javaSecurityPlugin.security.Properties == nil { // We do not have a security file
 		return nil
 	}
 
-	overridePropertiesFile, err := javaSecurityPlugin.security.Section("").Key("security.overridePropertiesFile").Bool()
-	if err != nil || !overridePropertiesFile {
-		return err
+	allowAdditionalFiles := javaSecurityPlugin.security.GetBool("security.overridePropertiesFile", true)
+	if !allowAdditionalFiles {
+		return nil
 	}
 
 	// Now, let's check for additional files added via CMD
@@ -232,13 +232,19 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 		if ok {
 			if override {
 				javaSecurityPlugin.security = JavaSecurity{
-					ini.Empty(), // We override the current loaded ini files with an empty object
+					properties.NewProperties(), // We override the current loaded ini files with an empty object
 					javaSecurityPlugin.security.bomRefMap,
 					javaSecurityPlugin.security.tlsDisablesAlgorithms,
 				}
 			}
 
-			return javaSecurityPlugin.security.Append(value)
+			content, err := javaSecurityPlugin.filesystem.ReadFile(value)
+			if err != nil {
+				return err
+			}
+			newProperties := properties.MustLoadString(string(content))
+			javaSecurityPlugin.security.Merge(newProperties)
+			return err
 		}
 	}
 
