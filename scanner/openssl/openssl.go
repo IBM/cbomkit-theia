@@ -28,8 +28,9 @@ func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(filesystem filesy
 	return filesystem.WalkDir(openSSLPlugin.configWalkDirFunc)
 }
 
+// TODO: Implement
 func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { // Return
-	return nil, nil
+	return components, nil
 }
 
 // Internal

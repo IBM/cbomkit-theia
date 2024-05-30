@@ -4,6 +4,7 @@ import (
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/javasecurity"
+	"ibm/container_cryptography_scanner/scanner/openssl"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -48,7 +49,7 @@ func NewScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
 		&javasecurity.JavaSecurityPlugin{},
-		//&openssl.OpenSSLPlugin{}, TODO: Currently returns nil for all components
+		&openssl.OpenSSLPlugin{},
 	}
 	scanner.filesystem = filesystem
 
