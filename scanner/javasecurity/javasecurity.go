@@ -29,7 +29,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(filesys
 		return err
 	}
 
-	err = javaSecurityPlugin.checkDockerfile()
+	err = javaSecurityPlugin.checkConfig()
 	if err != nil {
 		return err
 	}

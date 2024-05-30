@@ -7,6 +7,7 @@ import (
 
 	"github.com/anchore/stereoscope/pkg/file"
 	"github.com/anchore/stereoscope/pkg/filetree/filenode"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
 type Layer struct { // implements Filesystem
@@ -38,6 +39,6 @@ func (layer Layer) ReadFile(path string) ([]byte, error) {
 	return contentBytes, err
 }
 
-func (layer Layer) GetDockerfilePath() (path string, ok bool) {
-	return layer.image.GetDockerfilePath()
+func (layer Layer) GetConfig() (config v1.Config, ok bool) {
+	return layer.image.GetConfig()
 }

@@ -1,6 +1,7 @@
 package filesystem
 
 import (
+	"github.com/google/go-containerregistry/pkg/v1"
 	"io/fs"
 	"os"
 	"path/filepath"
@@ -11,7 +12,7 @@ type WalkDirFunc func(path string) error
 type Filesystem interface {
 	WalkDir(fn WalkDirFunc) (err error)
 	ReadFile(path string) (content []byte, err error)
-	GetDockerfilePath() (path string, ok bool)
+	GetConfig() (config v1.Config, ok bool)
 }
 
 type PlainFilesystem struct { // implements Filesystem
@@ -39,6 +40,6 @@ func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
 	return contentBytes, err
 }
 
-func (plainFilesystem PlainFilesystem) GetDockerfilePath() (path string, ok bool) {
-	return "", false
+func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) {
+	return v1.Config{}, false
 }

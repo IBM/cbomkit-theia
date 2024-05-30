@@ -18,11 +18,11 @@ import (
 	docker_api_types_image "github.com/docker/docker/api/types/image"
 	"github.com/docker/docker/client"
 	"github.com/docker/docker/pkg/archive"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
 type Image struct {
 	*image.Image
-	dockerfilePath string // This is empty if no Dockerfile is present
 	id             string
 	client         *client.Client
 }
@@ -44,12 +44,8 @@ func (image Image) TearDown() {
 	}
 }
 
-func (image Image) GetDockerfilePath() (path string, ok bool) {
-	if image.dockerfilePath == "" {
-		return "", false
-	} else {
-		return image.dockerfilePath, true
-	}
+func (image Image) GetConfig() (config v1.Config, ok bool) {
+	return image.Metadata.Config.Config, true
 }
 
 // Build new image from a dockerfile
@@ -107,7 +103,6 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 
 	return Image{
 		stereoscopeImage,
-		dockerfilePath,
 		imageID,
 		cli,
 	}, err
@@ -146,7 +141,6 @@ func GetPrebuiltImage(name string) (image Image, err error) {
 
 	return Image{
 		stereoscopeImage,
-		"",
 		imageID,
 		cli,
 	}, err
