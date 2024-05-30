@@ -2,10 +2,9 @@ package openssl
 
 import (
 	"bufio"
-	"ibm/container_cryptography_scanner/provider/docker"
-	"io/fs"
+	"errors"
+	"ibm/container_cryptography_scanner/provider/filesystem"
 	"log"
-	"os"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -16,17 +15,17 @@ import (
 )
 
 type OpenSSLPlugin struct {
-	configs        []*ini.File
-	scannableImage docker.ScannableImage
+	configs    []*ini.File
+	filesystem filesystem.Filesystem
 }
 
 func (openSSLPlugin *OpenSSLPlugin) GetName() string {
 	return "OpenSSLConfig"
 }
 
-func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(scannableImage docker.ScannableImage) error {
-	openSSLPlugin.scannableImage = scannableImage
-	return filepath.WalkDir(scannableImage.Filesystem.Path, openSSLPlugin.configWalkDirFunc)
+func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(filesystem filesystem.Filesystem) error {
+	openSSLPlugin.filesystem = filesystem
+	return filesystem.WalkDir(openSSLPlugin.configWalkDirFunc)
 }
 
 func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { // Return
@@ -40,12 +39,13 @@ func (openSSLPlugin *OpenSSLPlugin) isConfigFile(path string) bool { // TODO: Ma
 	return ext == ".cnf" || ext == ".conf"
 }
 
-func (openSSLPlugin *OpenSSLPlugin) configWalkDirFunc(path string, d fs.DirEntry, err error) error {
-	if !d.IsDir() && openSSLPlugin.isConfigFile(path) {
-		configBytes, err := openSSLPlugin.parseOpenSSLConfigFile(path)
-		config, err := ini.Load(configBytes)
-		if err != nil {
-			return err
+func (openSSLPlugin *OpenSSLPlugin) configWalkDirFunc(path string) (err error) {
+	if openSSLPlugin.isConfigFile(path) {
+		configBytes, err1 := openSSLPlugin.parseOpenSSLConfigFile(path)
+		config, err2 := ini.Load(configBytes)
+		if errors.Join(err1, err2) != nil {
+			log.Default().Printf("scanner: error parsing file (%v) which was assumed to be a OpenSSL config file. Continuing.", path)
+			return nil
 		}
 		openSSLPlugin.configs = append(openSSLPlugin.configs, config)
 	}
@@ -88,13 +88,6 @@ func (openSSLPlugin *OpenSSLPlugin) isComponentValid(component cdx.Component) bo
 	return true
 }
 
-func trimAll(input []string) []string {
-	for i, item := range input {
-		input[i] = strings.TrimSpace(item)
-	}
-	return input
-}
-
 func replaceAtIndex(s []byte, toBeInserted []byte, start int, end int) []byte {
 	s = append(s[:start], s[end:]...)
 	s = slices.Insert(s, start, toBeInserted...)
@@ -131,7 +124,10 @@ func beautifyConfig(config []byte) []byte {
 
 func (openSSLPlugin *OpenSSLPlugin) parseOpenSSLConfigFile(path string) (out []byte, err error) {
 
-	out, err = os.ReadFile(path)
+	out, err = openSSLPlugin.filesystem.ReadFile(path)
+	if err != nil {
+		return []byte{}, err
+	}
 
 	out = beautifyConfig(out)
 

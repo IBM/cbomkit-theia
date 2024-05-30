@@ -214,7 +214,12 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 
 			content, err := javaSecurityPlugin.filesystem.ReadFile(value)
 			if err != nil {
-				return err
+				if strings.Contains(err.Error(), "could not find file path in Tree") {
+					log.Default().Printf("Failed to read file (%v) specific via a command in the image configuration. The image or image config is probably malformed. Continuing without adding it.", value)
+					return nil
+				} else {
+					return err
+				}
 			}
 			newProperties := properties.MustLoadString(string(content))
 			javaSecurityPlugin.security.Merge(newProperties)

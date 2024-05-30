@@ -5,11 +5,9 @@ import (
 	"testing"
 
 	"github.com/stretchr/testify/assert"
-	"github.com/stretchr/testify/require"
 )
 
 var testfileFolder string = "./testdata"
-var filesystemExtension string = "/filesystem"
 var outputExtension string = "/out/bom.json"
 var bomFolderExtension string = "/in/bom.json"
 var dockerfileExtension string = "/image/Dockerfile"
@@ -18,6 +16,7 @@ var tests = []struct {
 	in  string
 	err bool
 }{
+	{"/0_empty", false},
 	{"/1_exclude_single_algorithm", false},
 }
 
@@ -25,15 +24,15 @@ func TestScan(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.in+", BOM: "+test.in, func(t *testing.T) {
 			bomFolder := testfileFolder + test.in + bomFolderExtension
-			filesystemPath := testfileFolder + test.in + filesystemExtension
 			dockerfilePath := testfileFolder + test.in + dockerfileExtension
 
 			tempTarget, err := os.CreateTemp("", "TestParseBOM")
 			if err != nil {
 				panic(err)
 			}
+			defer os.Remove(tempTarget.Name())
 
-			err = run(&bomFolder, &filesystemPath, &dockerfilePath, tempTarget)
+			err = run(&bomFolder, new(string), &dockerfilePath, new(string), tempTarget)
 			if test.err {
 				assert.Error(t, err, "scan did not fail although it should")
 			} else {
@@ -50,8 +49,7 @@ func TestScan(t *testing.T) {
 				panic(err)
 			}
 
-			require.JSONEq(t, string(output), string(trueOutput), "resulting JSONs do not equal")
-			os.Remove(tempTarget.Name())
+			assert.JSONEq(t, string(output), string(trueOutput), "resulting JSONs do not equal")
 		})
 	}
 }

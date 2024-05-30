@@ -8,9 +8,8 @@ import (
 	"testing"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/magiconair/properties"
 	"github.com/stretchr/testify/assert"
-
-	"gopkg.in/ini.v1"
 )
 
 /*
@@ -32,13 +31,10 @@ func setUpExtractionOfRule(javaSecurityContent string) JavaSecurity {
 		panic(err)
 	}
 
-	ini, err := ini.Load(securityFile)
-	if err != nil {
-		panic(err)
-	}
+	config := properties.MustLoadFile(securityFile, properties.UTF8)
 
 	javaSecurity := JavaSecurity{
-		ini,
+		config,
 		map[cdx.BOMReference]*cdx.Component{},
 		[]JavaSecurityAlgorithmRestriction{},
 	}
@@ -138,7 +134,7 @@ container image related
 =======
 */
 
-func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (JavaSecurityPlugin, []string) {
+func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (JavaSecurityPlugin, []string, docker.Image) {
 	filesystem, err := os.MkdirTemp("", "CICS_CMD_ARGUMENT_TEST")
 	if err != nil {
 		panic(err)
@@ -164,125 +160,127 @@ func setUpCMD(originalKey string, originalValue string, newKey string, newValue 
 		panic(err)
 	}
 
-	dockerfile, err := os.CreateTemp("", "CICS_CMD_ARGUMENT_TEST")
-	if err != nil {
-		panic(err)
-	}
-
 	dockercontent := []byte(
-		"FROM scratch\n" +
+		"FROM busybox\n" +
+			"COPY . /app\n" +
 			dockerCommand + " [\"bash\", \"-c\", \"java " + dockerArgument +
-			additionalFilePath +
+			"/app/test.security" +
 			" RemoteRMIServer\"\n")
 
-	err = os.WriteFile(dockerfile.Name(), dockercontent, 0644)
+	dockerfile := filesystem + "/Dockerfile"
+	err = os.WriteFile(dockerfile, []byte(dockercontent), 0644)
 	if err != nil {
 		panic(err)
 	}
 
-	ini, err := ini.Load(securityFile)
+	config := properties.MustLoadFile(securityFile, properties.UTF8)
+
+	image, err := docker.BuildNewImage(dockerfile)
 	if err != nil {
 		panic(err)
 	}
 
 	javaSecurityPlugin := JavaSecurityPlugin{
 		security: JavaSecurity{
-			ini,
+			config,
 			map[cdx.BOMReference]*cdx.Component{},
 			[]JavaSecurityAlgorithmRestriction{},
 		},
-		scannableImage: docker.ScannableImage{
-			Filesystem: docker.Filesystem{
-				Path: filesystem,
-			},
-			DockerfilePath: dockerfile.Name(),
-		},
+		filesystem: docker.GetSquashedFilesystem(image),
 	}
 
-	filesToDelete := []string{filesystem, dockerfile.Name()}
+	filesToDelete := []string{filesystem, dockerfile}
 
-	return javaSecurityPlugin, filesToDelete
+	return javaSecurityPlugin, filesToDelete, image
 }
 
-func tearDown(filesToDelete []string) {
+func tearDown(filesToDelete []string, image docker.Image) {
+	image.TearDown()
 	for _, file := range filesToDelete {
 		os.RemoveAll(file)
 	}
 }
 
 func TestCMDArgumentAdditionalCMD(t *testing.T) {
-	javaSecurityPlugin, filesToDelete := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "CMD", true)
-	defer tearDown(filesToDelete)
+	javaSecurityPlugin, filesToDelete, image := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "CMD", true)
+	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkDockerfile()
-		assert.NoError(t, err, "checkDockerfile failed")
+		err := javaSecurityPlugin.checkConfig()
+		assert.NoError(t, err, "checkConfig failed")
 
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("mynewtestproperty"))
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("originalkey"))
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("originalkey").String() == "originalvalue")
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
+		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		value2, ok2 := javaSecurityPlugin.security.Get("originalkey")
+		assert.True(t, ok1)
+		assert.True(t, ok2)
+		assert.Equal(t, value1, "mynewtestvalue")
+		assert.Equal(t, value2, "originalvalue")
 	})
 }
 
 func TestCMDArgumentAdditionalENTRYPOINT(t *testing.T) {
-	javaSecurityPlugin, filesToDelete := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "ENTRYPOINT", true)
-	defer tearDown(filesToDelete)
+	javaSecurityPlugin, filesToDelete, image := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "ENTRYPOINT", true)
+	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkDockerfile()
-		assert.NoError(t, err, "checkDockerfile failed")
+		err := javaSecurityPlugin.checkConfig()
+		assert.NoError(t, err, "checkConfig failed")
 
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("mynewtestproperty"))
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("originalkey"))
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("originalkey").String() == "originalvalue")
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
+		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		value2, ok2 := javaSecurityPlugin.security.Get("originalkey")
+		assert.True(t, ok1)
+		assert.True(t, ok2)
+		assert.Equal(t, value1, "mynewtestvalue")
+		assert.Equal(t, value2, "originalvalue")
 	})
 }
 
 func TestCMDArgumentOverride(t *testing.T) {
-	javaSecurityPlugin, filesToDelete := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", true)
-	defer tearDown(filesToDelete)
+	javaSecurityPlugin, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", true)
+	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkDockerfile()
-		assert.NoError(t, err, "checkDockerfile failed")
+		err := javaSecurityPlugin.checkConfig()
+		assert.NoError(t, err, "checkConfig failed")
 
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("mynewtestproperty"))
-		assert.False(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "THISSHOULDNOTBEHERE")
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
+		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		assert.True(t, ok1)
+		assert.NotEqual(t, value1, "THISSHOULDNOTBEHERE")
+		assert.Equal(t, value1, "mynewtestvalue")
 	})
 }
 
 func TestCMDArgumentNoArgument(t *testing.T) {
-	javaSecurityPlugin, filesToDelete := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "", "CMD", true)
-	defer tearDown(filesToDelete)
+	javaSecurityPlugin, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "", "CMD", true)
+	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkDockerfile()
-		assert.NoError(t, err, "checkDockerfile failed")
+		err := javaSecurityPlugin.checkConfig()
+		assert.NoError(t, err, "checkConfig failed")
 
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("mynewtestproperty"))
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "THISSHOULDNOTBEHERE")
-		assert.False(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
+		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		assert.True(t, ok1)
+		assert.Equal(t, value1, "THISSHOULDNOTBEHERE")
+		assert.NotEqual(t, value1, "mynewtestvalue")
 	})
 }
 
 func TestCMDArgumentNotAllowed(t *testing.T) {
-	javaSecurityPlugin, filesToDelete := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", false)
-	defer tearDown(filesToDelete)
+	javaSecurityPlugin, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", false)
+	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkDockerfile()
-		assert.NoError(t, err, "checkDockerfile failed")
+		err := javaSecurityPlugin.checkConfig()
+		assert.NoError(t, err, "checkConfig failed")
 
-		assert.True(t, javaSecurityPlugin.security.Section("").HasKey("mynewtestproperty"))
-		assert.True(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "THISSHOULDNOTBEHERE")
-		assert.False(t, javaSecurityPlugin.security.Section("").Key("mynewtestproperty").String() == "mynewtestvalue")
+		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		assert.True(t, ok1)
+		assert.Equal(t, value1, "THISSHOULDNOTBEHERE")
+		assert.NotEqual(t, value1, "mynewtestvalue")
 	})
 }

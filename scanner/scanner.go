@@ -34,17 +34,13 @@ func (scanner *scanner) Scan(bom cdx.BOM) (cdx.BOM, error) {
 	if err != nil {
 		return cdx.BOM{}, err
 	}
-	
-	newComponents := make([]cdx.Component, 0, len(*bom.Components))
 
 	for _, plugin := range scanner.configPlugins {
-		updatedConfigComponents, err := plugin.UpdateComponents(*bom.Components)
-		newComponents = append(newComponents, updatedConfigComponents...)
+		*bom.Components, err = plugin.UpdateComponents(*bom.Components)
 		if err != nil {
 			return bom, err
 		}
 	}
-	bom.Components = &newComponents
 	return bom, nil
 }
 
@@ -52,6 +48,7 @@ func NewScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
 		&javasecurity.JavaSecurityPlugin{},
+		//&openssl.OpenSSLPlugin{}, TODO: Currently returns nil for all components
 	}
 	scanner.filesystem = filesystem
 

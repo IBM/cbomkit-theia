@@ -3,6 +3,7 @@ package docker
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"io"
 	"log"
 	"path/filepath"
@@ -23,8 +24,8 @@ import (
 
 type Image struct {
 	*image.Image
-	id             string
-	client         *client.Client
+	id     string
+	client *client.Client
 }
 
 func (image Image) TearDown() {
@@ -32,7 +33,7 @@ func (image Image) TearDown() {
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	
+
 	err := image.Cleanup()
 	if err != nil {
 		panic(err)
@@ -52,7 +53,7 @@ func (image Image) GetConfig() (config v1.Config, ok bool) {
 // Caller is responsible to call image.TearDown() after usage
 func BuildNewImage(dockerfilePath string) (image Image, err error) {
 	log.Default().Printf("Building Docker image from %v", dockerfilePath)
-	
+
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
@@ -98,6 +99,9 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 
 	stereoscopeImage, err := stereoscope.GetImage(ctx, imageID) // TODO: add specific host here
 	if err != nil {
+		if strings.Contains(err.Error(), "unable to save image tar: Error response from daemon: empty export - not implemented") {
+			return Image{}, fmt.Errorf("scanner: failed to export docker image since it is empty, this is a weird docker implementation and you should not pass empty images.\nFull Trace:\n%w", err)
+		}
 		return Image{}, err
 	}
 

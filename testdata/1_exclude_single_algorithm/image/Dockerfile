@@ -1,13 +1,8 @@
 # Example taken from https://github.com/vulhub/vulhub/
 
-FROM openjdk:8u222-jdk
+FROM alpine:3.10
 
-ENV RMIIP="127.0.0.1"
-COPY src/ /usr/src/
-WORKDIR /usr/src
-
-RUN set -ex \
-    && javac *.java
+COPY . /app
 
 EXPOSE 1099
 EXPOSE 64000
