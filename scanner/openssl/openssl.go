@@ -29,7 +29,7 @@ func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(filesystem filesy
 }
 
 // TODO: Implement
-func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { // Return
+func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { 
 	return components, nil
 }
 
