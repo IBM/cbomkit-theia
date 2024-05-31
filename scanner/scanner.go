@@ -1,10 +1,13 @@
 package scanner
 
 import (
+	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/javasecurity"
 	"ibm/container_cryptography_scanner/scanner/openssl"
+	"log"
+	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -30,7 +33,21 @@ func (scanner *scanner) findConfigFiles() error {
 	return nil
 }
 
-func (scanner *scanner) Scan(bom cdx.BOM) (cdx.BOM, error) {
+func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath string, bomSchemaPath string) {
+	bom, err := cyclonedx.ParseBOM(bomFilePath, bomSchemaPath)
+
+	scanner := newScanner(fs)
+	newBom, err := scanner.scan(*bom)
+	if err != nil {
+		panic(err)
+	}
+
+	log.Default().Println("FINISHED SCANNING")
+
+	err = cyclonedx.WriteBOM(&newBom, target)
+}
+
+func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 	err := scanner.findConfigFiles()
 	if err != nil {
 		return cdx.BOM{}, err
@@ -45,7 +62,7 @@ func (scanner *scanner) Scan(bom cdx.BOM) (cdx.BOM, error) {
 	return bom, nil
 }
 
-func NewScanner(filesystem filesystem.Filesystem) scanner {
+func newScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
 		&javasecurity.JavaSecurityPlugin{},
