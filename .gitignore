@@ -20,3 +20,6 @@ go.work
 .vscode
 .DS_Store
 __debug*
+
+# Configs
+.cics.yml

@@ -66,7 +66,6 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVarP(&bomFilePath, "bom", "b", "", "BOM file to verify using the given data")
 	viper.BindPFlag("bom", rootCmd.PersistentFlags().Lookup("bom"))
-	rootCmd.MarkPersistentFlagRequired("bom")
 	rootCmd.MarkPersistentFlagFilename("bom", ".json")
 
 	rootCmd.PersistentFlags().StringVar(&bomSchemaPath, "schema", filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json"), "BOM schema to validate the given BOM")
@@ -93,7 +92,12 @@ func initConfig() {
 	viper.AutomaticEnv() // read in environment variables that match
 
 	// If a config file is found, read it in.
-	if err := viper.ReadInConfig(); err == nil {
+	err := viper.ReadInConfig()
+	if err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
+	}
+
+	if !viper.IsSet("bom") {
+		rootCmd.MarkPersistentFlagRequired("bom")
 	}
 }

@@ -6,7 +6,10 @@ import (
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 )
+
+var dockerHost string
 
 // imageCmd represents the image command
 var ImageCmd = &cobra.Command{
@@ -32,14 +35,8 @@ func prepareImageAndRun(image docker.Image, err error) {
 	defer image.TearDown()
 
 	fs := docker.GetSquashedFilesystem(image)
-	bom, err := ImageCmd.Flags().GetString("bom")
-	if err != nil {
-		panic(err)
-	}
-	schema, err := ImageCmd.Flags().GetString("schema")
-	if err != nil {
-		panic(err)
-	}
+	bom := viper.GetString("bom")
+	schema := viper.GetString("schema")
 	scanner.CreateAndRunScan(fs, os.Stdout, bom, schema)
 }
 
