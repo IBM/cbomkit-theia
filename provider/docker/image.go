@@ -97,7 +97,7 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 
 	log.Default().Printf("Docker image built successfully! ImageID: %v", imageID)
 
-	stereoscopeImage, err := stereoscope.GetImage(ctx, imageID) // TODO: add specific host here from CMD argument?
+	stereoscopeImage, err := stereoscope.GetImage(ctx, imageID)
 	if err != nil {
 		if strings.Contains(err.Error(), "unable to save image tar: Error response from daemon: empty export - not implemented") {
 			return Image{}, fmt.Errorf("scanner: failed to export docker image since it is empty, this is a weird docker implementation and you should not pass empty images.\nFull Trace:\n%w", err)

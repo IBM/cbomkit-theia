@@ -89,9 +89,11 @@ func initConfig() {
 		viper.SetConfigName(".cics")
 	}
 
+	viper.BindPFlag("docker_host", image.ImageCmd.PersistentFlags().Lookup("docker_host"))
+	viper.SetDefault("docker_host", "unix:///var/run/docker.sock")
+
 	viper.AutomaticEnv() // read in environment variables that match
 
-	// If a config file is found, read it in.
 	err := viper.ReadInConfig()
 	if err == nil {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
