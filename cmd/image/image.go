@@ -47,5 +47,5 @@ func init() {
 	ImageCmd.AddCommand(buildCmd)
 	ImageCmd.AddCommand(getCmd)
 
-	ImageCmd.PersistentFlags().StringVar(&dockerHost, "docker_host", "", "docker host to use for interacting with images; only set if DOCKER_HOST environment variable is not set (Priority: Flag > ENV > Config File)")
+	ImageCmd.PersistentFlags().StringVar(&dockerHost, "docker_host", "", "docker host to use for interacting with images; only set if DOCKER_HOST environment variable is not set; Default: unix:///var/run/docker.sock; Priority: Flag > ENV > Config File > Default")
 }
