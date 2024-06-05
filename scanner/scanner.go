@@ -13,12 +13,6 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
-func Check(e error) {
-	if e != nil {
-		panic(e)
-	}
-}
-
 type scanner struct {
 	configPlugins []config.ConfigPlugin
 	filesystem    filesystem.Filesystem
@@ -34,17 +28,17 @@ func (scanner *scanner) findConfigFiles() error {
 	return nil
 }
 
-func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath string, bomSchemaPath string) {
+func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath string, bomSchemaPath string) error {
 	bom, err := cyclonedx.ParseBOM(bomFilePath, bomSchemaPath)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	scanner := newScanner(fs)
 	newBom, err := scanner.scan(*bom)
 	if err != nil {
-		panic(err)
+		return err
 	}
 
 	log.Default().Println("FINISHED SCANNING")
@@ -52,8 +46,10 @@ func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath str
 	err = cyclonedx.WriteBOM(&newBom, target)
 
 	if err != nil {
-		panic(err)
+		return err
 	}
+	
+	return err
 }
 
 func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
