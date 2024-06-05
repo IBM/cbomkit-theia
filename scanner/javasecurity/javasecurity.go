@@ -2,7 +2,7 @@ package javasecurity
 
 import (
 	"ibm/container_cryptography_scanner/provider/filesystem"
-	"log"
+	"log/slog"
 	"path/filepath"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -11,7 +11,7 @@ import (
 // Represents the java security plugin in a specific scanning context
 // Implements the config/ConfigPlugin interface
 type JavaSecurityPlugin struct {
-	security       JavaSecurity
+	security   JavaSecurity
 	filesystem filesystem.Filesystem
 }
 
@@ -89,7 +89,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Comp
 		return &component, nil
 	}
 
-	log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
+	slog.Info("Detected %v", component.CryptoProperties.AssetType)
 
 	switch component.CryptoProperties.AssetType {
 	case cdx.CryptoAssetTypeProtocol:

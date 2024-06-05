@@ -2,7 +2,7 @@ package javasecurity
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"strconv"
 	"strings"
@@ -22,7 +22,7 @@ General
 // Checks single files while walking a file tree and parses a config if possible
 func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
-		log.Default().Printf("Found java.security config file at %v", path)
+		slog.Info("Found java.security config file", "path", path)
 		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
 		if err != nil {
 			return err
@@ -116,7 +116,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 			if strings.Contains(algorithm, "jdkCA") ||
 				strings.Contains(algorithm, "denyAfter") ||
 				strings.Contains(algorithm, "usage") {
-				log.Default().Printf("Found constraint in java.security that is not supported: %v continuing", algorithm)
+				slog.Info("found constraint in java.security that is not supported in this version of CICS", "algorithm", algorithm)
 				continue
 			}
 
@@ -216,7 +216,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 			content, err := javaSecurityPlugin.filesystem.ReadFile(value)
 			if err != nil {
 				if strings.Contains(err.Error(), "could not find file path in Tree") {
-					log.Default().Printf("Failed to read file (%v) specific via a command in the image configuration. The image or image config is probably malformed. Continuing without adding it.", value)
+					slog.Info("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
 					return nil
 				} else {
 					return err

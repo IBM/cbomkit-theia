@@ -2,7 +2,7 @@ package javasecurity
 
 import (
 	"fmt"
-	"log"
+	"log/slog"
 	"strconv"
 	"strings"
 
@@ -47,7 +47,7 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 			}
 
 			if !protocolAllowed {
-				log.Default().Printf("Component %v is not valid", component.Name)
+				slog.Info("Component is not valid", "name", component.Name)
 				return nil, nil
 			}
 
@@ -61,7 +61,7 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 					}
 
 					if !algoAllowed {
-						log.Default().Printf("Component %v is not valid due to algorithm %v", component.Name, algo.Name)
+						slog.Info("Component is not valid due to algorithm", "component", component.Name, "algorithm", algo.Name)
 						return nil, nil
 					}
 				}
@@ -109,13 +109,14 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 		if strings.EqualFold(javaSecurityAlgorithmRestriction.name, subAlgorithm) {
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
 				// The component is a protocol and we do not have any parameters to compare
+				slog.Info("stopped evaluation of due to insufficient information", "subAlgorithmName", subAlgorithm)
 				return false, err
 			}
 
 			// There is no need to test further if the component does not provide a keySize
 			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
 				if javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
-					log.Default().Printf("stopped evaluation of %v due to insufficient information", subAlgorithm)
+					slog.Info("stopped evaluation of due to insufficient information", "subAlgorithmName", subAlgorithm)
 					return true, err // We actually need a keySize so we cannot go on here
 				} else {
 					return false, err // Names match and we do not need a keySize --> The algorithm is not allowed!

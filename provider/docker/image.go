@@ -5,7 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"strings"
 
@@ -29,7 +29,7 @@ type Image struct {
 }
 
 func (image Image) TearDown() {
-	log.Default().Printf("Removing Image: %v", image.id)
+	slog.Info("Removing Image", "id", image.id)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -41,7 +41,7 @@ func (image Image) TearDown() {
 
 	_, err = image.client.ImageRemove(ctx, image.id, docker_api_types_image.RemoveOptions{})
 	if err != nil {
-		log.Default().Printf("Could not remove temporary docker image. Continuing. Error: %v", err)
+		slog.Info("could not remove temporary docker image", "err", err)
 	}
 }
 
@@ -52,7 +52,7 @@ func (image Image) GetConfig() (config v1.Config, ok bool) {
 // Build new image from a dockerfile
 // Caller is responsible to call image.TearDown() after usage
 func BuildNewImage(dockerfilePath string) (image Image, err error) {
-	log.Default().Printf("Building Docker image from %v", dockerfilePath)
+	slog.Info("Building Docker image", "path", dockerfilePath)
 
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -95,7 +95,7 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 
 	imageID := getImgIDWithoutDigest(responseStruct.DigestID)
 
-	log.Default().Printf("Docker image built successfully! ImageID: %v", imageID)
+	slog.Info("Docker image built successfully! ImageID", "id", imageID)
 
 	stereoscopeImage, err := stereoscope.GetImage(ctx, imageID)
 	if err != nil {
@@ -115,7 +115,7 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 // Parses a DockerImage from an identifier, possibly pulling it from a registry
 // Caller is responsible to call image.TearDown() after usage
 func GetPrebuiltImage(name string) (image Image, err error) {
-	log.Default().Printf("Getting prebuilt image %v", name)
+	slog.Info("getting prebuilt image", "image", name)
 	// context for network requests
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -136,7 +136,7 @@ func GetPrebuiltImage(name string) (image Image, err error) {
 
 	imageID := getImgIDWithoutDigest(stereoscopeImage.Metadata.ID)
 
-	log.Default().Printf("Successfully acquired image %v with id %v", name, imageID)
+	slog.Info("Successfully acquired image with id", "image", name, "id", imageID)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {

@@ -3,11 +3,11 @@ package cyclonedx
 import (
 	"bytes"
 	"fmt"
-	"log"
 	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/xeipuuv/gojsonschema"
+	"golang.org/x/exp/slog"
 )
 
 func WriteBOM(bom *cdx.BOM, file *os.File) error {
@@ -28,7 +28,7 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 		return new(cdx.BOM), err
 	}
 
-	log.Default().Println("Read BOM file successfully")
+	slog.Info("Read BOM file successfully")
 
 	// JSON Validation via Schema
 	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
@@ -40,12 +40,13 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	}
 
 	if result.Valid() {
-		log.Default().Println("Provided BOM is valid.")
+		slog.Info("Provided BOM is valid.")
 	} else {
-		log.Default().Println("The BOM is not valid. see errors:")
+		slog.Error("The BOM is not valid. see errors:")
 		for _, desc := range result.Errors() {
 			fmt.Printf("- %s\n", desc)
 		}
+		return new(cdx.BOM), fmt.Errorf("provider: bom is not valid due to schema %v", schemaPath)
 	}
 
 	// Decode BOM from JSON
@@ -55,7 +56,7 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	if err != nil {
 		return new(cdx.BOM), err
 	}
-	log.Default().Println("Successfully decoded BOM")
+	slog.Info("Successfully decoded BOM")
 
 	return bom, nil
 }

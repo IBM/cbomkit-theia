@@ -4,7 +4,7 @@ import (
 	"bufio"
 	"errors"
 	"ibm/container_cryptography_scanner/provider/filesystem"
-	"log"
+	"log/slog"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -29,7 +29,7 @@ func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(filesystem filesy
 }
 
 // TODO: Implement
-func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) { 
+func (openSSLPlugin *OpenSSLPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
 	return components, nil
 }
 
@@ -45,7 +45,7 @@ func (openSSLPlugin *OpenSSLPlugin) configWalkDirFunc(path string) (err error) {
 		configBytes, err1 := openSSLPlugin.parseOpenSSLConfigFile(path)
 		config, err2 := ini.Load(configBytes)
 		if errors.Join(err1, err2) != nil {
-			log.Default().Printf("scanner: error parsing file (%v) which was assumed to be a OpenSSL config file. Continuing.", path)
+			slog.Warn("error parsing file which was assumed to be a OpenSSL config file", "file", path)
 			return nil
 		}
 		openSSLPlugin.configs = append(openSSLPlugin.configs, config)
@@ -73,8 +73,6 @@ func (openSSLPlugin *OpenSSLPlugin) isComponentValid(component cdx.Component) bo
 	if !isComponentFromRelevantFile {
 		return true
 	}
-
-	log.Default().Printf("Detected %v", component.CryptoProperties.AssetType)
 
 	// Now, we assess the assetType and move to further analysis
 	switch component.CryptoProperties.AssetType {
