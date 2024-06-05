@@ -6,7 +6,6 @@ import (
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/javasecurity"
-	"ibm/container_cryptography_scanner/scanner/openssl"
 	"log"
 	"os"
 
@@ -48,7 +47,7 @@ func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath str
 	if err != nil {
 		return err
 	}
-	
+
 	return err
 }
 
@@ -76,7 +75,6 @@ func newScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.ConfigPlugin{
 		&javasecurity.JavaSecurityPlugin{},
-		&openssl.OpenSSLPlugin{},
 	}
 	scanner.filesystem = filesystem
 

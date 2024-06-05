@@ -22,6 +22,7 @@ General
 // Checks single files while walking a file tree and parses a config if possible
 func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
+		log.Default().Printf("Found java.security config file at %v", path)
 		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
 		if err != nil {
 			return err

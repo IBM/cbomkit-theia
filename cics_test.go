@@ -35,6 +35,7 @@ var tests = []struct {
 	{testTypeImageBuild, "", "/0_empty", false},
 	{testTypeImageBuild, "", "/1_exclude_single_algorithm", false},
 	{testTypeImageGet, "busybox", "/0_empty", false},
+	{testTypeImageBuild, "", "/2_tomcat", false},
 }
 
 func runImage(image docker.Image, target *os.File, bomFilePath string, bomSchemaPath string) error {

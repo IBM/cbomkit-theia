@@ -84,6 +84,8 @@ func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestricti
 	return true, nil
 }
 
+// TODO: Also account for algorithm components that are only there due to this protocol and should therefore be removed if the protocol was removed too (or should they?)
+
 // Evaluates if a single component is allowed based on a single restriction
 // Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
 func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
@@ -103,15 +105,21 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 	}
 
 	for _, subAlgorithm := range subAlgorithms {
+		// TODO: Maybe do less "perfect" string matching? (e.g. "-" --> "_") Or even a different approach than string matching?
 		if strings.EqualFold(javaSecurityAlgorithmRestriction.name, subAlgorithm) {
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
 				// The component is a protocol and we do not have any parameters to compare
 				return false, err
 			}
 
-			// There is no need to test further if the component does not provide a keySize when we need one
-			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" && javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
-				return true, err
+			// There is no need to test further if the component does not provide a keySize
+			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
+				if javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
+					log.Default().Printf("stopped evaluation of %v due to insufficient information", subAlgorithm)
+					return true, err // We actually need a keySize so we cannot go on here
+				} else {
+					return false, err // Names match and we do not need a keySize --> The algorithm is not allowed!
+				}
 			}
 
 			// Parsing the key size
