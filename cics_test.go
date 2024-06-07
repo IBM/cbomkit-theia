@@ -38,7 +38,7 @@ var tests = []struct {
 	{testTypeImageBuild, "", "/2_tomcat", false},
 }
 
-func runImage(image docker.Image, target *os.File, bomFilePath string, bomSchemaPath string) error {
+func runImage(image docker.ActiveImage, target *os.File, bomFilePath string, bomSchemaPath string) error {
 	fs := docker.GetSquashedFilesystem(image)
 	return scanner.CreateAndRunScan(fs, target, bomFilePath, bomSchemaPath)
 }

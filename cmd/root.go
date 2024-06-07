@@ -18,7 +18,14 @@ var bomSchemaPath string
 var rootCmd = &cobra.Command{
 	Use:   "cics",
 	Short: "Container Cryptography Scanner (CICS) verifies a given CBOM based on the given image or directory",
-	Long: `Container Image Cryptography Scanner (CICS) 
+	Long: `
+ ██████ ██  ██████ ███████ 
+██      ██ ██      ██      
+██      ██ ██      ███████ 
+██      ██ ██           ██ 
+ ██████ ██  ██████ ███████ by IBM Research
+
+Container Image Cryptography Scanner (CICS) 
 verifies a given CBOM based on the given image or directory
 
 The input is analyzed for any configurations limiting 
@@ -38,7 +45,12 @@ Supported image/filesystem sources:
 - image from singularity
 
 Supported BOM formats (input & output):
-- CycloneDXv1.6`,
+- CycloneDXv1.6
+
+Examples:
+cics dir my/cool/directory --bom my/bom.json
+cics image get nginx --bom my/bom.json
+cics image build my/Dockerfile --bom my/bom.json`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -54,15 +66,7 @@ func init() {
 	rootCmd.AddCommand(image.ImageCmd)
 	cobra.OnInitialize(initConfig)
 
-	// Here you will define your flags and configuration settings.
-	// Cobra supports persistent flags, which, if defined here,
-	// will be global for your application.
-
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cics.yaml)")
-
-	// Cobra also supports local flags, which will only run
-	// when this action is called directly.
-	rootCmd.Flags().BoolP("toggle", "t", false, "Help message for toggle")
 
 	rootCmd.PersistentFlags().StringVarP(&bomFilePath, "bom", "b", "", "BOM file to verify using the given data")
 	viper.BindPFlag("bom", rootCmd.PersistentFlags().Lookup("bom"))

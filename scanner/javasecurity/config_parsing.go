@@ -1,6 +1,7 @@
 package javasecurity
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"path/filepath"
@@ -22,7 +23,7 @@ General
 // Checks single files while walking a file tree and parses a config if possible
 func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
-		slog.Info("Found java.security config file", "path", path)
+		slog.Info("Adding java.security config file", "path", path)
 		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
 		if err != nil {
 			return err
@@ -63,6 +64,7 @@ type JavaSecurity struct {
 
 // Creates a map from BOMReferences to Components to allow for fast reference
 func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cdx.Component) {
+	slog.Debug("Creating new reference map to translate BOMReferences to components")
 	javaSecurity.bomRefMap = make(map[cdx.BOMReference]*cdx.Component)
 	for _, component := range components {
 		if component.BOMRef != "" {
@@ -71,13 +73,18 @@ func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cd
 	}
 }
 
+// Remove a single item by index s from a slice
 func removeFromSlice[T interface{}](slice []T, s int) []T {
 	return append(slice[:s], slice[s+1:]...)
 }
 
-func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string) {
+var errNilProperties = fmt.Errorf("scanner java: properties are nil")
+
+// Recursively get all comma-separated values of the property key. Recursion is necessary since values can include "include" directives which refer to other properties and include them in this property.
+func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string, err error) {
 	if javaSecurity.Properties == nil {
-		return values
+		slog.Info("Could")
+		return values, errNilProperties
 	}
 
 	fullString, ok := javaSecurity.Get(key)
@@ -87,25 +94,42 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 			values[i] = strings.TrimSpace(value)
 		}
 	}
-	toBeRemoved := []int{}
+	toBeRemoved := []int{} // Remember the include directives and remove them later
 	for i, value := range values {
 		if strings.HasPrefix(value, "include") {
 			toBeRemoved = append(toBeRemoved, i)
 			split := strings.Split(value, " ")
 			if len(split) > 1 {
-				values = append(values, javaSecurity.getPropertyValues(split[1])...)
+				includedValues, err := javaSecurity.getPropertyValues(split[1])
+				if err != nil {
+					return includedValues, err
+				}
+				values = append(values, includedValues...)
 			}
 		}
 	}
 	for _, remove := range toBeRemoved {
 		values = removeFromSlice(values, remove)
 	}
-	return values
+	return values, nil
 }
 
 // Parses the TLS Rules from the java.security file
+// Returns a joined list of errors which occurred during parsing of algorithms
 func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
-	algorithms := javaSecurity.getPropertyValues("jdk.tls.disabledAlgorithms")
+	slog.Info("Extracting TLS rules", "javaSecurity", javaSecurity)
+
+	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
+	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
+
+	if errors.Is(err, errNilProperties) {
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurity)
+	} else if err != nil {
+		return err
+	}
+
+	var algorithmParsingErrors []error
+
 	if len(algorithms) > 0 {
 		for _, algorithm := range algorithms {
 			keySize := 0
@@ -116,14 +140,16 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 			if strings.Contains(algorithm, "jdkCA") ||
 				strings.Contains(algorithm, "denyAfter") ||
 				strings.Contains(algorithm, "usage") {
-				slog.Info("found constraint in java.security that is not supported in this version of CICS", "algorithm", algorithm)
+				slog.Warn("found constraint in java.security that is not supported in this version of CICS", "algorithm", algorithm)
 				continue
 			}
 
 			if strings.Contains(algorithm, "keySize") {
 				split := strings.Split(algorithm, "keySize")
 				if len(split) > 2 {
-					return fmt.Errorf("scanner: sanity check failed, %v contains too many elements", split)
+					algorithmParsingErrors = append(algorithmParsingErrors,
+						fmt.Errorf("scanner java: sanity check failed, %v contains too many elements (%v)", split, algorithm))
+					continue
 				}
 				name = strings.TrimSpace(split[0])
 				split[1] = strings.TrimSpace(split[1])
@@ -145,12 +171,16 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				case "":
 					keySizeOperator = keySizeOperatorNone
 				default:
-					return fmt.Errorf("scanner: could not parse the following keySizeOperator %v", keyRestrictions[0])
+					algorithmParsingErrors = append(algorithmParsingErrors, 
+						fmt.Errorf("scanner java: could not parse the following keySizeOperator %v (%v)", keyRestrictions[0], algorithm))
+					continue
 				}
 
 				keySize, err = strconv.Atoi(keyRestrictions[1])
 				if err != nil {
-					return err
+					algorithmParsingErrors = append(algorithmParsingErrors, 
+						fmt.Errorf("scanner java: (%v) %w", algorithm, err))
+					continue
 				}
 			}
 
@@ -160,9 +190,11 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				keySizeOperator: keySizeOperator,
 			})
 		}
+	} else {
+		slog.Info("No disabled algorithms specified!", "key", securityPropertiesKey)
 	}
 
-	return nil
+	return errors.Join(algorithmParsingErrors...)
 }
 
 /*
@@ -173,25 +205,37 @@ container image related
 
 const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 
-// Checks the Docker Config for potentially relevant information and adds it to the plugin
-
+// Tries to get a config from the filesystem and checks the Config for potentially relevant information
 func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
+	slog.Info("Checking filesystem config for additional security properties")
+
 	config, ok := javaSecurityPlugin.filesystem.GetConfig()
 	if !ok {
+		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", javaSecurityPlugin.filesystem)
 		return nil
 	}
 
-	return javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
+	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
+	
+	if errors.Is(err, errNilProperties) {
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurityPlugin.security)
+		return nil
+	}
+
+	return err
 }
 
+// Searches the image config for potentially relevant CMD parameters and potentially adds new properties
 func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(config v1.Config) (err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
+	
 	if javaSecurityPlugin.security.Properties == nil { // We do not have a security file
-		return nil
+		return errNilProperties
 	}
 
 	allowAdditionalFiles := javaSecurityPlugin.security.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
+		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "javaSecurity", javaSecurityPlugin.security)
 		return nil
 	}
 
@@ -205,7 +249,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 		value, override, ok = getJavaFlagValue(command, SECURITY_CMD_ARGUMENT)
 
 		if ok {
+			slog.Info("Found command that specifies new properties", "command", command)
 			if override {
+				slog.Info("Overriding properties with empty object")
 				javaSecurityPlugin.security = JavaSecurity{
 					properties.NewProperties(), // We override the current loaded property file with an empty object
 					javaSecurityPlugin.security.bomRefMap,
@@ -231,6 +277,8 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 	return err
 }
 
+// Tries to extract the value of a flag in command;
+// returns ok if found; returns overwrite if double equals signs were used (==)
 func getJavaFlagValue(command string, flag string) (value string, overwrite bool, ok bool) {
 	split := strings.Split(command, flag)
 	if len(split) == 2 {

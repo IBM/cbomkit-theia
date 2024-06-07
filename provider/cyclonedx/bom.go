@@ -23,13 +23,13 @@ func WriteBOM(bom *cdx.BOM, file *os.File) error {
 
 func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	// Read BOM
+	slog.Info("Reading BOM file", "path", path)
 	dat, err := os.ReadFile(path)
 	if err != nil {
 		return new(cdx.BOM), err
 	}
 
-	slog.Info("Read BOM file successfully")
-
+	slog.Info("Validating BOM file using schema", "path", path, "schema", schemaPath)
 	// JSON Validation via Schema
 	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
 	documentLoader := gojsonschema.NewStringLoader(string(dat))
@@ -50,13 +50,13 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	}
 
 	// Decode BOM from JSON
+	slog.Info("Decoding BOM from JSON to GO object")
 	bom := new(cdx.BOM)
 	decoder := cdx.NewBOMDecoder(bytes.NewReader(dat), cdx.BOMFileFormatJSON)
 	err = decoder.Decode(bom)
 	if err != nil {
 		return new(cdx.BOM), err
 	}
-	slog.Info("Successfully decoded BOM")
 
 	return bom, nil
 }

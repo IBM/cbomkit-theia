@@ -1,6 +1,7 @@
 package javasecurity
 
 import (
+	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -33,8 +34,10 @@ const (
 // Returns nil if the updateComponent is not allowed
 func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
 	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
-		return &component, fmt.Errorf("scanner: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
+		return &component, fmt.Errorf("scanner java: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
 	}
+
+	slog.Debug("Updating protocol component", "component", component.Name)
 
 	switch component.CryptoProperties.ProtocolProperties.Type {
 	case cdx.CryptoProtocolTypeTLS:
@@ -47,7 +50,7 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 			}
 
 			if !protocolAllowed {
-				slog.Info("Component is not valid", "name", component.Name)
+				slog.Info("Component is not valid", "component", component.Name)
 				return nil, nil
 			}
 
@@ -74,25 +77,39 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 	return &component, nil
 }
 
+// Evaluates all JavaSecurityAlgorithmRestriction in javaSecurityAlgorithmRestrictions for component
 func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestriction, component cdx.Component) (allowed bool, err error) {
+	var insufficientInformationErrors []error
 	for _, javaSecurityAlgorithmRestriction := range *javaSecurityAlgorithmRestrictions {
 		allowed, err := javaSecurityAlgorithmRestriction.eval(component)
 		if !allowed || err != nil {
-			return allowed, err
+			if errors.Is(err, ErrInsufficientInformation) {
+				insufficientInformationErrors = append(insufficientInformationErrors, err)
+			} else {
+				return allowed, err
+			}
 		}
 	}
-	return true, nil
+
+	// Did we have insufficient information with all restrictions? If so, return this.
+	if len(insufficientInformationErrors) == len(*javaSecurityAlgorithmRestrictions) {
+		return true, errors.Join(insufficientInformationErrors...)
+	} else {
+		return true, nil
+	}
 }
 
 // TODO: Also account for algorithm components that are only there due to this protocol and should therefore be removed if the protocol was removed too (or should they?)
 
-// Evaluates if a single component is allowed based on a single restriction
+// Evaluates if a single component is allowed based on a single restriction; returns true if the component is allowed, false otherwise;
 // Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
 func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
+	slog.Debug("Evaluating component with rule", "component", component.Name, "rule", javaSecurityAlgorithmRestriction)
+
 	allowed = true
 	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm &&
 		component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
-		return allowed, fmt.Errorf("scanner: cannot evaluate components other than algorithm for applying restrictions")
+		return allowed, fmt.Errorf("scanner java: cannot evaluate components other than algorithm or protocol for applying restrictions")
 	}
 
 	// Format could be: <digest>with<encryption>and<mgf>
@@ -107,19 +124,18 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 	for _, subAlgorithm := range subAlgorithms {
 		// TODO: Maybe do less "perfect" string matching? (e.g. "-" --> "_") Or even a different approach than string matching?
 		if strings.EqualFold(javaSecurityAlgorithmRestriction.name, subAlgorithm) {
+
+			// Is the component a protocol? --> If yes, we do not have anything left to compare
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
-				// The component is a protocol and we do not have any parameters to compare
-				slog.Info("stopped evaluation of due to insufficient information", "subAlgorithmName", subAlgorithm)
-				return false, err
+				return false, nil
 			}
 
 			// There is no need to test further if the component does not provide a keySize
 			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
 				if javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
-					slog.Info("stopped evaluation of due to insufficient information", "subAlgorithmName", subAlgorithm)
-					return true, err // We actually need a keySize so we cannot go on here
+					return true, getInsufficientInformationError(fmt.Sprintf("missing key size parameter in BOM for rule affecting %v", javaSecurityAlgorithmRestriction.name), "component", component.Name) // We actually need a keySize so we cannot go on here
 				} else {
-					return false, err // Names match and we do not need a keySize --> The algorithm is not allowed!
+					return false, nil // Names match and we do not need a keySize --> The algorithm is not allowed!
 				}
 			}
 
@@ -149,7 +165,7 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 			case keySizeOperatorNone:
 				allowed = false
 			default:
-				return true, fmt.Errorf("scanner: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
+				return true, fmt.Errorf("scanner java: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
 			}
 		}
 

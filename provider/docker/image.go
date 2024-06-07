@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"strings"
 
@@ -22,13 +23,15 @@ import (
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )
 
-type Image struct {
+// Represents an active image (e.g. with an active client connection)
+type ActiveImage struct {
 	*image.Image
 	id     string
 	client *client.Client
 }
 
-func (image Image) TearDown() {
+// Defer to this function to destroy the ActiveImage after use
+func (image ActiveImage) TearDown() {
 	slog.Info("Removing Image", "id", image.id)
 
 	ctx, cancel := context.WithCancel(context.Background())
@@ -41,30 +44,31 @@ func (image Image) TearDown() {
 
 	_, err = image.client.ImageRemove(ctx, image.id, docker_api_types_image.RemoveOptions{})
 	if err != nil {
-		slog.Info("could not remove temporary docker image", "err", err)
+		slog.Info("Could not remove temporary docker image", "err", err)
 	}
 }
 
-func (image Image) GetConfig() (config v1.Config, ok bool) {
+// Get the image config of this image
+func (image ActiveImage) GetConfig() (config v1.Config, ok bool) {
 	return image.Metadata.Config.Config, true
 }
 
-// Build new image from a dockerfile
+// Build new image from a dockerfile; 
 // Caller is responsible to call image.TearDown() after usage
-func BuildNewImage(dockerfilePath string) (image Image, err error) {
-	slog.Info("Building Docker image", "path", dockerfilePath)
-
+func BuildNewImage(dockerfilePath string) (image ActiveImage, err error) {
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
+	slog.Info("Connecting to Docker Client using API version negotiaton", "client", os.Getenv("DOCKER_HOST"))
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 
+	slog.Info("Tarring directory with Dockerfile", "path", dockerfilePath)
 	tar, err := archive.Tar(filepath.Dir(dockerfilePath), archive.Gzip)
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 	defer tar.Close()
 
@@ -73,15 +77,16 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 		SuppressOutput: true,
 	}
 
+	slog.Info("Building Docker image", "path", dockerfilePath)
 	imageBuildResponse, err := cli.ImageBuild(ctx, tar, buildOptions)
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 	defer imageBuildResponse.Body.Close()
 
 	responseBytes, err := io.ReadAll(imageBuildResponse.Body)
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 
 	var responseStruct struct {
@@ -90,7 +95,7 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 
 	err = json.Unmarshal(responseBytes, &responseStruct)
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 
 	imageID := getImgIDWithoutDigest(responseStruct.DigestID)
@@ -100,22 +105,23 @@ func BuildNewImage(dockerfilePath string) (image Image, err error) {
 	stereoscopeImage, err := stereoscope.GetImage(ctx, imageID)
 	if err != nil {
 		if strings.Contains(err.Error(), "unable to save image tar: Error response from daemon: empty export - not implemented") {
-			return Image{}, fmt.Errorf("scanner: failed to export docker image since it is empty, this is a weird docker implementation and you should not pass empty images.\nFull Trace:\n%w", err)
+			return ActiveImage{}, fmt.Errorf("provider: failed to export docker image since it is empty, this is a weird docker implementation and you should not pass empty images.\nFull Trace:\n%w", err)
 		}
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 
-	return Image{
+	return ActiveImage{
 		stereoscopeImage,
 		imageID,
 		cli,
 	}, err
 }
 
-// Parses a DockerImage from an identifier, possibly pulling it from a registry
+// Parses a DockerImage from an identifier, possibly pulling it from a registry; 
 // Caller is responsible to call image.TearDown() after usage
-func GetPrebuiltImage(name string) (image Image, err error) {
-	slog.Info("getting prebuilt image", "image", name)
+func GetPrebuiltImage(name string) (image ActiveImage, err error) {
+	
+	slog.Info("Getting prebuilt image", "image", name)
 	// context for network requests
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
@@ -125,36 +131,38 @@ func GetPrebuiltImage(name string) (image Image, err error) {
 		Level:         logger.TraceLevel,
 	})
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 	stereoscope.SetLogger(lctx)
 
 	stereoscopeImage, err := stereoscope.GetImage(ctx, name)
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 
 	imageID := getImgIDWithoutDigest(stereoscopeImage.Metadata.ID)
 
-	slog.Info("Successfully acquired image with id", "image", name, "id", imageID)
+	slog.Info("Successfully acquired image", "image", name, "id", imageID)
 
 	cli, err := client.NewClientWithOpts(client.FromEnv, client.WithAPIVersionNegotiation())
 	if err != nil {
-		return Image{}, err
+		return ActiveImage{}, err
 	}
 
-	return Image{
+	return ActiveImage{
 		stereoscopeImage,
 		imageID,
 		cli,
 	}, err
 }
 
-func GetSquashedFilesystem(image Image) filesystem.Filesystem {
+// Get a squashed filesystem at top layer 
+func GetSquashedFilesystem(image ActiveImage) filesystem.Filesystem {
 	return GetSquashedFilesystemAtIndex(image, len(image.Layers)-1)
 }
 
-func GetSquashedFilesystemAtIndex(image Image, index int) filesystem.Filesystem {
+// Get a squashed filesystem at layer with index index 
+func GetSquashedFilesystemAtIndex(image ActiveImage, index int) filesystem.Filesystem {
 	return Layer{
 		index: index,
 		image: image,

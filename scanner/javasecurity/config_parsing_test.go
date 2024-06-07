@@ -134,7 +134,7 @@ container image related
 =======
 */
 
-func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (JavaSecurityPlugin, []string, docker.Image) {
+func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (JavaSecurityPlugin, []string, docker.ActiveImage) {
 	filesystem, err := os.MkdirTemp("", "CICS_CMD_ARGUMENT_TEST")
 	if err != nil {
 		panic(err)
@@ -194,7 +194,7 @@ func setUpCMD(originalKey string, originalValue string, newKey string, newValue 
 	return javaSecurityPlugin, filesToDelete, image
 }
 
-func tearDown(filesToDelete []string, image docker.Image) {
+func tearDown(filesToDelete []string, image docker.ActiveImage) {
 	image.TearDown()
 	for _, file := range filesToDelete {
 		os.RemoveAll(file)

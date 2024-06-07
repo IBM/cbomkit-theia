@@ -6,16 +6,14 @@ import (
 	"os"
 )
 
+// Function used to set logging and start cobra
 func main() {
-	logHandler := slog.NewTextHandler(os.Stderr, &slog.HandlerOptions{
+	logHandler := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
 		Level:     slog.LevelDebug,
-		AddSource: true,
+		AddSource: false,
 	})
-
 	logger := slog.New(logHandler)
-
 	logger.Handler().WithAttrs([]slog.Attr{})
-
 	slog.SetDefault(logger)
 
 	cmd.Execute()

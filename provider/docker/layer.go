@@ -12,10 +12,10 @@ import (
 
 type Layer struct { // implements Filesystem
 	index int
-	image Image
+	image ActiveImage
 }
 
-func (layer Layer) WalkDir(fn filesystem.WalkDirFunc) error {
+func (layer Layer) WalkDir(fn filesystem.SimpleWalkDirFunc) error {
 	return layer.image.Layers[layer.index].SquashedTree.Walk(
 		func(path file.Path, f filenode.FileNode) error {
 			if f.FileType == file.TypeDirectory {

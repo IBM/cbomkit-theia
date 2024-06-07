@@ -31,7 +31,7 @@ Supported image sources:
 	},
 }
 
-func prepareImageAndRun(image docker.Image, err error) {
+func prepareImageAndRun(image docker.ActiveImage, err error) {
 	if err != nil {
 		panic(err)
 	}
