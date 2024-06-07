@@ -43,8 +43,23 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (er
 func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
 	// TODO: Make this smart so that it does not just take the first file that is a java.security file
+	dir, _ := filepath.Split(path)
+	dir = filepath.Clean(dir)
+
+	// Check correct directory
+	if !(strings.HasSuffix(dir, filepath.Join("jre", "lib", "security")) ||
+		strings.HasSuffix(dir, filepath.Join("conf", "security"))) {
+		return false
+	}
+
+	// Check file extension
 	ext := filepath.Ext(path)
-	return ext == ".security"
+	if ext != ".security" {
+		return false
+	}
+
+	// If all checks passed, return true
+	return true
 }
 
 /*
@@ -171,14 +186,14 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				case "":
 					keySizeOperator = keySizeOperatorNone
 				default:
-					algorithmParsingErrors = append(algorithmParsingErrors, 
+					algorithmParsingErrors = append(algorithmParsingErrors,
 						fmt.Errorf("scanner java: could not parse the following keySizeOperator %v (%v)", keyRestrictions[0], algorithm))
 					continue
 				}
 
 				keySize, err = strconv.Atoi(keyRestrictions[1])
 				if err != nil {
-					algorithmParsingErrors = append(algorithmParsingErrors, 
+					algorithmParsingErrors = append(algorithmParsingErrors,
 						fmt.Errorf("scanner java: (%v) %w", algorithm, err))
 					continue
 				}
@@ -216,7 +231,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
 	}
 
 	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
-	
+
 	if errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurityPlugin.security)
 		return nil
@@ -228,7 +243,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
 // Searches the image config for potentially relevant CMD parameters and potentially adds new properties
 func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(config v1.Config) (err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
-	
+
 	if javaSecurityPlugin.security.Properties == nil { // We do not have a security file
 		return errNilProperties
 	}
