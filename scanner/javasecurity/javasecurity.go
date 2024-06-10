@@ -7,6 +7,7 @@ import (
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
+	"slices"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -49,16 +50,18 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(filesys
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
 	javaSecurityPlugin.security.createCryptoComponentBOMRefMap(components)
 
-	insuffiecientInformationErrors := []error{}
+	insufficientInformationErrors := []error{}
+	additionalComponentsToBeRemoved := []cdx.BOMReference{}
 
 	for _, component := range components {
 		if component.Type == cdx.ComponentTypeCryptographicAsset {
 			if component.CryptoProperties != nil {
-				updatedComponent, err := javaSecurityPlugin.updateComponent(component)
+				updatedComponent, toBeRemoved, err := javaSecurityPlugin.updateComponent(component)
+				additionalComponentsToBeRemoved = append(additionalComponentsToBeRemoved, toBeRemoved...)
 
 				if err != nil {
 					if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
-						insuffiecientInformationErrors = append(insuffiecientInformationErrors, err)
+						insufficientInformationErrors = append(insufficientInformationErrors, err)
 					} else {
 						return nil, fmt.Errorf("scanner java: error while updating component %v\n%w", component, err)
 					}
@@ -75,9 +78,17 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		}
 	}
 
-	if len(insuffiecientInformationErrors) > 0 {
-		all := make([]string, len(insuffiecientInformationErrors))
-		for _, e := range insuffiecientInformationErrors {
+	cleanedComponents := []cdx.Component{}
+
+	for _, component := range updatedComponents {
+		if !slices.Contains(additionalComponentsToBeRemoved, cdx.BOMReference(component.BOMRef)) {
+			cleanedComponents = append(cleanedComponents, component)
+		}	
+	}
+
+	if len(insufficientInformationErrors) > 0 {
+		all := make([]string, len(insufficientInformationErrors))
+		for _, e := range insufficientInformationErrors {
 			if e != nil {
 				all = append(all, e.Error())
 			}
@@ -86,7 +97,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		slog.Warn("Run finished with insufficient information errors", "errors", all)
 	}
 
-	return updatedComponents, nil
+	return cleanedComponents, nil
 }
 
 // Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
@@ -107,18 +118,18 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 }
 
 // Update a single component; returns nil if component is not allowed
-func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Component) (updatedComponent *cdx.Component, additionalComponentsToDelete []cdx.BOMReference, err error) {
 
 	ok, err := javaSecurityPlugin.isComponentAffectedByConfig(component)
 
 	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
-		return &component, err
+		return &component, []cdx.BOMReference{}, err
 	}
 
 	switch component.CryptoProperties.AssetType {
 	case cdx.CryptoAssetTypeProtocol:
 		return javaSecurityPlugin.security.updateProtocolComponent(component)
 	default:
-		return &component, nil
+		return &component, []cdx.BOMReference{}, nil
 	}
 }

@@ -43,7 +43,6 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (er
 // Checks whether the current file at path is a java.security config file
 func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
-	// TODO: Make this smart so that it does not just take the first file that is a java.security file
 	dir, _ := filepath.Split(path)
 	dir = filepath.Clean(dir)
 
@@ -135,7 +134,7 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 	slog.Info("Extracting TLS rules", "javaSecurity", javaSecurity)
 
-	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
+	securityPropertiesKey := "jdk.tls.disabledAlgorithms" // TODO: Include other disabledAlgorithms (see java.security file)
 	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
 
 	if go_errors.Is(err, errNilProperties) {
@@ -152,7 +151,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 			keySizeOperator := keySizeOperatorNone
 			name := algorithm
 
-			// TODO: Include directives other than "keySize" (see java.security for reference)
+			// TODO: Include directives other than "keySize" (see java.security for reference) --> "usage" is probably the most important one
 			if strings.Contains(algorithm, "jdkCA") ||
 				strings.Contains(algorithm, "denyAfter") ||
 				strings.Contains(algorithm, "usage") {

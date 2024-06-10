@@ -33,9 +33,9 @@ const (
 
 // High-Level function to update a protocol component based on the restriction in the JavaSecurity object
 // Returns nil if the updateComponent is not allowed
-func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Component) (updatedComponent *cdx.Component, err error) {
+func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Component) (updatedComponent *cdx.Component, algorithmsToDelete []cdx.BOMReference, err error) {
 	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
-		return &component, fmt.Errorf("scanner java: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
+		return &component, []cdx.BOMReference{}, fmt.Errorf("scanner java: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
 	}
 
 	slog.Debug("Updating protocol component", "component", component.Name)
@@ -47,12 +47,12 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 			protocolAllowed, err := evalAll(&javaSecurity.tlsDisablesAlgorithms, component)
 
 			if err != nil {
-				return updatedComponent, err
+				return updatedComponent, []cdx.BOMReference{}, err
 			}
 
 			if !protocolAllowed {
 				slog.Info("Component is not valid", "component", component.Name)
-				return nil, nil
+				return nil, []cdx.BOMReference{}, nil
 			}
 
 			// Test all algorithms in the protocol
@@ -61,21 +61,21 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Componen
 				if ok {
 					algoAllowed, err := evalAll(&javaSecurity.tlsDisablesAlgorithms, *algo)
 					if err != nil {
-						return updatedComponent, err
+						return updatedComponent, []cdx.BOMReference{}, err
 					}
 
 					if !algoAllowed {
 						slog.Info("Component is not valid due to algorithm", "component", component.Name, "algorithm", algo.Name)
-						return nil, nil
+						return nil, *cipherSuites.Algorithms, nil
 					}
 				}
 			}
 		}
 	default:
-		return &component, nil
+		return &component, []cdx.BOMReference{}, nil
 	}
 
-	return &component, nil
+	return &component, []cdx.BOMReference{}, nil
 }
 
 // Evaluates all JavaSecurityAlgorithmRestriction in javaSecurityAlgorithmRestrictions for component
@@ -99,8 +99,6 @@ func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestricti
 		return true, nil
 	}
 }
-
-// TODO: Also account for algorithm components that are only there due to this protocol and should therefore be removed if the protocol was removed too (or should they?)
 
 // Evaluates if a single component is allowed based on a single restriction; returns true if the component is allowed, false otherwise;
 // Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
