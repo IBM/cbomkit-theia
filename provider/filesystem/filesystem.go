@@ -1,7 +1,10 @@
 package filesystem
 
 import (
+	go_errors "errors"
+	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"io/fs"
+	"log/slog"
 	"os"
 	"path/filepath"
 
@@ -35,7 +38,14 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 			return nil
 		}
 
-		return fn(path)
+		err = fn(path)
+
+		if go_errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
+			slog.Warn(err.Error())
+			return nil
+		} else {
+			return err
+		}
 	})
 }
 

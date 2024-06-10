@@ -1,8 +1,9 @@
 package javasecurity
 
 import (
-	"errors"
+	go_errors "errors"
 	"fmt"
+	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 	"strconv"
@@ -26,9 +27,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (er
 		slog.Info("Adding java.security config file", "path", path)
 		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
 		if err != nil {
-			return err
+			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
 		}
-		config := properties.MustLoadString(string(content))
+		config := properties.MustLoadString(string(content)) // Sadly this function simply panics in case of any parsing errors. So no retry :sob:
 		javaSecurityPlugin.security = JavaSecurity{
 			config,
 			make(map[cdx.BOMReference]*cdx.Component),
@@ -137,7 +138,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
 	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
 
-	if errors.Is(err, errNilProperties) {
+	if go_errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurity)
 	} else if err != nil {
 		return err
@@ -209,7 +210,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 		slog.Info("No disabled algorithms specified!", "key", securityPropertiesKey)
 	}
 
-	return errors.Join(algorithmParsingErrors...)
+	return go_errors.Join(algorithmParsingErrors...)
 }
 
 /*
@@ -232,7 +233,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
 
 	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
 
-	if errors.Is(err, errNilProperties) {
+	if go_errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurityPlugin.security)
 		return nil
 	}

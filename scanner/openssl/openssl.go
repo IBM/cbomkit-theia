@@ -2,9 +2,9 @@ package openssl
 
 import (
 	"bufio"
-	"errors"
 	"ibm/container_cryptography_scanner/provider/filesystem"
-	"log/slog"
+	go_errors "errors"
+	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"path/filepath"
 	"slices"
 	"strings"
@@ -44,9 +44,8 @@ func (openSSLPlugin *OpenSSLPlugin) configWalkDirFunc(path string) (err error) {
 	if openSSLPlugin.isConfigFile(path) {
 		configBytes, err1 := openSSLPlugin.parseOpenSSLConfigFile(path)
 		config, err2 := ini.Load(configBytes)
-		if errors.Join(err1, err2) != nil {
-			slog.Warn("error parsing file which was assumed to be a OpenSSL config file", "file", path)
-			return nil
+		if err := go_errors.Join(err1, err2); err != nil {
+			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, openSSLPlugin.GetName())
 		}
 		openSSLPlugin.configs = append(openSSLPlugin.configs, config)
 	}

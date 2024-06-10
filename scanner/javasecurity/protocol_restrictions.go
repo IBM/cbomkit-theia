@@ -1,8 +1,9 @@
 package javasecurity
 
 import (
-	"errors"
+	go_errors "errors"
 	"fmt"
+	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"strconv"
 	"strings"
@@ -83,7 +84,7 @@ func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestricti
 	for _, javaSecurityAlgorithmRestriction := range *javaSecurityAlgorithmRestrictions {
 		allowed, err := javaSecurityAlgorithmRestriction.eval(component)
 		if !allowed || err != nil {
-			if errors.Is(err, ErrInsufficientInformation) {
+			if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 				insufficientInformationErrors = append(insufficientInformationErrors, err)
 			} else {
 				return allowed, err
@@ -93,7 +94,7 @@ func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestricti
 
 	// Did we have insufficient information with all restrictions? If so, return this.
 	if len(insufficientInformationErrors) == len(*javaSecurityAlgorithmRestrictions) {
-		return true, errors.Join(insufficientInformationErrors...)
+		return true, go_errors.Join(insufficientInformationErrors...)
 	} else {
 		return true, nil
 	}
@@ -133,7 +134,7 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 			// There is no need to test further if the component does not provide a keySize
 			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
 				if javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
-					return true, getInsufficientInformationError(fmt.Sprintf("missing key size parameter in BOM for rule affecting %v", javaSecurityAlgorithmRestriction.name), "component", component.Name) // We actually need a keySize so we cannot go on here
+					return true, scanner_errors.GetInsufficientInformationError(fmt.Sprintf("missing key size parameter in BOM for rule affecting %v", javaSecurityAlgorithmRestriction.name), "java.security Plugin", "component", component.Name) // We actually need a keySize so we cannot go on here
 				} else {
 					return false, nil // Names match and we do not need a keySize --> The algorithm is not allowed!
 				}

@@ -1,9 +1,10 @@
 package javasecurity
 
 import (
-	"errors"
+	go_errors "errors"
 	"fmt"
 	"ibm/container_cryptography_scanner/provider/filesystem"
+	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 
@@ -15,12 +16,6 @@ import (
 type JavaSecurityPlugin struct {
 	security   JavaSecurity
 	filesystem filesystem.Filesystem
-}
-
-var ErrInsufficientInformation = errors.New("scanner java: insufficient information to continue")
-
-func getInsufficientInformationError(msg string, affectedObjectType string, affectedObjectName string) error {
-	return fmt.Errorf("%w: (%v:%v) %v", ErrInsufficientInformation, affectedObjectType, affectedObjectName, msg)
 }
 
 // Get the name of the plugin for debugging purposes
@@ -62,7 +57,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 				updatedComponent, err := javaSecurityPlugin.updateComponent(component)
 
 				if err != nil {
-					if errors.Is(err, ErrInsufficientInformation) {
+					if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 						insuffiecientInformationErrors = append(insuffiecientInformationErrors, err)
 					} else {
 						return nil, fmt.Errorf("scanner java: error while updating component %v\n%w", component, err)
@@ -97,7 +92,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 // Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
 func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
 	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
-		return false, getInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", "component", component.Name)
+		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", javaSecurityPlugin.GetName(), "component", component.Name)
 	}
 
 	for _, occurrence := range *component.Evidence.Occurrences {
@@ -116,7 +111,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Comp
 
 	ok, err := javaSecurityPlugin.isComponentAffectedByConfig(component)
 
-	if !ok || errors.Is(err, ErrInsufficientInformation) {
+	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 		return &component, err
 	}
 

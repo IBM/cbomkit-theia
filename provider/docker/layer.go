@@ -1,9 +1,12 @@
 package docker
 
 import (
+	"errors"
 	"io"
+	"log/slog"
 
 	"ibm/container_cryptography_scanner/provider/filesystem"
+	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 
 	"github.com/anchore/stereoscope/pkg/file"
 	"github.com/anchore/stereoscope/pkg/filetree/filenode"
@@ -22,7 +25,14 @@ func (layer Layer) WalkDir(fn filesystem.SimpleWalkDirFunc) error {
 				return nil
 			}
 
-			return fn(string(path))
+			err := fn(string(path))
+
+			if errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
+				slog.Warn(err.Error())
+				return nil
+			} else {
+				return err
+			}
 		}, nil)
 }
 
