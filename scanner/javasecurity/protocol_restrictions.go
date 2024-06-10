@@ -100,6 +100,11 @@ func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestricti
 	}
 }
 
+func standardizeString(in string) string {
+	replacer := strings.NewReplacer("-", "", "_", "", " ", "", "/", "")
+	return replacer.Replace(in)
+}
+
 // Evaluates if a single component is allowed based on a single restriction; returns true if the component is allowed, false otherwise;
 // Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
 func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
@@ -121,8 +126,8 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 	}
 
 	for _, subAlgorithm := range subAlgorithms {
-		// TODO: Maybe do less "perfect" string matching? (e.g. "-" --> "_") Or even a different approach than string matching?
-		if strings.EqualFold(javaSecurityAlgorithmRestriction.name, subAlgorithm) {
+		restrictionStandardized, subAlgorithmStandardized := standardizeString(javaSecurityAlgorithmRestriction.name), standardizeString(subAlgorithm)
+		if strings.EqualFold(restrictionStandardized, subAlgorithmStandardized) {
 
 			// Is the component a protocol? --> If yes, we do not have anything left to compare
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
