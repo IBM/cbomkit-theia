@@ -83,7 +83,20 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 	for _, component := range updatedComponents {
 		if !slices.Contains(additionalComponentsToBeRemoved, cdx.BOMReference(component.BOMRef)) {
 			cleanedComponents = append(cleanedComponents, component)
-		}	
+		}
+	}
+
+	noMissingRefsComponents := slices.Clone(cleanedComponents)
+
+	for _, bomRef := range additionalComponentsToBeRemoved {
+		count, err := getUsageCountOfBomRefInSliceOfComponents(cleanedComponents, string(bomRef))
+		if err != nil {
+			return updatedComponents, err
+		}
+
+		if count > 0 {
+			noMissingRefsComponents = append(noMissingRefsComponents, *javaSecurityPlugin.security.bomRefMap[bomRef])
+		}
 	}
 
 	if len(insufficientInformationErrors) > 0 {
@@ -97,7 +110,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		slog.Warn("Run finished with insufficient information errors", "errors", all)
 	}
 
-	return cleanedComponents, nil
+	return noMissingRefsComponents, nil
 }
 
 // Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
