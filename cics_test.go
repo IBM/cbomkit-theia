@@ -92,7 +92,7 @@ func TestScan(t *testing.T) {
 				panic(err)
 			}
 
-			assert.JSONEq(t, string(output), string(trueOutput), "resulting JSONs do not equal")
+			assert.JSONEq(t, string(trueOutput), string(output), "resulting JSONs do not equal")
 		})
 	}
 }
