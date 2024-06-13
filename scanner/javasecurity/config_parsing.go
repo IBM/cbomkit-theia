@@ -136,7 +136,7 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 	slog.Info("Extracting TLS rules", "javaSecurity", javaSecurity)
 
-	securityPropertiesKey := "jdk.tls.disabledAlgorithms" // TODO: Include other disabledAlgorithms (see java.security file)
+	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
 	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
 
 	if go_errors.Is(err, errNilProperties) {
