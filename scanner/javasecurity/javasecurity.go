@@ -4,10 +4,10 @@ import (
 	go_errors "errors"
 	"fmt"
 	"ibm/container_cryptography_scanner/provider/filesystem"
+	"ibm/container_cryptography_scanner/scanner/confidencelevel"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
-	"slices"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -47,17 +47,22 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(filesys
 }
 
 // High-level function to update a list of components (e.g. remove components and add new ones)
-func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) ([]cdx.Component, error) {
 	javaSecurityPlugin.security.createCryptoComponentBOMRefMap(components)
 
 	insufficientInformationErrors := []error{}
-	additionalComponentsToBeRemoved := []cdx.BOMReference{}
+	var updatedComponents []cdx.Component
 
 	for _, component := range components {
 		if component.Type == cdx.ComponentTypeCryptographicAsset {
 			if component.CryptoProperties != nil {
-				updatedComponent, toBeRemoved, err := javaSecurityPlugin.updateComponent(component)
-				additionalComponentsToBeRemoved = append(additionalComponentsToBeRemoved, toBeRemoved...)
+
+				componentWithDefaultConfidence := componentWithConfidence{
+					Component:  &component,
+					confidence: confidencelevel.New(),
+				}
+
+				updatedComponent, alsoAffected, err := javaSecurityPlugin.updateComponent(componentWithDefaultConfidence)
 
 				if err != nil {
 					if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
@@ -67,35 +72,24 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 					}
 				}
 
-				if updatedComponent == nil { // Component is not allowed
-					continue
-				} else {
-					updatedComponents = append(updatedComponents, *updatedComponent)
+				prop := updatedComponent.confidence.GetProp()
+				addPropertyOrCreateNew(updatedComponent.Component, prop)
+
+				for ref, confidence := range alsoAffected {
+					comp, ok := javaSecurityPlugin.security.bomRefMap[ref]
+					if ok {
+						affectedProp := confidence.GetProp()
+						addPropertyOrCreateNew(comp, affectedProp)
+					} else {
+						slog.Warn("BOM-REF could not be resolved to component. Does the BOM File contain BOM-REFs that are not valid or cannot be resolved in the file itself?", "bom-ref", ref)
+					}
 				}
+
+				updatedComponents = append(updatedComponents, *updatedComponent.Component)
+
 			} else {
 				slog.Info("Component is a crypto asset but has empty properties. Cannot evaluate that. Continuing.", "component", component.Name)
 			}
-		}
-	}
-
-	cleanedComponents := []cdx.Component{}
-
-	for _, component := range updatedComponents {
-		if !slices.Contains(additionalComponentsToBeRemoved, cdx.BOMReference(component.BOMRef)) {
-			cleanedComponents = append(cleanedComponents, component)
-		}
-	}
-
-	noMissingRefsComponents := slices.Clone(cleanedComponents)
-
-	for _, bomRef := range additionalComponentsToBeRemoved {
-		count, err := getUsageCountOfBomRefInSliceOfComponents(cleanedComponents, string(bomRef))
-		if err != nil {
-			return updatedComponents, err
-		}
-
-		if count > 0 {
-			noMissingRefsComponents = append(noMissingRefsComponents, *javaSecurityPlugin.security.bomRefMap[bomRef])
 		}
 	}
 
@@ -110,11 +104,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		slog.Warn("Run finished with insufficient information errors", "errors", all)
 	}
 
-	return noMissingRefsComponents, nil
+	return updatedComponents, nil
 }
 
 // Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
-func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component componentWithConfidence) (bool, error) {
 	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
 		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", javaSecurityPlugin.GetName(), "component", component.Name)
 	}
@@ -132,18 +126,25 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 }
 
 // Update a single component; returns nil if component is not allowed
-func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component cdx.Component) (updatedComponent *cdx.Component, additionalComponentsToDelete []cdx.BOMReference, err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(component componentWithConfidence) (updatedComponent componentWithConfidence, additionalComponentsAffected affectedAlgorithmsWithConfidence, err error) { // TODO: additionalComponents..
 
 	ok, err := javaSecurityPlugin.isComponentAffectedByConfig(component)
 
 	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
-		return &component, []cdx.BOMReference{}, err
+		return component, affectedAlgorithmsWithConfidence{}, err
 	}
 
 	switch component.CryptoProperties.AssetType {
 	case cdx.CryptoAssetTypeProtocol:
 		return javaSecurityPlugin.security.updateProtocolComponent(component)
 	default:
-		return &component, []cdx.BOMReference{}, nil
+		return component, affectedAlgorithmsWithConfidence{}, nil
 	}
+}
+
+func addPropertyOrCreateNew(comp *cdx.Component, prop cdx.Property) {
+	if comp.Properties == nil {
+		comp.Properties = new([]cdx.Property)
+	}
+	*comp.Properties = append(*comp.Properties, prop)
 }
