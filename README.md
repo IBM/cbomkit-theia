@@ -57,3 +57,6 @@ Use "cics [command] --help" for more information about a command.
 Supported Configurations:
   - `java.security` configuration
     - `jdk.tls.disabledAlgorithms`
+
+## Security Disclaimer
+The CICS performs several filesystem reads based on the user input and may print the contents of these files to the stderr console. Do not use this tools on untrusted input or provide the output to untrusted parties.
