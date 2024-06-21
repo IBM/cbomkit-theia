@@ -28,8 +28,8 @@ const (
 	ConfidenceLevelModifierNegativeLow     ConfidenceLevelModifier = -5
 )
 
-func New() ConfidenceLevel {
-	return ConfidenceLevel{
+func New() *ConfidenceLevel {
+	return &ConfidenceLevel{
 		count: 0,
 		sum:   0,
 		value: confidenceLevelMax,
