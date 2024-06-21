@@ -40,7 +40,7 @@ func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath str
 
 // scanner is used internally to represent a single scanner with several plugins (e.g. java.security plugin) scanning a single filesystem (e.g. a docker image layer)
 type scanner struct {
-	configPlugins []config.ConfigPlugin
+	configPlugins []config.Plugin
 	filesystem    filesystem.Filesystem
 }
 
@@ -48,7 +48,7 @@ type scanner struct {
 func (scanner *scanner) findConfigFiles() error {
 	for _, plugin := range scanner.configPlugins {
 		slog.Info("Finding config files", "plugin", plugin.GetName())
-		err := plugin.ParseConfigsFromFilesystem(scanner.filesystem)
+		err := plugin.ParseRelevantFilesFromFilesystem(scanner.filesystem)
 		if err != nil {
 			return err
 		}
@@ -81,7 +81,7 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 func newScanner(filesystem filesystem.Filesystem) scanner {
 	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem)
 	scanner := scanner{}
-	scanner.configPlugins = []config.ConfigPlugin{
+	scanner.configPlugins = []config.Plugin{
 		&javasecurity.JavaSecurityPlugin{},
 	}
 	scanner.filesystem = filesystem

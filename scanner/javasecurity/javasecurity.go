@@ -25,7 +25,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 }
 
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
-func (javaSecurityPlugin *JavaSecurityPlugin) ParseConfigsFromFilesystem(filesystem filesystem.Filesystem) (err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) (err error) {
 	javaSecurityPlugin.filesystem = filesystem
 
 	err = filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc)
