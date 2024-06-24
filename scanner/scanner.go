@@ -5,7 +5,7 @@ import (
 	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
-	"ibm/container_cryptography_scanner/scanner/javasecurity"
+	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
 	"log"
 	"log/slog"
 	"os"
