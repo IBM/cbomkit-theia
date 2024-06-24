@@ -2,8 +2,8 @@ package openssl
 
 import (
 	"bufio"
-	"ibm/container_cryptography_scanner/provider/filesystem"
 	go_errors "errors"
+	"ibm/container_cryptography_scanner/provider/filesystem"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"path/filepath"
 	"slices"
@@ -23,7 +23,7 @@ func (openSSLPlugin *OpenSSLPlugin) GetName() string {
 	return "OpenSSLConfig"
 }
 
-func (openSSLPlugin *OpenSSLPlugin) ParseConfigsFromFilesystem(filesystem filesystem.Filesystem) error {
+func (openSSLPlugin *OpenSSLPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error {
 	openSSLPlugin.filesystem = filesystem
 	return filesystem.WalkDir(openSSLPlugin.configWalkDirFunc)
 }

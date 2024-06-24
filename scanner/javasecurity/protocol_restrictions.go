@@ -3,6 +3,8 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
+	advancedcomponentslice "ibm/container_cryptography_scanner/scanner/advanced-component-slice"
+	"ibm/container_cryptography_scanner/scanner/confidencelevel"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"strconv"
@@ -33,70 +35,68 @@ const (
 
 // High-Level function to update a protocol component based on the restriction in the JavaSecurity object
 // Returns nil if the updateComponent is not allowed
-func (javaSecurity *JavaSecurity) updateProtocolComponent(component cdx.Component) (updatedComponent *cdx.Component, algorithmsToDelete []cdx.BOMReference, err error) {
-	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
-		return &component, []cdx.BOMReference{}, fmt.Errorf("scanner java: component of type %v cannot be used in function updateProtocolComponent", component.CryptoProperties.AssetType)
+func (javaSecurity *JavaSecurity) updateProtocolComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) error {
+	if advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
+		return fmt.Errorf("scanner java: component of type %v cannot be used in function updateProtocolComponent", advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType)
 	}
 
-	slog.Debug("Updating protocol component", "component", component.Name)
+	slog.Debug("Updating protocol component", "component", advancedcomponentslice.GetByIndex(index).Name)
 
-	switch component.CryptoProperties.ProtocolProperties.Type {
+	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.ProtocolProperties.Type {
 	case cdx.CryptoProtocolTypeTLS:
-		for _, cipherSuites := range *component.CryptoProperties.ProtocolProperties.CipherSuites {
+		for _, cipherSuites := range *advancedcomponentslice.GetByIndex(index).CryptoProperties.ProtocolProperties.CipherSuites {
 			// Test the protocol itself
-			protocolAllowed, err := evalAll(&javaSecurity.tlsDisablesAlgorithms, component)
+			cipherSuiteConfidenceLevel, err := evalAll(&javaSecurity.tlsDisabledAlgorithms, *advancedcomponentslice.GetByIndex(index).Component)
 
 			if err != nil {
-				return updatedComponent, []cdx.BOMReference{}, err
-			}
-
-			if !protocolAllowed {
-				slog.Info("Component is not valid", "component", component.Name)
-				return nil, []cdx.BOMReference{}, nil
+				return err
 			}
 
 			// Test all algorithms in the protocol
 			for _, algorithmRef := range *cipherSuites.Algorithms {
-				algo, ok := javaSecurity.bomRefMap[algorithmRef]
+				algo, ok := advancedcomponentslice.GetByRef(algorithmRef)
 				if ok {
-					algoAllowed, err := evalAll(&javaSecurity.tlsDisablesAlgorithms, *algo)
+					algoConfidenceLevel, err := evalAll(&javaSecurity.tlsDisabledAlgorithms, *algo.Component)
+
 					if err != nil {
-						return updatedComponent, []cdx.BOMReference{}, err
+						return err
 					}
 
-					if !algoAllowed {
-						slog.Info("Component is not valid due to algorithm", "component", component.Name, "algorithm", algo.Name)
-						return nil, *cipherSuites.Algorithms, nil
-					}
+					algo.Confidence.AddSubConfidenceLevel(algoConfidenceLevel, false)
+					cipherSuiteConfidenceLevel.AddSubConfidenceLevel(algoConfidenceLevel, true)
 				}
 			}
+
+			advancedcomponentslice.GetByIndex(index).Confidence.AddSubConfidenceLevel(cipherSuiteConfidenceLevel, false)
 		}
-	default:
-		return &component, []cdx.BOMReference{}, nil
 	}
 
-	return &component, []cdx.BOMReference{}, nil
+	return nil
 }
 
 // Evaluates all JavaSecurityAlgorithmRestriction in javaSecurityAlgorithmRestrictions for component
-func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestriction, component cdx.Component) (allowed bool, err error) {
+func evalAll(javaSecurityAlgorithmRestrictions *[]JavaSecurityAlgorithmRestriction, component cdx.Component) (confidencelevel.ConfidenceLevel, error) {
+	confidenceLevel := confidencelevel.New()
 	var insufficientInformationErrors []error
 	for _, javaSecurityAlgorithmRestriction := range *javaSecurityAlgorithmRestrictions {
-		allowed, err := javaSecurityAlgorithmRestriction.eval(component)
-		if !allowed || err != nil {
+		currentConfidenceLevel, err := javaSecurityAlgorithmRestriction.eval(component)
+
+		if err != nil {
 			if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 				insufficientInformationErrors = append(insufficientInformationErrors, err)
 			} else {
-				return allowed, err
+				return *confidenceLevel, err
 			}
 		}
+
+		confidenceLevel.AddSubConfidenceLevel(currentConfidenceLevel, true)
 	}
 
 	// Did we have insufficient information with all restrictions? If so, return this.
 	if len(insufficientInformationErrors) == len(*javaSecurityAlgorithmRestrictions) {
-		return true, go_errors.Join(insufficientInformationErrors...)
+		return *confidenceLevel, go_errors.Join(insufficientInformationErrors...)
 	} else {
-		return true, nil
+		return *confidenceLevel, nil
 	}
 }
 
@@ -107,13 +107,14 @@ func standardizeString(in string) string {
 
 // Evaluates if a single component is allowed based on a single restriction; returns true if the component is allowed, false otherwise;
 // Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
-func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (allowed bool, err error) {
-	slog.Debug("Evaluating component with rule", "component", component.Name, "rule", javaSecurityAlgorithmRestriction)
+func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (confidencelevel.ConfidenceLevel, error) {
+	slog.Debug("Evaluating component with restriction", "component", component.Name, "restriction_name", javaSecurityAlgorithmRestriction.name, "restriction_operator", javaSecurityAlgorithmRestriction.keySizeOperator, "restriction_value", javaSecurityAlgorithmRestriction.keySize)
 
-	allowed = true
+	confidenceLevel := confidencelevel.New()
+
 	if component.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm &&
 		component.CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
-		return allowed, fmt.Errorf("scanner java: cannot evaluate components other than algorithm or protocol for applying restrictions")
+		return *confidenceLevel, fmt.Errorf("scanner java: cannot evaluate components other than algorithm or protocol for applying restrictions")
 	}
 
 	// Format could be: <digest>with<encryption>and<mgf>
@@ -129,30 +130,37 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 		restrictionStandardized, subAlgorithmStandardized := standardizeString(javaSecurityAlgorithmRestriction.name), standardizeString(subAlgorithm)
 		if strings.EqualFold(restrictionStandardized, subAlgorithmStandardized) {
 
+			confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeExtreme)
+
 			// Is the component a protocol? --> If yes, we do not have anything left to compare
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
-				return false, nil
+				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeHigh)
+				return *confidenceLevel, nil
 			}
 
 			// There is no need to test further if the component does not provide a keySize
 			if component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier == "" {
 				if javaSecurityAlgorithmRestriction.keySizeOperator != keySizeOperatorNone {
-					return true, scanner_errors.GetInsufficientInformationError(fmt.Sprintf("missing key size parameter in BOM for rule affecting %v", javaSecurityAlgorithmRestriction.name), "java.security Plugin", "component", component.Name) // We actually need a keySize so we cannot go on here
+					confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierPositiveMedium)
+					return *confidenceLevel, scanner_errors.GetInsufficientInformationError(fmt.Sprintf("missing key size parameter in BOM for rule affecting %v", javaSecurityAlgorithmRestriction.name), "java.security Plugin", "component", component.Name) // We actually need a keySize so we cannot go on here
 				} else {
-					return false, nil // Names match and we do not need a keySize --> The algorithm is not allowed!
+					confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeMedium)
+					return *confidenceLevel, nil // Names match and we do not need a keySize --> The algorithm is not allowed!
 				}
 			}
 
 			// Parsing the key size
 			param, err := strconv.Atoi(component.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier)
 			if err != nil {
-				return true, err
+				return *confidenceLevel, err
 			}
 
 			if param <= 0 || param > 2147483647 {
-				return false, err // Following Java reference implementation (see https://github.com/openjdk/jdk/blob/4f1a10f84bcfadef263a0890b6834ccd3d5bb52f/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java#L944 and https://github.com/openjdk/jdk/blob/4f1a10f84bcfadef263a0890b6834ccd3d5bb52f/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java#L843)
+				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeMedium)
+				return *confidenceLevel, err // Following Java reference implementation (see https://github.com/openjdk/jdk/blob/4f1a10f84bcfadef263a0890b6834ccd3d5bb52f/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java#L944 and https://github.com/openjdk/jdk/blob/4f1a10f84bcfadef263a0890b6834ccd3d5bb52f/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java#L843)
 			}
 
+			var allowed bool
 			switch javaSecurityAlgorithmRestriction.keySizeOperator {
 			case keySizeOperatorLowerEqual:
 				allowed = !(param <= javaSecurityAlgorithmRestriction.keySize)
@@ -169,14 +177,16 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 			case keySizeOperatorNone:
 				allowed = false
 			default:
-				return true, fmt.Errorf("scanner java: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
+				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierPositiveLow)
+				return *confidenceLevel, fmt.Errorf("scanner java: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
 			}
-		}
 
-		if !allowed {
-			return allowed, err
+			if !allowed {
+				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeMedium)
+				return *confidenceLevel, err
+			}
 		}
 	}
 
-	return true, err
+	return *confidenceLevel, nil
 }

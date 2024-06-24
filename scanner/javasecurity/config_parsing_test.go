@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"testing"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/magiconair/properties"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,7 +34,6 @@ func setUpExtractionOfRule(javaSecurityContent string) JavaSecurity {
 
 	javaSecurity := JavaSecurity{
 		config,
-		map[cdx.BOMReference]*cdx.Component{},
 		[]JavaSecurityAlgorithmRestriction{},
 	}
 
@@ -50,8 +48,8 @@ func TestExtractTLSRules(t *testing.T) {
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
 		err := javaSecurity.extractTLSRules()
 		assert.NoError(t, err)
-		assert.Len(t, javaSecurity.tlsDisablesAlgorithms, 2)
-		for _, res := range javaSecurity.tlsDisablesAlgorithms {
+		assert.Len(t, javaSecurity.tlsDisabledAlgorithms, 2)
+		for _, res := range javaSecurity.tlsDisabledAlgorithms {
 			switch res.name {
 			case "RSA":
 				assert.Equal(t, res.keySizeOperator, keySizeOperatorEqual)
@@ -72,8 +70,8 @@ func TestExtractTLSRulesNotSupported(t *testing.T) {
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
 		err := javaSecurity.extractTLSRules()
 		assert.NoError(t, err)
-		assert.Len(t, javaSecurity.tlsDisablesAlgorithms, 1)
-		for _, res := range javaSecurity.tlsDisablesAlgorithms {
+		assert.Len(t, javaSecurity.tlsDisabledAlgorithms, 1)
+		for _, res := range javaSecurity.tlsDisabledAlgorithms {
 			switch res.name {
 			case "SHA384":
 				assert.Equal(t, res.keySizeOperator, keySizeOperatorNone)
@@ -109,8 +107,8 @@ func TestExtractTLSRulesInclude(t *testing.T) {
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
 		err := javaSecurity.extractTLSRules()
 		assert.NoError(t, err)
-		assert.Len(t, javaSecurity.tlsDisablesAlgorithms, 3)
-		for _, res := range javaSecurity.tlsDisablesAlgorithms {
+		assert.Len(t, javaSecurity.tlsDisabledAlgorithms, 3)
+		for _, res := range javaSecurity.tlsDisabledAlgorithms {
 			switch res.name {
 			case "RSA":
 				assert.Equal(t, res.keySizeOperator, keySizeOperatorEqual)
@@ -183,7 +181,6 @@ func setUpCMD(originalKey string, originalValue string, newKey string, newValue 
 	javaSecurityPlugin := JavaSecurityPlugin{
 		security: JavaSecurity{
 			config,
-			map[cdx.BOMReference]*cdx.Component{},
 			[]JavaSecurityAlgorithmRestriction{},
 		},
 		filesystem: docker.GetSquashedFilesystem(image),

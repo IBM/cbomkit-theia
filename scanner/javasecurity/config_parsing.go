@@ -3,18 +3,14 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/magiconair/properties"
-
-	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 /*
@@ -34,7 +30,6 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (er
 		config := properties.MustLoadString(string(content)) // Sadly this function simply panics in case of any parsing errors. So no retry :sob:
 		javaSecurityPlugin.security = JavaSecurity{
 			config,
-			make(map[cdx.BOMReference]*cdx.Component),
 			[]JavaSecurityAlgorithmRestriction{},
 		}
 	}
@@ -73,22 +68,10 @@ java.security related
 // JavaSecurity represents the java.security file(s) found on the system
 type JavaSecurity struct {
 	*properties.Properties
-	bomRefMap             map[cdx.BOMReference]*cdx.Component
-	tlsDisablesAlgorithms []JavaSecurityAlgorithmRestriction
+	tlsDisabledAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
 // TODO: Include Java JDK to make sure that it is even using the disabledAlgorithms Properties (most is only supported by OpenJDK)
-
-// Creates a map from BOMReferences to Components to allow for fast reference
-func (javaSecurity *JavaSecurity) createCryptoComponentBOMRefMap(components []cdx.Component) {
-	slog.Debug("Creating new reference map to translate BOMReferences to components")
-	javaSecurity.bomRefMap = make(map[cdx.BOMReference]*cdx.Component)
-	for _, component := range components {
-		if component.BOMRef != "" {
-			javaSecurity.bomRefMap[cdx.BOMReference(component.BOMRef)] = &component
-		}
-	}
-}
 
 // Remove a single item by index s from a slice
 func removeFromSlice[T interface{}](slice []T, s int) []T {
@@ -201,7 +184,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				}
 			}
 
-			javaSecurity.tlsDisablesAlgorithms = append(javaSecurity.tlsDisablesAlgorithms, JavaSecurityAlgorithmRestriction{
+			javaSecurity.tlsDisabledAlgorithms = append(javaSecurity.tlsDisabledAlgorithms, JavaSecurityAlgorithmRestriction{
 				name:            name,
 				keySize:         keySize,
 				keySizeOperator: keySizeOperator,
@@ -212,28 +195,6 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 	}
 
 	return go_errors.Join(algorithmParsingErrors...)
-}
-
-func getUsageCountOfBomRefInSliceOfComponents(components []cdx.Component, bomRef string) (int, error) {
-	tempBom := cdx.NewBOM()
-	tempBom.Components = new([]cdx.Component)
-	*tempBom.Components = append(*tempBom.Components, components...)
-
-	tempTarget, err := os.CreateTemp("", "doComponentsContainBomRef")
-	if err != nil {
-		return 0, err
-	}
-	defer os.Remove(tempTarget.Name())
-
-	cyclonedx.WriteBOM(tempBom, tempTarget)
-
-	searchable, err := os.ReadFile(tempTarget.Name())
-
-	if err != nil {
-		return 0, err
-	}
-
-	return strings.Count(string(searchable), bomRef), nil
 }
 
 /*
@@ -293,8 +254,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 				slog.Info("Overriding properties with empty object")
 				javaSecurityPlugin.security = JavaSecurity{
 					properties.NewProperties(), // We override the current loaded property file with an empty object
-					javaSecurityPlugin.security.bomRefMap,
-					javaSecurityPlugin.security.tlsDisablesAlgorithms,
+					javaSecurityPlugin.security.tlsDisabledAlgorithms,
 				}
 			}
 
