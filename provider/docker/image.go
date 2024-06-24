@@ -93,7 +93,7 @@ func BuildNewImage(dockerfilePath string) (image ActiveImage, err error) {
 		DigestID string `json:"stream"`
 	}
 
-	err = json.Unmarshal(responseBytes, &responseStruct)
+	err = json.Unmarshal(responseBytes, &responseStruct) // TODO: Rate limit response docker
 	if err != nil {
 		return ActiveImage{}, err
 	}

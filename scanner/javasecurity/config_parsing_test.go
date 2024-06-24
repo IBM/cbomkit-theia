@@ -7,7 +7,6 @@ import (
 	"strconv"
 	"testing"
 
-	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/magiconair/properties"
 	"github.com/stretchr/testify/assert"
 )
@@ -35,7 +34,6 @@ func setUpExtractionOfRule(javaSecurityContent string) JavaSecurity {
 
 	javaSecurity := JavaSecurity{
 		config,
-		map[cdx.BOMReference]*cdx.Component{},
 		[]JavaSecurityAlgorithmRestriction{},
 	}
 
@@ -183,7 +181,6 @@ func setUpCMD(originalKey string, originalValue string, newKey string, newValue 
 	javaSecurityPlugin := JavaSecurityPlugin{
 		security: JavaSecurity{
 			config,
-			map[cdx.BOMReference]*cdx.Component{},
 			[]JavaSecurityAlgorithmRestriction{},
 		},
 		filesystem: docker.GetSquashedFilesystem(image),

@@ -3,18 +3,14 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
-	"os"
 	"path/filepath"
 	"strconv"
 	"strings"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/magiconair/properties"
-
-	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 /*
@@ -199,28 +195,6 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 	}
 
 	return go_errors.Join(algorithmParsingErrors...)
-}
-
-func getUsageCountOfBomRefInSliceOfComponents(components []cdx.Component, bomRef string) (int, error) {
-	tempBom := cdx.NewBOM()
-	tempBom.Components = new([]cdx.Component)
-	*tempBom.Components = append(*tempBom.Components, components...)
-
-	tempTarget, err := os.CreateTemp("", "doComponentsContainBomRef")
-	if err != nil {
-		return 0, err
-	}
-	defer os.Remove(tempTarget.Name())
-
-	cyclonedx.WriteBOM(tempBom, tempTarget)
-
-	searchable, err := os.ReadFile(tempTarget.Name())
-
-	if err != nil {
-		return 0, err
-	}
-
-	return strings.Count(string(searchable), bomRef), nil
 }
 
 /*
