@@ -6,7 +6,7 @@ import (
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
-	"ibm/container_cryptography_scanner/scanner/plugins/files"
+	"ibm/container_cryptography_scanner/scanner/plugins/certificates"
 	"log"
 	"log/slog"
 	"os"
@@ -85,7 +85,7 @@ func newScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.Plugin{
 		&javasecurity.JavaSecurityPlugin{},
-		&files.FilePlugin{},
+		&certificates.CertificatesPlugin{},
 	}
 	scanner.filesystem = filesystem
 

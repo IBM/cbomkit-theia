@@ -1,0 +1,528 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:bb9e86cb-180c-4e21-8b93-9a37f346379e",
+  "version": 1,
+  "metadata": {
+    "timestamp": "2024-05-27T07:42:38Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "IBM Research"
+          },
+          "name": "SonarQube Crypto Scanner Plugin",
+          "version": "1.1.2"
+        }
+      ]
+    }
+  },
+  "components": [
+    {
+      "bom-ref": "95955a37-0ae8-4cce-a99d-b25364c09fba",
+      "type": "cryptographic-asset",
+      "name": "sha-256",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/tomcat/util/net/AbstractEndpoint.java",
+            "line": 486,
+            "offset": 41,
+            "additionalContext": "java.security.MessageDigest#getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "cryptoFunctions": [
+            "digest"
+          ]
+        },
+        "oid": "2.16.840.1.101.3.4.2.1"
+      }
+    },
+    {
+      "bom-ref": "a46688eb-2b32-4f23-ad37-35fc8b6294eb",
+      "type": "cryptographic-asset",
+      "name": "desede-168-cbc-pkcs5",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/tomcat/util/net/jsse/PEMFile.java",
+            "line": 332,
+            "offset": 36,
+            "additionalContext": "javax.crypto.Cipher#getInstance(Ljava/lang/String;)Ljavax/crypto/Cipher;"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "parameterSetIdentifier": "168",
+          "padding": "pkcs5",
+          "cryptoFunctions": [
+            "decrypt"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "6df43ba4-8c4f-449e-938a-bcd1e70ebb32",
+      "type": "cryptographic-asset",
+      "name": "sha-1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/catalina/realm/SecretKeyCredentialHandler.java",
+            "line": 44,
+            "offset": 21
+          },
+          {
+            "location": "java/org/apache/tomcat/util/net/AbstractEndpoint.java",
+            "line": 491,
+            "offset": 39,
+            "additionalContext": "java.security.MessageDigest#getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;"
+          },
+          {
+            "location": "java/org/apache/tomcat/util/security/ConcurrentMessageDigest.java",
+            "line": 52,
+            "offset": 17
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "512"
+        },
+        "oid": "1.3.14.3.2.26"
+      }
+    },
+    {
+      "bom-ref": "f0ea347c-8c99-412c-a06e-e716ed07ee69",
+      "type": "cryptographic-asset",
+      "name": "aes-128",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/tomcat/util/net/jsse/PEMFile.java",
+            "line": 331,
+            "offset": 42,
+            "additionalContext": "javax.crypto.spec.SecretKeySpec#\u003cinit\u003e([BLjava/lang/String;)V"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "parameterSetIdentifier": "128",
+          "cryptoFunctions": [
+            "keygen"
+          ]
+        },
+        "oid": "2.16.840.1.101.3.4.1"
+      }
+    },
+    {
+      "bom-ref": "d8682e1a-804a-40fe-9b04-a62f27d520a6",
+      "type": "cryptographic-asset",
+      "name": "pbkdf2withhmacsha1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/catalina/realm/SecretKeyCredentialHandler.java",
+            "line": 44,
+            "offset": 21
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "kdf",
+          "cryptoFunctions": [
+            "keygen"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "040414e4-8a48-4c6b-8109-2ca8eaf5b22c",
+      "type": "cryptographic-asset",
+      "name": "aes-128-cbc-pkcs5",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/tomcat/util/net/jsse/PEMFile.java",
+            "line": 332,
+            "offset": 36,
+            "additionalContext": "javax.crypto.Cipher#getInstance(Ljava/lang/String;)Ljavax/crypto/Cipher;"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "parameterSetIdentifier": "128",
+          "padding": "pkcs5",
+          "cryptoFunctions": [
+            "decrypt"
+          ]
+        },
+        "oid": "2.16.840.1.101.3.4.1.2"
+      }
+    },
+    {
+      "bom-ref": "cf72586b-077c-4e47-8ac7-902fbd13c146",
+      "type": "cryptographic-asset",
+      "name": "hmacsha1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/catalina/realm/SecretKeyCredentialHandler.java",
+            "line": 44,
+            "offset": 21
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "mac",
+          "parameterSetIdentifier": "512"
+        }
+      }
+    },
+    {
+      "bom-ref": "c8ceefca-c668-4a5e-98c9-f87efbab3a5c",
+      "type": "cryptographic-asset",
+      "name": "des-56-cbc-pkcs5",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/tomcat/util/net/jsse/PEMFile.java",
+            "line": 332,
+            "offset": 36,
+            "additionalContext": "javax.crypto.Cipher#getInstance(Ljava/lang/String;)Ljavax/crypto/Cipher;"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "block-cipher",
+          "parameterSetIdentifier": "56",
+          "padding": "pkcs5",
+          "cryptoFunctions": [
+            "decrypt"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "dc5dd4f9-4e51-4f86-bd7a-bb15dbf2e721",
+      "type": "cryptographic-asset",
+      "name": "key:pbkdf2withhmacsha1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/catalina/realm/SecretKeyCredentialHandler.java",
+            "line": 44,
+            "offset": 21
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "secret-key"
+        }
+      }
+    },
+    {
+      "bom-ref": "8acf80b8-6a36-4a93-a6d7-77cb272e8a00",
+      "type": "cryptographic-asset",
+      "name": "key:aes",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "java/org/apache/tomcat/util/net/jsse/PEMFile.java",
+            "line": 331,
+            "offset": 42,
+            "additionalContext": "javax.crypto.spec.SecretKeySpec#\u003cinit\u003e([BLjava/lang/String;)V"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "secret-key"
+        }
+      }
+    },
+    {
+      "bom-ref": "ac9a6f13-f773-41d9-bfb9-2c372515b03e",
+      "type": "cryptographic-asset",
+      "name": "md5",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "test/org/apache/catalina/realm/TestJNDIRealm.java",
+            "line": 65,
+            "offset": 20,
+            "additionalContext": "java.security.MessageDigest#getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;"
+          },
+          {
+            "location": "java/org/apache/catalina/tribes/membership/cloud/CloudMembershipProvider.java",
+            "line": 61,
+            "offset": 18,
+            "additionalContext": "java.security.MessageDigest#getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;"
+          },
+          {
+            "location": "java/org/apache/tomcat/util/net/jsse/PEMFile.java",
+            "line": 515,
+            "offset": 35,
+            "additionalContext": "java.security.MessageDigest#getInstance(Ljava/lang/String;)Ljava/security/MessageDigest;"
+          },
+          {
+            "location": "java/org/apache/tomcat/util/security/ConcurrentMessageDigest.java",
+            "line": 51,
+            "offset": 17
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "128",
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "crypto/protocol/tls@1.2",
+      "type": "cryptographic-asset",
+      "name": "TLSv1.2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "35"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/App.java"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "protocol",
+        "protocolProperties": {
+          "type": "tls",
+          "version": "1.2",
+          "cipherSuites": [
+            {
+              "name": "TLS_RSA_WITH_3DES_EDE_CBC_SHA",
+              "algorithms": [
+                "crypto/algorithm/rsa-1024@1.2.840.113549.1.1.1",
+                "crypto/algorithm/3des-ede-cbc@1.2.840.113549.3.7",
+                "crypto/algorithm/sha-1@1.3.14.3.2.26"
+              ],
+              "identifiers": [
+                "0x00",
+                "0x0A"
+              ]
+            }
+          ]
+        },
+        "oid": "1.3.18.0.2.32.104"
+      }
+    },
+    {
+      "bom-ref": "crypto/algorithm/rsa-1024@1.2.840.113549.1.1.1",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "parameterSetIdentifier": "1024",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "x86_64",
+          "certificationLevel": [
+            "none"
+          ],
+          "cryptoFunctions": [
+            "encapsulate",
+            "decapsulate"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "crypto/algorithm/3des-ede-cbc@1.2.840.113549.3.7",
+      "type": "cryptographic-asset",
+      "name": "3DES_EDE_CBC",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "35"
+        }
+      ],
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "x86_64",
+          "certificationLevel": [
+            "none"
+          ],
+          "mode": "cbc",
+          "cryptoFunctions": [
+            "encrypt",
+            "decrypt"
+          ],
+          "classicalSecurityLevel": 112,
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.2.840.113549.3.7"
+      }
+    },
+    {
+      "bom-ref": "crypto/algorithm/sha-1@1.3.14.3.2.26",
+      "type": "cryptographic-asset",
+      "name": "SHA1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "parameterSetIdentifier": "160",
+          "executionEnvironment": "software-plain-ram",
+          "implementationPlatform": "x86_64",
+          "certificationLevel": [
+            "none"
+          ],
+          "cryptoFunctions": [
+            "digest"
+          ],
+          "nistQuantumSecurityLevel": 0
+        },
+        "oid": "1.3.14.3.2.26"
+      }
+    }
+  ],
+  "dependencies": [
+    {
+      "ref": "cf72586b-077c-4e47-8ac7-902fbd13c146",
+      "dependsOn": [
+        "6df43ba4-8c4f-449e-938a-bcd1e70ebb32"
+      ]
+    },
+    {
+      "ref": "8acf80b8-6a36-4a93-a6d7-77cb272e8a00",
+      "dependsOn": [
+        "f0ea347c-8c99-412c-a06e-e716ed07ee69"
+      ]
+    },
+    {
+      "ref": "d8682e1a-804a-40fe-9b04-a62f27d520a6",
+      "dependsOn": [
+        "cf72586b-077c-4e47-8ac7-902fbd13c146"
+      ]
+    },
+    {
+      "ref": "dc5dd4f9-4e51-4f86-bd7a-bb15dbf2e721",
+      "dependsOn": [
+        "d8682e1a-804a-40fe-9b04-a62f27d520a6"
+      ]
+    }
+  ]
+}
