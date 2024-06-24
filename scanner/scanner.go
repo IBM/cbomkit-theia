@@ -6,6 +6,7 @@ import (
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
 	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
+	"ibm/container_cryptography_scanner/scanner/plugins/files"
 	"log"
 	"log/slog"
 	"os"
@@ -69,6 +70,7 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 	}
 
 	for _, plugin := range scanner.configPlugins {
+		slog.Info("Updating components", "plugin", plugin.GetName())
 		*bom.Components, err = plugin.UpdateComponents(*bom.Components)
 		if err != nil {
 			return bom, fmt.Errorf("scanner: plugin (%v) failed to updated components of bom; %w", plugin.GetName(), err)
@@ -83,6 +85,7 @@ func newScanner(filesystem filesystem.Filesystem) scanner {
 	scanner := scanner{}
 	scanner.configPlugins = []config.Plugin{
 		&javasecurity.JavaSecurityPlugin{},
+		&files.FilePlugin{},
 	}
 	scanner.filesystem = filesystem
 

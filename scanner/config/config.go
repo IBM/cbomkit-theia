@@ -12,10 +12,3 @@ type Plugin interface {
 	ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error                    // find all relevant files in the filesystem
 	UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) // Update all BOM components using found files
 }
-
-// TODO
-/* type Plugin interface {
-    GetName() string // return a name for the plugin
-    FindRelevantFiles(filesystem filesystem.Filesystem) error // find all relevant files such as configs in the filesystem
-    UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) // Update all BOM components using found files
-}*/
