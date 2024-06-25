@@ -33,6 +33,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseRelevantFilesFromFilesystem(f
 		return err
 	}
 
+	if javaSecurityPlugin.security.Properties == nil {
+		return nil
+	}
+
 	err = javaSecurityPlugin.checkConfig()
 	if err != nil {
 		return err
@@ -57,7 +61,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 			if comp.CryptoProperties != nil {
 				err := javaSecurityPlugin.updateComponent(i, advancedCompSlice)
 
-				slog.Info("Component has been analyzed and confidence has been set", "component", advancedCompSlice.GetByIndex(i).Name, "confidence", advancedCompSlice.GetByIndex(i).Confidence.GetValue())
+				slog.Debug("Component has been analyzed and confidence has been set", "component", advancedCompSlice.GetByIndex(i).Name, "confidence", advancedCompSlice.GetByIndex(i).Confidence.GetValue())
 
 				if err != nil {
 					if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {

@@ -83,7 +83,6 @@ var errNilProperties = fmt.Errorf("scanner java: properties are nil")
 // Recursively get all comma-separated values of the property key. Recursion is necessary since values can include "include" directives which refer to other properties and include them in this property.
 func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string, err error) {
 	if javaSecurity.Properties == nil {
-		slog.Info("Could")
 		return values, errNilProperties
 	}
 
