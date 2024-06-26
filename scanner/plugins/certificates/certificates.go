@@ -8,7 +8,7 @@ import (
 	"log/slog"
 	"path/filepath"
 
-	"go.mozilla.org/pkcs7" // TODO: Deprecated -> Replace 
+	"go.mozilla.org/pkcs7" // TODO: Deprecated -> Replace
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -24,13 +24,13 @@ func (certificatesPlugin *CertificatesPlugin) GetName() string {
 
 func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err error) {
 	switch filepath.Ext(path) {
-	case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt": // TODO: ".key", ".pfx",  for keys
+	case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
 		certs, err := certificatesPlugin.parsex509CertFromPath(path)
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
 		}
 		certificatesPlugin.certs = append(certificatesPlugin.certs, certs...)
-	case ".p7a", ".p7b", ".p7c", ".p7s", ".spc":
+	case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
 		certs, err := certificatesPlugin.parsePKCS7FromPath(path)
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
