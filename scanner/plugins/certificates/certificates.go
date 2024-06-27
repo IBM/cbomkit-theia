@@ -1,8 +1,8 @@
 package certificates
 
 import (
-	"crypto/x509"
 	"encoding/pem"
+	"errors"
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
@@ -15,7 +15,7 @@ import (
 
 type CertificatesPlugin struct {
 	filesystem filesystem.Filesystem
-	certs      []*x509.Certificate
+	certs      []*X509CertificateWithMetadata
 }
 
 func (certificatesPlugin *CertificatesPlugin) GetName() string {
@@ -43,11 +43,11 @@ func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err erro
 	return err
 }
 
-func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string) ([]*x509.Certificate, error) {
+func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string) ([]*X509CertificateWithMetadata, error) {
 	rawFileBytes, err := certificatesPlugin.filesystem.ReadFile(path)
 
 	if err != nil {
-		return make([]*x509.Certificate, 0), nil
+		return make([]*X509CertificateWithMetadata, 0), nil
 	}
 
 	rest := rawFileBytes
@@ -67,13 +67,13 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 	}
 
 	if len(blocks) == 0 {
-		return x509.ParseCertificates(rawFileBytes)
+		return ParseCertificatesToX509CertificateWithMetadata(rawFileBytes, path)
 	}
 
-	certs := make([]*x509.Certificate, 0, len(blocks))
+	certs := make([]*X509CertificateWithMetadata, 0, len(blocks))
 
 	for _, block := range blocks {
-		moreCerts, err := x509.ParseCertificates(block.Bytes)
+		moreCerts, err := ParseCertificatesToX509CertificateWithMetadata(block.Bytes, path)
 		if err != nil {
 			return moreCerts, err
 		}
@@ -83,20 +83,30 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 	return certs, err
 }
 
-func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]*x509.Certificate, error) {
+func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]*X509CertificateWithMetadata, error) {
 	raw, err := certificatesPlugin.filesystem.ReadFile(path)
 	if err != nil {
-		return make([]*x509.Certificate, 0), err
+		return make([]*X509CertificateWithMetadata, 0), err
 	}
 
 	block, _ := pem.Decode(raw)
 
 	pkcs7Object, err := pkcs7.Parse(block.Bytes)
 	if err != nil || pkcs7Object == nil {
-		return make([]*x509.Certificate, 0), err
+		return make([]*X509CertificateWithMetadata, 0), err
 	}
 
-	return pkcs7Object.Certificates, nil
+	certsWithMetadata := make([]*X509CertificateWithMetadata, 0, len(pkcs7Object.Certificates))
+
+	for _, cert := range pkcs7Object.Certificates {
+		certWithMetadata, err := NewX509CertificateWithMetadata(cert, path)
+		if err != nil {
+			return make([]*X509CertificateWithMetadata, 0), err
+		}
+		certsWithMetadata = append(certsWithMetadata, certWithMetadata)
+	}
+
+	return certsWithMetadata, nil
 }
 
 func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error {
@@ -107,5 +117,15 @@ func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(f
 }
 
 func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+	for _, cert := range certificatesPlugin.certs {
+		cdxComps, err := cert.GenerateCDXComponents()
+		if errors.Is(err, ErrX509UnknownAlgorithm) {
+			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)
+		} else if err != nil {
+			return cdxComps, err
+		}
+		components = append(components, cdxComps...)
+	}
+
 	return components, nil
 }

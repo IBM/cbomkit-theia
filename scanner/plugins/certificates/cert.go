@@ -22,7 +22,7 @@ type X509CertificateWithMetadata struct {
 
 var ErrX509UnknownAlgorithm = errors.New("X.509 certificate has unknown algorithm")
 
-func New(cert *x509.Certificate, path string) (*X509CertificateWithMetadata, error) {
+func NewX509CertificateWithMetadata(cert *x509.Certificate, path string) (*X509CertificateWithMetadata, error) {
 	if cert == nil {
 		return nil, fmt.Errorf("certificate is nil")
 	}
@@ -33,6 +33,25 @@ func New(cert *x509.Certificate, path string) (*X509CertificateWithMetadata, err
 	}, nil
 }
 
+func ParseCertificatesToX509CertificateWithMetadata(der []byte, path string) ([]*X509CertificateWithMetadata, error) {
+	certs, err := x509.ParseCertificates(der)
+	if err != nil {
+		return make([]*X509CertificateWithMetadata, 0), err
+	}
+
+	certsWithMetadata := make([]*X509CertificateWithMetadata, 0, len(certs))
+	
+	for _, cert := range certs {
+		certWithMetadata, err := NewX509CertificateWithMetadata(cert, path)
+		if err != nil {
+			return certsWithMetadata, err
+		}
+		certsWithMetadata = append(certsWithMetadata, certWithMetadata)
+	}
+
+	return certsWithMetadata, err
+}
+
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GenerateCDXComponents() ([]cdx.Component, error) {
 	// TODO: Add OIDs
 	components := []cdx.Component{x509CertificateWithMetadata.GetCertificateComponent()}
@@ -40,11 +59,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GenerateCDXCompo
 	publicKeyAlgorithm, err2 := x509CertificateWithMetadata.GetPublicKeyAlgorithm()
 	publicKey, err3 := x509CertificateWithMetadata.GetPublicKey()
 
-	if err := errors.Join(err1, err2, err3); err != nil {
-		return components, err
-	}
-
-	return append(components, signatureAlgorithm, publicKeyAlgorithm, publicKey), nil
+	return append(components, signatureAlgorithm, publicKeyAlgorithm, publicKey), errors.Join(err1, err2, err3)
 }
 
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetCertificateComponent() cdx.Component {
