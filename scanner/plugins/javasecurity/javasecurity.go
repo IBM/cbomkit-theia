@@ -1,6 +1,7 @@
 package javasecurity
 
 import (
+	"errors"
 	go_errors "errors"
 	"fmt"
 	"ibm/container_cryptography_scanner/provider/filesystem"
@@ -76,16 +77,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		}
 	}
 
-	if len(insufficientInformationErrors) > 0 {
-		all := make([]string, len(insufficientInformationErrors))
-		for _, e := range insufficientInformationErrors {
-			if e != nil {
-				all = append(all, e.Error())
-			}
-		}
-
-		slog.Warn("Run finished with insufficient information errors", "errors", all)
-	}
+	slog.Warn("Run finished with insufficient information errors", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier(), "errors", errors.Join(insufficientInformationErrors...).Error())
 
 	return advancedCompSlice.GetComponentSlice(), nil
 }

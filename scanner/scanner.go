@@ -81,7 +81,7 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 
 // Create a new scanner object for the specific filesystem
 func newScanner(filesystem filesystem.Filesystem) scanner {
-	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem)
+	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem.GetIdentifier())
 	scanner := scanner{}
 	scanner.configPlugins = []config.Plugin{
 		&javasecurity.JavaSecurityPlugin{},

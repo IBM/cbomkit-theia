@@ -2,6 +2,7 @@ package filesystem
 
 import (
 	go_errors "errors"
+	"fmt"
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"io/fs"
 	"log/slog"
@@ -19,6 +20,7 @@ type Filesystem interface {
 	WalkDir(fn SimpleWalkDirFunc) (err error)         // Walk the full filesystem using the SimpleWalkDirFunc fn
 	ReadFile(path string) (content []byte, err error) // Read a specific file with a path from root of the filesystem
 	GetConfig() (config v1.Config, ok bool)           // Get a config of this filesystem in container image format (if it exists)
+	GetIdentifier() string                            // Identifier for this specific filesystem
 }
 
 // Simple plain filesystem that is constructed from the directory
@@ -57,4 +59,8 @@ func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
 // A plain directory does not have filesystem, so we return an empty object and false
 func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) {
 	return v1.Config{}, false
+}
+
+func (plainFilesystem PlainFilesystem) GetIdentifier() string {
+	return fmt.Sprintf("Plain Filesystem (%v)", plainFilesystem.rootPath)
 }

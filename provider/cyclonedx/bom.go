@@ -44,7 +44,7 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	} else {
 		slog.Error("The BOM is not valid. see errors:")
 		for _, desc := range result.Errors() {
-			fmt.Printf("- %s\n", desc)
+			fmt.Fprintf(os.Stderr, "- %s\n", desc)
 		}
 		return new(cdx.BOM), fmt.Errorf("provider: bom is not valid due to schema %v", schemaPath)
 	}

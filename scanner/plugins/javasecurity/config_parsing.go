@@ -116,13 +116,13 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 // Parses the TLS Rules from the java.security file
 // Returns a joined list of errors which occurred during parsing of algorithms
 func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
-	slog.Info("Extracting TLS rules", "javaSecurity", javaSecurity)
+	slog.Info("Extracting TLS rules")
 
 	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
 	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
 
 	if go_errors.Is(err, errNilProperties) {
-		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurity)
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.")
 	} else if err != nil {
 		return err
 	}
@@ -210,14 +210,14 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
 
 	config, ok := javaSecurityPlugin.filesystem.GetConfig()
 	if !ok {
-		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", javaSecurityPlugin.filesystem)
+		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
 		return nil
 	}
 
 	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
 
 	if go_errors.Is(err, errNilProperties) {
-		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "JavaSecurity", javaSecurityPlugin.security)
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
 		return nil
 	}
 
@@ -234,7 +234,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 
 	allowAdditionalFiles := javaSecurityPlugin.security.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
-		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "javaSecurity", javaSecurityPlugin.security)
+		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
 		return nil
 	}
 
@@ -260,7 +260,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 			content, err := javaSecurityPlugin.filesystem.ReadFile(value)
 			if err != nil {
 				if strings.Contains(err.Error(), "could not find file path in Tree") {
-					slog.Info("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
+					slog.Warn("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
 					return nil
 				} else {
 					return err

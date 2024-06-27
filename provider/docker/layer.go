@@ -2,6 +2,7 @@ package docker
 
 import (
 	"errors"
+	"fmt"
 	"io"
 	"log/slog"
 
@@ -51,4 +52,8 @@ func (layer Layer) ReadFile(path string) ([]byte, error) {
 
 func (layer Layer) GetConfig() (config v1.Config, ok bool) {
 	return layer.image.GetConfig()
+}
+
+func (layer Layer) GetIdentifier() string {
+	return fmt.Sprintf("Docker Image Layer (id:%v, layer:%v)", layer.image.id, layer.index)
 }
