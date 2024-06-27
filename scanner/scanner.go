@@ -5,8 +5,8 @@ import (
 	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/provider/filesystem"
 	"ibm/container_cryptography_scanner/scanner/config"
-	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
 	"ibm/container_cryptography_scanner/scanner/plugins/certificates"
+	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
 	"log"
 	"log/slog"
 	"os"
@@ -65,8 +65,8 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 	}
 
 	if bom.Components == nil {
-		err := fmt.Errorf("scanner: bom does not have any components")
-		return cdx.BOM{}, err
+		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
+		bom.Components = new([]cdx.Component)
 	}
 
 	for _, plugin := range scanner.configPlugins {

@@ -77,7 +77,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		}
 	}
 
-	slog.Warn("Run finished with insufficient information errors", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier(), "errors", errors.Join(insufficientInformationErrors...).Error())
+	joinedinsufficientInformationErrors := errors.Join(insufficientInformationErrors...)
+	if joinedinsufficientInformationErrors != nil {
+		slog.Warn("Run finished with insufficient information errors", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier(), "errors", errors.Join(insufficientInformationErrors...).Error())
+	}
 
 	return advancedCompSlice.GetComponentSlice(), nil
 }
