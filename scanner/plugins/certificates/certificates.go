@@ -127,5 +127,75 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.
 		components = append(components, cdxComps...)
 	}
 
-	return components, nil
+	// Removing all duplicates
+	uniqueComponents := make([]cdx.Component, 0)
+	bomRefsToReplace := make(map[cdx.BOMReference]cdx.BOMReference)
+	for i, comp := range components {
+		contains, collider := strippedContains(comp, append(components[:i], components[i+1:]...))
+		if !contains {
+			uniqueComponents = append(uniqueComponents, comp)
+		} else {
+			bomRefsToReplace[cdx.BOMReference(comp.BOMRef)] = cdx.BOMReference(collider.BOMRef)
+		}
+	}
+
+	for oldRef, newRef := range bomRefsToReplace {
+		replaceBomRefUsages(oldRef, newRef, &uniqueComponents)
+	}
+
+	return uniqueComponents, nil
+}
+
+func strippedContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Component) {
+	for _, comp2 := range list {
+		if strippedEquals(comp, comp2) {
+			return true, comp2
+		}
+	}
+
+	return false, cdx.Component{}
+}
+
+func strippedEquals(a cdx.Component, b cdx.Component) bool {
+	strippedComponents := []cdx.Component{a, b}
+	for i, comp := range strippedComponents {
+		comp.BOMRef = ""
+		if comp.CryptoProperties != nil {
+			if comp.CryptoProperties.CertificateProperties != nil {
+				comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = cdx.BOMReference("")
+				comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = cdx.BOMReference("")
+			} else if comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
+				comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = cdx.BOMReference("")
+			}
+		}
+		strippedComponents[i] = comp
+	}
+
+	return strippedComponents[0] == strippedComponents[1]
+}
+
+func replaceBomRefUsages(oldRef cdx.BOMReference, newRef cdx.BOMReference, components *[]cdx.Component) {
+	for _, comp := range *components {
+		if comp.BOMRef == string(oldRef) {
+			comp.BOMRef = string(newRef)
+		}
+
+		if comp.CryptoProperties != nil {
+			if comp.CryptoProperties.CertificateProperties != nil {
+				if comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef == oldRef {
+					comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = newRef
+					continue
+				}
+				if comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef == oldRef {
+					comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = newRef
+					continue
+				}
+			} else if comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
+				if comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef == oldRef {
+					comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = newRef
+					continue
+				}
+			}
+		}
+	}
 }
