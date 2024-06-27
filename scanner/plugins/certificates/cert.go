@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"time"
+	"github.com/google/uuid"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -54,18 +55,27 @@ func ParseCertificatesToX509CertificateWithMetadata(der []byte, path string) ([]
 
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GenerateCDXComponents() ([]cdx.Component, error) {
 	// TODO: Add OIDs
-	components := []cdx.Component{x509CertificateWithMetadata.GetCertificateComponent()}
+	certificate := x509CertificateWithMetadata.GetCertificateComponent()
 	signatureAlgorithm, err1 := x509CertificateWithMetadata.GetSignatureAlgorithm()
 	publicKeyAlgorithm, err2 := x509CertificateWithMetadata.GetPublicKeyAlgorithm()
 	publicKey, err3 := x509CertificateWithMetadata.GetPublicKey()
 
-	return append(components, signatureAlgorithm, publicKeyAlgorithm, publicKey), errors.Join(err1, err2, err3)
+	err := errors.Join(err1, err2, err3)
+
+	if err == nil {
+		certificate.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = cdx.BOMReference(signatureAlgorithm.BOMRef)
+		certificate.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = cdx.BOMReference(publicKey.BOMRef)
+		publicKey.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = cdx.BOMReference(publicKeyAlgorithm.BOMRef)
+	}
+
+	return []cdx.Component{certificate, signatureAlgorithm, publicKey, publicKeyAlgorithm}, err
 }
 
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetCertificateComponent() cdx.Component {
 	return cdx.Component{
 		Type: cdx.ComponentTypeCryptographicAsset,
 		Name: x509CertificateWithMetadata.Subject.CommonName,
+		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeCertificate,
 			CertificateProperties: &cdx.CertificateProperties{
@@ -75,7 +85,6 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetCertificateCo
 				NotValidAfter:        x509CertificateWithMetadata.NotAfter.Format(time.RFC3339),
 				CertificateFormat:    x509CertificateWithMetadata.format,
 				CertificateExtension: filepath.Ext(x509CertificateWithMetadata.path),
-				// TODO: Add AlgorithmRef and Public Key Ref
 			},
 		},
 		Evidence: &cdx.Evidence{
@@ -175,6 +184,7 @@ func getGenericSignatureAlgorithm(algo x509.SignatureAlgorithm) cdx.Component {
 	return cdx.Component{
 		Type: cdx.ComponentTypeCryptographicAsset,
 		Name: algo.String(),
+		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeAlgorithm,
 			AlgorithmProperties: &cdx.CryptoAlgorithmProperties{
@@ -226,6 +236,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 func getGenericPublicKey() cdx.Component {
 	return cdx.Component{
 		Type: cdx.ComponentTypeCryptographicAsset,
+		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
 			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
@@ -259,6 +270,7 @@ func getGenericPublicKeyAlgorithm(algo x509.PublicKeyAlgorithm) cdx.Component {
 	return cdx.Component{
 		Type: cdx.ComponentTypeCryptographicAsset,
 		Name: algo.String(),
+		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeAlgorithm,
 			AlgorithmProperties: &cdx.CryptoAlgorithmProperties{
