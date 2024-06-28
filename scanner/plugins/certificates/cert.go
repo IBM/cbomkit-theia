@@ -10,6 +10,7 @@ import (
 	"fmt"
 	"path/filepath"
 	"time"
+
 	"github.com/google/uuid"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
@@ -41,7 +42,7 @@ func ParseCertificatesToX509CertificateWithMetadata(der []byte, path string) ([]
 	}
 
 	certsWithMetadata := make([]*X509CertificateWithMetadata, 0, len(certs))
-	
+
 	for _, cert := range certs {
 		certWithMetadata, err := NewX509CertificateWithMetadata(cert, path)
 		if err != nil {
@@ -54,7 +55,6 @@ func ParseCertificatesToX509CertificateWithMetadata(der []byte, path string) ([]
 }
 
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GenerateCDXComponents() ([]cdx.Component, error) {
-	// TODO: Add OIDs
 	certificate := x509CertificateWithMetadata.GetCertificateComponent()
 	signatureAlgorithm, err1 := x509CertificateWithMetadata.GetSignatureAlgorithm()
 	publicKeyAlgorithm, err2 := x509CertificateWithMetadata.GetPublicKeyAlgorithm()
@@ -73,8 +73,8 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GenerateCDXCompo
 
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetCertificateComponent() cdx.Component {
 	return cdx.Component{
-		Type: cdx.ComponentTypeCryptographicAsset,
-		Name: x509CertificateWithMetadata.Subject.CommonName,
+		Type:   cdx.ComponentTypeCryptographicAsset,
+		Name:   x509CertificateWithMetadata.Subject.CommonName,
 		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeCertificate,
@@ -101,79 +101,95 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetSignatureAlgo
 	case x509.MD2WithRSA:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
+		comp.CryptoProperties.OID = "1.3.14.7.2.3.1"
 		return comp, nil
 	case x509.MD5WithRSA:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
+		comp.CryptoProperties.OID = "1.3.14.3.2.3"
 		return comp, nil
 	case x509.SHA1WithRSA:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.5"
 		return comp, nil
 	case x509.SHA256WithRSA:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.11"
 		return comp, nil
 	case x509.SHA384WithRSA:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.12"
 		return comp, nil
 	case x509.SHA512WithRSA:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.13"
 		return comp, nil
 	case x509.DSAWithSHA1:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
+		comp.CryptoProperties.OID = "1.3.14.3.2.27"
 		// TODO Padding?
 		return comp, nil
 	case x509.DSAWithSHA256:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
+		comp.CryptoProperties.OID = "2.16.840.1.101.3.4.3.2"
 		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA1:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
+		comp.CryptoProperties.OID = "1.2.840.10045.4.1"
 		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA256:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
+		comp.CryptoProperties.OID = "1.2.840.10045.4.3.2"
 		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA384:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
+		comp.CryptoProperties.OID = "1.2.840.10045.4.3.3"
 		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA512:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
+		comp.CryptoProperties.OID = "1.2.840.10045.4.3.4"
 		// TODO Padding?
 		return comp, nil
 	case x509.SHA256WithRSAPSS:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.11"
 		// TODO Padding?
 		return comp, nil
 	case x509.SHA384WithRSAPSS:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.12"
 		// TODO Padding?
 		return comp, nil
 	case x509.SHA512WithRSAPSS:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.13"
 		// TODO Padding?
 		return comp, nil
 	case x509.PureEd25519:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519"
+		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
 		return cdx.Component{}, ErrX509UnknownAlgorithm
@@ -182,8 +198,8 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetSignatureAlgo
 
 func getGenericSignatureAlgorithm(algo x509.SignatureAlgorithm) cdx.Component {
 	return cdx.Component{
-		Type: cdx.ComponentTypeCryptographicAsset,
-		Name: algo.String(),
+		Type:   cdx.ComponentTypeCryptographicAsset,
+		Name:   algo.String(),
 		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeAlgorithm,
@@ -206,6 +222,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 		size := pk.Size() * 8
 		comp.Name = fmt.Sprintf("RSA-%v", size)
 		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.1"
 		return comp, nil
 	case *dsa.PublicKey:
 		comp := getGenericPublicKey()
@@ -213,6 +230,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 		comp.Name = "DSA"
 		size := pk.Y.BitLen()
 		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+		comp.CryptoProperties.OID = "1.3.14.3.2.12"
 		return comp, nil
 	case *ecdsa.PublicKey:
 		comp := getGenericPublicKey()
@@ -220,6 +238,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 		comp.Name = "ECDSA"
 		size := pk.Params().BitSize // TODO: Correct?
 		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+		comp.CryptoProperties.OID = "1.2.840.10045.2.1"
 		return comp, nil
 	case *ed25519.PublicKey:
 		comp := getGenericPublicKey()
@@ -227,6 +246,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 		comp.Name = "ED25519"
 		size := len(*pk) * 8 // TODO: Correct?
 		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
 		return cdx.Component{}, ErrX509UnknownAlgorithm
@@ -235,7 +255,7 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 
 func getGenericPublicKey() cdx.Component {
 	return cdx.Component{
-		Type: cdx.ComponentTypeCryptographicAsset,
+		Type:   cdx.ComponentTypeCryptographicAsset,
 		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
@@ -250,16 +270,20 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKeyAlgo
 	switch x509CertificateWithMetadata.PublicKeyAlgorithm {
 	case x509.RSA:
 		comp := getGenericPublicKeyAlgorithm(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp.CryptoProperties.OID = "1.2.840.113549.1.1.1"
 		return comp, nil
 	case x509.DSA:
 		comp := getGenericPublicKeyAlgorithm(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp.CryptoProperties.OID = "1.3.14.3.2.12"
 		return comp, nil
 	case x509.ECDSA:
 		comp := getGenericPublicKeyAlgorithm(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp.CryptoProperties.OID = "1.2.840.10045.2.1"
 		return comp, nil
 	case x509.Ed25519:
 		comp := getGenericPublicKeyAlgorithm(x509CertificateWithMetadata.PublicKeyAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519"
+		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
 		return cdx.Component{}, ErrX509UnknownAlgorithm
@@ -268,8 +292,8 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKeyAlgo
 
 func getGenericPublicKeyAlgorithm(algo x509.PublicKeyAlgorithm) cdx.Component {
 	return cdx.Component{
-		Type: cdx.ComponentTypeCryptographicAsset,
-		Name: algo.String(),
+		Type:   cdx.ComponentTypeCryptographicAsset,
+		Name:   algo.String(),
 		BOMRef: uuid.New().String(),
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeAlgorithm,
