@@ -216,7 +216,7 @@ func getGenericSignatureAlgorithm(algo x509.SignatureAlgorithm) cdx.Component {
 
 func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (cdx.Component, error) {
 	switch x509CertificateWithMetadata.PublicKey.(type) {
-	case *rsa.PublicKey: // TODO: Set names for all
+	case *rsa.PublicKey:
 		comp := getGenericPublicKey()
 		pk := x509CertificateWithMetadata.PublicKey.(*rsa.PublicKey)
 		size := pk.Size() * 8
@@ -234,18 +234,11 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKey() (
 		return comp, nil
 	case *ecdsa.PublicKey:
 		comp := getGenericPublicKey()
-		pk := x509CertificateWithMetadata.PublicKey.(*ecdsa.PublicKey)
-		comp.Name = "ECDSA"
-		size := pk.Params().BitSize // TODO: Correct?
-		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
 		comp.CryptoProperties.OID = "1.2.840.10045.2.1"
 		return comp, nil
 	case *ed25519.PublicKey:
 		comp := getGenericPublicKey()
-		pk := x509CertificateWithMetadata.PublicKey.(*ed25519.PublicKey)
 		comp.Name = "ED25519"
-		size := len(*pk) * 8 // TODO: Correct?
-		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
