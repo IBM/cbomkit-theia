@@ -136,55 +136,46 @@ func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetSignatureAlgo
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
 		comp.CryptoProperties.OID = "1.3.14.3.2.27"
-		// TODO Padding?
 		return comp, nil
 	case x509.DSAWithSHA256:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.OID = "2.16.840.1.101.3.4.3.2"
-		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA1:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.1"
-		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA256:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.3.2"
-		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA384:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.3.3"
-		// TODO Padding?
 		return comp, nil
 	case x509.ECDSAWithSHA512:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.3.4"
-		// TODO Padding?
 		return comp, nil
 	case x509.SHA256WithRSAPSS:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.11"
-		// TODO Padding?
 		return comp, nil
 	case x509.SHA384WithRSAPSS:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.12"
-		// TODO Padding?
 		return comp, nil
 	case x509.SHA512WithRSAPSS:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.13"
-		// TODO Padding?
 		return comp, nil
 	case x509.PureEd25519:
 		comp := getGenericSignatureAlgorithm(x509CertificateWithMetadata.SignatureAlgorithm)
@@ -259,7 +250,7 @@ func getGenericPublicKey() cdx.Component {
 	}
 }
 
-func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKeyAlgorithm() (cdx.Component, error) { // TODO: Add more details to components
+func (x509CertificateWithMetadata *X509CertificateWithMetadata) GetPublicKeyAlgorithm() (cdx.Component, error) {
 	switch x509CertificateWithMetadata.PublicKeyAlgorithm {
 	case x509.RSA:
 		comp := getGenericPublicKeyAlgorithm(x509CertificateWithMetadata.PublicKeyAlgorithm)
