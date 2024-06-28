@@ -1,4 +1,4 @@
-FROM scratch
+FROM alpine:3.10
 
 COPY . /app
 

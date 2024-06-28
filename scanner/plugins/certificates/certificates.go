@@ -129,6 +129,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.
 	}
 
 	// Removing all duplicates
+	// TODO: Also remove duplicate public keys by comparing the actual key values
 	uniqueComponents := make([]cdx.Component, 0)
 	bomRefsToReplace := make(map[cdx.BOMReference]cdx.BOMReference)
 	for _, comp := range components {
