@@ -8,6 +8,7 @@ require (
 	github.com/anchore/stereoscope v0.0.2
 	github.com/docker/docker v26.1.3+incompatible
 	github.com/google/go-containerregistry v0.19.1
+	github.com/google/uuid v1.6.0
 	github.com/magiconair/properties v1.8.7
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.19.0
@@ -53,7 +54,6 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/hcl v1.0.0 // indirect

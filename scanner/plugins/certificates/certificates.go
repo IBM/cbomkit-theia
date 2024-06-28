@@ -7,6 +7,7 @@ import (
 	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
+	"slices"
 
 	"go.mozilla.org/pkcs7" // TODO: Deprecated -> Replace
 
@@ -130,8 +131,12 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.
 	// Removing all duplicates
 	uniqueComponents := make([]cdx.Component, 0)
 	bomRefsToReplace := make(map[cdx.BOMReference]cdx.BOMReference)
-	for i, comp := range components {
-		contains, collider := strippedContains(comp, append(components[:i], components[i+1:]...))
+	for _, comp := range components {
+		if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
+			uniqueComponents = append(uniqueComponents, comp)
+			continue
+		}
+		contains, collider := strippedAlgorithmContains(comp, uniqueComponents)
 		if !contains {
 			uniqueComponents = append(uniqueComponents, comp)
 		} else {
@@ -146,9 +151,12 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.
 	return uniqueComponents, nil
 }
 
-func strippedContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Component) {
+func strippedAlgorithmContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Component) {
+	if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
+		panic("scanner: strippedAlgorithmContains was called on a non-algorithm component")
+	}
 	for _, comp2 := range list {
-		if strippedEquals(comp, comp2) {
+		if comp2.CryptoProperties.AssetType == cdx.CryptoAssetTypeAlgorithm && strippedAlgorithmEquals(comp, comp2) {
 			return true, comp2
 		}
 	}
@@ -156,22 +164,19 @@ func strippedContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Compo
 	return false, cdx.Component{}
 }
 
-func strippedEquals(a cdx.Component, b cdx.Component) bool {
-	strippedComponents := []cdx.Component{a, b}
-	for i, comp := range strippedComponents {
-		comp.BOMRef = ""
-		if comp.CryptoProperties != nil {
-			if comp.CryptoProperties.CertificateProperties != nil {
-				comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = cdx.BOMReference("")
-				comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = cdx.BOMReference("")
-			} else if comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
-				comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = cdx.BOMReference("")
-			}
-		}
-		strippedComponents[i] = comp
+func strippedAlgorithmEquals(a cdx.Component, b cdx.Component) bool {
+	if a.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm || b.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
+		panic("scanner: strippedAlgorithmEquals was called on a non-algorithm component")
 	}
 
-	return strippedComponents[0] == strippedComponents[1]
+	return a.Name == b.Name &&
+		a.CryptoProperties.AlgorithmProperties.Primitive == b.CryptoProperties.AlgorithmProperties.Primitive &&
+		a.CryptoProperties.AlgorithmProperties.ExecutionEnvironment == b.CryptoProperties.AlgorithmProperties.ExecutionEnvironment &&
+		a.CryptoProperties.AlgorithmProperties.ImplementationPlatform == b.CryptoProperties.AlgorithmProperties.ImplementationPlatform &&
+		slices.Equal(*a.CryptoProperties.AlgorithmProperties.CertificationLevel, *b.CryptoProperties.AlgorithmProperties.CertificationLevel) &&
+		slices.Equal(*a.CryptoProperties.AlgorithmProperties.CryptoFunctions, *b.CryptoProperties.AlgorithmProperties.CryptoFunctions) &&
+		a.CryptoProperties.OID == b.CryptoProperties.OID &&
+		a.CryptoProperties.AlgorithmProperties.Padding == b.CryptoProperties.AlgorithmProperties.Padding
 }
 
 func replaceBomRefUsages(oldRef cdx.BOMReference, newRef cdx.BOMReference, components *[]cdx.Component) {
