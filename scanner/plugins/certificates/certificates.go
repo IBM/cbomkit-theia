@@ -10,8 +10,10 @@ import (
 	"slices"
 
 	"go.mozilla.org/pkcs7" // TODO: Deprecated -> Replace
+	"golang.org/x/exp/rand"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/google/uuid"
 )
 
 type CertificatesPlugin struct {
@@ -118,6 +120,8 @@ func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(f
 }
 
 func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+	uuid.SetRand(rand.New(rand.NewSource(1)))
+
 	for _, cert := range certificatesPlugin.certs {
 		cdxComps, err := cert.GenerateCDXComponents()
 		if errors.Is(err, ErrX509UnknownAlgorithm) {
