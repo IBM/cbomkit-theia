@@ -42,7 +42,13 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 			return nil
 		}
 
-		err = fn(path)
+		relativePath, err := filepath.Rel(plainFilesystem.rootPath, path)
+
+		if err != nil {
+			panic(err)
+		}
+
+		err = fn(relativePath)
 
 		if go_errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
 			slog.Warn(err.Error())
@@ -55,7 +61,7 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 
 // Read a file from this filesystem; path should be relative to PlainFilesystem.rootPath
 func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
-	contentBytes, err := os.ReadFile(path) // TODO: Is this correct?
+	contentBytes, err := os.ReadFile(filepath.Join(plainFilesystem.rootPath, path))
 	return contentBytes, err
 }
 

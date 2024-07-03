@@ -11,7 +11,7 @@
       "evidence": {
         "occurrences": [
           {
-            "location": "testdata/5_single_certificate/dir/cert.pem"
+            "location": "cert.pem"
           }
         ]
       },
