@@ -3,7 +3,7 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
+	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 	"strconv"

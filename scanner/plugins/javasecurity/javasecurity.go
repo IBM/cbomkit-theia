@@ -4,9 +4,9 @@ import (
 	"errors"
 	go_errors "errors"
 	"fmt"
-	"ibm/container_cryptography_scanner/provider/filesystem"
-	advancedcomponentslice "ibm/container_cryptography_scanner/scanner/advanced-component-slice"
-	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
+	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 

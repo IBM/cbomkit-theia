@@ -63,7 +63,7 @@ Use "cics [command] --help" for more information about a command.
     - Searches the filesystem for X.509 certificates
     - Adds the certificates to the CBOM, as well as signature algorithms, public keys and public key algorithms
 
-Additional plugins can be added by implementing the `Plugin` interface from `ibm/container_cryptography_scanner/scanner/plugins` and adding the plugin to the `plugins` list in the `Scanner` struct in `ibm/container_cryptography_scanner/scanner/scanner.go`: 
+Additional plugins can be added by implementing the `Plugin` interface from `ibm/container-image-cryptography-scanner/scanner/plugins` and adding the plugin to the `plugins` list in the `Scanner` struct in `ibm/container-image-cryptography-scanner/scanner/scanner.go`: 
 
 ```go
 scanner.configPlugins = []plugins.Plugin{

@@ -3,8 +3,8 @@ package openssl
 import (
 	"bufio"
 	go_errors "errors"
-	"ibm/container_cryptography_scanner/provider/filesystem"
-	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"path/filepath"
 	"slices"
 	"strings"

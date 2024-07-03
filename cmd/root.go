@@ -2,7 +2,7 @@ package cmd
 
 import (
 	"fmt"
-	"ibm/container_cryptography_scanner/cmd/image"
+	"ibm/container-image-cryptography-scanner/cmd/image"
 	"os"
 	"path/filepath"
 

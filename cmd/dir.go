@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"ibm/container_cryptography_scanner/provider/filesystem"
-	"ibm/container_cryptography_scanner/scanner"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	"ibm/container-image-cryptography-scanner/scanner"
 	"os"
 
 	"github.com/spf13/cobra"

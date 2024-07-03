@@ -1,4 +1,4 @@
-module ibm/container_cryptography_scanner
+module ibm/container-image-cryptography-scanner
 
 go 1.22.2
 

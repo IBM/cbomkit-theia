@@ -2,7 +2,7 @@ package javasecurity
 
 import (
 	"fmt"
-	"ibm/container_cryptography_scanner/provider/docker"
+	"ibm/container-image-cryptography-scanner/provider/docker"
 	"os"
 	"strconv"
 	"testing"

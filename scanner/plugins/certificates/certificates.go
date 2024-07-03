@@ -3,8 +3,8 @@ package certificates
 import (
 	"encoding/pem"
 	"errors"
-	"ibm/container_cryptography_scanner/provider/filesystem"
-	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 	"slices"
@@ -177,7 +177,7 @@ func strippedAlgorithmContains(comp cdx.Component, list []cdx.Component) (bool, 
 	return false, cdx.Component{}
 }
 
-// Check if a equals b while ignoring BOMReferences 
+// Check if a equals b while ignoring BOMReferences
 func strippedAlgorithmEquals(a cdx.Component, b cdx.Component) bool {
 	if a.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm || b.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
 		panic("scanner: strippedAlgorithmEquals was called on a non-algorithm component")

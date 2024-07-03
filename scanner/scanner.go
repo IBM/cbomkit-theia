@@ -2,11 +2,11 @@ package scanner
 
 import (
 	"fmt"
-	"ibm/container_cryptography_scanner/provider/cyclonedx"
-	"ibm/container_cryptography_scanner/provider/filesystem"
-	"ibm/container_cryptography_scanner/scanner/plugins"
-	"ibm/container_cryptography_scanner/scanner/plugins/certificates"
-	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
+	"ibm/container-image-cryptography-scanner/provider/cyclonedx"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/container-image-cryptography-scanner/scanner/plugins/certificates"
+	"ibm/container-image-cryptography-scanner/scanner/plugins/javasecurity"
 	"log"
 	"log/slog"
 	"os"

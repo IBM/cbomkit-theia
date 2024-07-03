@@ -3,7 +3,7 @@ package filesystem
 import (
 	go_errors "errors"
 	"fmt"
-	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
+	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -60,7 +60,7 @@ func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
 }
 
 // A plain directory does not have filesystem, so we return an empty object and false
-func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) { 
+func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) {
 	return v1.Config{}, false
 }
 

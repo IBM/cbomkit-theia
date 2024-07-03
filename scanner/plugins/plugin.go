@@ -1,7 +1,7 @@
 package plugins
 
 import (
-	"ibm/container_cryptography_scanner/provider/filesystem"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

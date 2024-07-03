@@ -5,9 +5,9 @@ import (
 	"path/filepath"
 	"testing"
 
-	"ibm/container_cryptography_scanner/provider/docker"
-	"ibm/container_cryptography_scanner/provider/filesystem"
-	"ibm/container_cryptography_scanner/scanner"
+	"ibm/container-image-cryptography-scanner/provider/docker"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	"ibm/container-image-cryptography-scanner/scanner"
 
 	"github.com/stretchr/testify/assert"
 )

@@ -1,7 +1,7 @@
 package image
 
 import (
-	"ibm/container_cryptography_scanner/provider/docker"
+	"ibm/container-image-cryptography-scanner/provider/docker"
 
 	"github.com/spf13/cobra"
 )

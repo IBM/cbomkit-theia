@@ -3,9 +3,9 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	advancedcomponentslice "ibm/container_cryptography_scanner/scanner/advanced-component-slice"
-	"ibm/container_cryptography_scanner/scanner/confidencelevel"
-	scanner_errors "ibm/container_cryptography_scanner/scanner/errors"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
+	"ibm/container-image-cryptography-scanner/scanner/confidencelevel"
+	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"strconv"
 	"strings"

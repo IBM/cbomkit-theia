@@ -1,7 +1,7 @@
 package main
 
 import (
-	"ibm/container_cryptography_scanner/cmd"
+	"ibm/container-image-cryptography-scanner/cmd"
 	"log/slog"
 	"os"
 )

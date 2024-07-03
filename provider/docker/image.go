@@ -11,7 +11,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ibm/container_cryptography_scanner/provider/filesystem"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
 
 	"github.com/anchore/go-logger"
 	"github.com/anchore/go-logger/adapter/logrus"

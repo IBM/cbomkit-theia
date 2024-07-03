@@ -1,7 +1,7 @@
 package advancedcomponentslice
 
 import (
-	"ibm/container_cryptography_scanner/scanner/confidencelevel"
+	"ibm/container-image-cryptography-scanner/scanner/confidencelevel"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
