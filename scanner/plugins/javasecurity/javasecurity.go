@@ -98,8 +98,6 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 	}
 
 	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
-	// TODO: Check if security property were changed dynamically via System.setProperty
-
 	return false, nil
 }
 

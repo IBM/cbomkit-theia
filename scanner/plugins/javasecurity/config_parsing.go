@@ -71,8 +71,6 @@ type JavaSecurity struct {
 	tlsDisabledAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
-// TODO: Include Java JDK to make sure that it is even using the disabledAlgorithms Properties (most is only supported by OpenJDK)
-
 // Remove a single item by index s from a slice
 func removeFromSlice[T interface{}](slice []T, s int) []T {
 	return append(slice[:s], slice[s+1:]...)
@@ -244,7 +242,6 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 	var ok bool
 
 	for _, command := range append(config.Cmd, config.Entrypoint...) {
-		// TODO: Support for ENV Variables
 		value, override, ok = getJavaFlagValue(command, SECURITY_CMD_ARGUMENT)
 
 		if ok {
