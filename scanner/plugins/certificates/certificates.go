@@ -16,15 +16,18 @@ import (
 	"github.com/google/uuid"
 )
 
+// Plugin to parse certificates from the filesystem
 type CertificatesPlugin struct {
 	filesystem filesystem.Filesystem
-	certs      []*X509CertificateWithMetadata
+	certs      []*x509CertificateWithMetadata
 }
 
+// Get the name of the plugin
 func (certificatesPlugin *CertificatesPlugin) GetName() string {
 	return "Certificate File Plugin"
 }
 
+// Check every file for a certificate and parse it if possible
 func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err error) {
 	switch filepath.Ext(path) {
 	case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
@@ -46,11 +49,12 @@ func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err erro
 	return err
 }
 
-func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string) ([]*X509CertificateWithMetadata, error) {
+// Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
+func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string) ([]*x509CertificateWithMetadata, error) {
 	rawFileBytes, err := certificatesPlugin.filesystem.ReadFile(path)
 
 	if err != nil {
-		return make([]*X509CertificateWithMetadata, 0), nil
+		return make([]*x509CertificateWithMetadata, 0), nil
 	}
 
 	rest := rawFileBytes
@@ -70,13 +74,13 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 	}
 
 	if len(blocks) == 0 {
-		return ParseCertificatesToX509CertificateWithMetadata(rawFileBytes, path)
+		return parseCertificatesToX509CertificateWithMetadata(rawFileBytes, path)
 	}
 
-	certs := make([]*X509CertificateWithMetadata, 0, len(blocks))
+	certs := make([]*x509CertificateWithMetadata, 0, len(blocks))
 
 	for _, block := range blocks {
-		moreCerts, err := ParseCertificatesToX509CertificateWithMetadata(block.Bytes, path)
+		moreCerts, err := parseCertificatesToX509CertificateWithMetadata(block.Bytes, path)
 		if err != nil {
 			return moreCerts, err
 		}
@@ -86,25 +90,26 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 	return certs, err
 }
 
-func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]*X509CertificateWithMetadata, error) {
+// Parse X.509 certificates from a PKCS7 file (base64 PEM format)
+func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]*x509CertificateWithMetadata, error) {
 	raw, err := certificatesPlugin.filesystem.ReadFile(path)
 	if err != nil {
-		return make([]*X509CertificateWithMetadata, 0), err
+		return make([]*x509CertificateWithMetadata, 0), err
 	}
 
 	block, _ := pem.Decode(raw)
 
 	pkcs7Object, err := pkcs7.Parse(block.Bytes)
 	if err != nil || pkcs7Object == nil {
-		return make([]*X509CertificateWithMetadata, 0), err
+		return make([]*x509CertificateWithMetadata, 0), err
 	}
 
-	certsWithMetadata := make([]*X509CertificateWithMetadata, 0, len(pkcs7Object.Certificates))
+	certsWithMetadata := make([]*x509CertificateWithMetadata, 0, len(pkcs7Object.Certificates))
 
 	for _, cert := range pkcs7Object.Certificates {
-		certWithMetadata, err := NewX509CertificateWithMetadata(cert, path)
+		certWithMetadata, err := newX509CertificateWithMetadata(cert, path)
 		if err != nil {
-			return make([]*X509CertificateWithMetadata, 0), err
+			return make([]*x509CertificateWithMetadata, 0), err
 		}
 		certsWithMetadata = append(certsWithMetadata, certWithMetadata)
 	}
@@ -112,6 +117,7 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]
 	return certsWithMetadata, nil
 }
 
+// Parse all certificates from the given filesystem
 func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error {
 	certificatesPlugin.filesystem = filesystem
 	err := filesystem.WalkDir(certificatesPlugin.walkDirFunc)
@@ -119,12 +125,13 @@ func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(f
 	return err
 }
 
+// Add the found certificates to the slice of components
 func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
 	uuid.SetRand(rand.New(rand.NewSource(1)))
 
 	for _, cert := range certificatesPlugin.certs {
-		cdxComps, err := cert.GenerateCDXComponents()
-		if errors.Is(err, ErrX509UnknownAlgorithm) {
+		cdxComps, err := cert.generateCDXComponents()
+		if errors.Is(err, errX509UnknownAlgorithm) {
 			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)
 		} else if err != nil {
 			return cdxComps, err
@@ -156,6 +163,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.
 	return uniqueComponents, nil
 }
 
+// Check if comp is contained in list while ignoring BOMReferences
 func strippedAlgorithmContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Component) {
 	if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
 		panic("scanner: strippedAlgorithmContains was called on a non-algorithm component")
@@ -169,6 +177,7 @@ func strippedAlgorithmContains(comp cdx.Component, list []cdx.Component) (bool, 
 	return false, cdx.Component{}
 }
 
+// Check if a equals b while ignoring BOMReferences 
 func strippedAlgorithmEquals(a cdx.Component, b cdx.Component) bool {
 	if a.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm || b.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
 		panic("scanner: strippedAlgorithmEquals was called on a non-algorithm component")
@@ -184,6 +193,7 @@ func strippedAlgorithmEquals(a cdx.Component, b cdx.Component) bool {
 		a.CryptoProperties.AlgorithmProperties.Padding == b.CryptoProperties.AlgorithmProperties.Padding
 }
 
+// Replace all usages of oldRef by newRef in components
 func replaceBomRefUsages(oldRef cdx.BOMReference, newRef cdx.BOMReference, components *[]cdx.Component) {
 	for _, comp := range *components {
 		if comp.BOMRef == string(oldRef) {

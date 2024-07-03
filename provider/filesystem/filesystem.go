@@ -20,7 +20,7 @@ type Filesystem interface {
 	WalkDir(fn SimpleWalkDirFunc) (err error)         // Walk the full filesystem using the SimpleWalkDirFunc fn
 	ReadFile(path string) (content []byte, err error) // Read a specific file with a path from root of the filesystem
 	GetConfig() (config v1.Config, ok bool)           // Get a config of this filesystem in container image format (if it exists)
-	GetIdentifier() string                            // Identifier for this specific filesystem
+	GetIdentifier() string                            // Identifier for this specific filesystem; can be used for logging
 }
 
 // Simple plain filesystem that is constructed from the directory
@@ -28,12 +28,14 @@ type PlainFilesystem struct { // implements Filesystem
 	rootPath string
 }
 
+// Get a new PlainFilesystem from rootPath
 func NewPlainFilesystem(rootPath string) PlainFilesystem {
 	return PlainFilesystem{
 		rootPath: rootPath,
 	}
 }
 
+// Walk the whole PlainFilesystem using fn
 func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 	return filepath.WalkDir(plainFilesystem.rootPath, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
@@ -51,16 +53,18 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 	})
 }
 
+// Read a file from this filesystem; path should be relative to PlainFilesystem.rootPath
 func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
-	contentBytes, err := os.ReadFile(path)
+	contentBytes, err := os.ReadFile(path) // TODO: Is this correct?
 	return contentBytes, err
 }
 
 // A plain directory does not have filesystem, so we return an empty object and false
-func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) {
+func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) { 
 	return v1.Config{}, false
 }
 
+// Get a unique string for this PlainFilesystem; can be used for logging etc.
 func (plainFilesystem PlainFilesystem) GetIdentifier() string {
 	return fmt.Sprintf("Plain Filesystem (%v)", plainFilesystem.rootPath)
 }

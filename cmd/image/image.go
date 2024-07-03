@@ -11,7 +11,6 @@ import (
 
 var dockerHost string
 
-// imageCmd represents the image command
 var ImageCmd = &cobra.Command{
 	Use:   "image",
 	Short: "Verify CBOM using a container image",
@@ -31,6 +30,7 @@ Supported image sources:
 	},
 }
 
+// This function basically extract all information that is still missing, such as the BOM and the schema and runs a scan on the images top layer
 func prepareImageAndRun(image docker.ActiveImage, err error) {
 	if err != nil {
 		panic(err)

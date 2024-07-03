@@ -17,6 +17,7 @@ var tests = []struct {
 
 var schemaPath string = "./bom-1.6.schema.json"
 
+// Test if the BOMs are parsed as expected
 func TestParseBOM(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.in, func(t *testing.T) {

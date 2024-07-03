@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// dockerfileCmd represents the dockerfile command
 var buildCmd = &cobra.Command{
 	Use:   "build",
 	Short: "Verify CBOM using a new container image",

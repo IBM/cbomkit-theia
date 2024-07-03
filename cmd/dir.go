@@ -8,7 +8,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// dirCmd represents the filesystem command
 var dirCmd = &cobra.Command{
 	Use:   "dir",
 	Short: "Verify CBOM using a directory",

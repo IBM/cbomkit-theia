@@ -10,6 +10,7 @@ import (
 	"golang.org/x/exp/slog"
 )
 
+// Write bom to the file
 func WriteBOM(bom *cdx.BOM, file *os.File) error {
 	// Encode the BOM
 	err := cdx.NewBOMEncoder(file, cdx.BOMFileFormatJSON).
@@ -21,6 +22,7 @@ func WriteBOM(bom *cdx.BOM, file *os.File) error {
 	return nil
 }
 
+// Parse and validate a CycloneDX BOM from path using the schema under schemaPath
 func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	// Read BOM
 	slog.Info("Reading BOM file", "path", path)

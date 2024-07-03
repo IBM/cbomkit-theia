@@ -6,7 +6,6 @@ import (
 	"github.com/spf13/cobra"
 )
 
-// imageCmd represents the image command
 var getCmd = &cobra.Command{
 	Use:   "get",
 	Short: "Verify CBOM using a prebuilt container image",
