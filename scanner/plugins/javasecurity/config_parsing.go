@@ -27,7 +27,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (er
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
 		}
-		config := properties.MustLoadString(string(content)) // Sadly this function simply panics in case of any parsing errors. So no retry :sob:
+		config, err := properties.LoadString(string(content))
+		if err != nil {
+			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
+		}
 		javaSecurityPlugin.security = JavaSecurity{
 			config,
 			[]JavaSecurityAlgorithmRestriction{},

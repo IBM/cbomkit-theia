@@ -16,5 +16,5 @@ func GetInsufficientInformationError(msg string, plugin string, affectedObjectTy
 var ErrParsingFailedAlthoughChecked = errors.New("scanner: failed to parse file that was assumed to be a valid configuration")
 
 func GetParsingFailedAlthoughCheckedError(parsingError error, plugin string) error {
-	return fmt.Errorf("%w: (%v) %w", ErrInsufficientInformation, plugin, parsingError)
+	return fmt.Errorf("%w: (%v) %w", ErrParsingFailedAlthoughChecked, plugin, parsingError)
 }

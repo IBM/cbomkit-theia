@@ -8,9 +8,11 @@ import (
 	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
+	"os"
 	"path/filepath"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/magiconair/properties"
 )
 
 // Represents the java security plugin in a specific scanning context
@@ -28,6 +30,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
 func (javaSecurityPlugin *JavaSecurityPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) (err error) {
 	javaSecurityPlugin.filesystem = filesystem
+
+	properties.ErrorHandler = func(err error) {
+		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
+		os.Exit(1)
+	}
 
 	err = filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc)
 	if err != nil {
