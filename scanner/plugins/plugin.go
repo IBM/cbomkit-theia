@@ -1,4 +1,4 @@
-package config
+package plugins
 
 import (
 	"ibm/container_cryptography_scanner/provider/filesystem"

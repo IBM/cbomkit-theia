@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"ibm/container_cryptography_scanner/provider/cyclonedx"
 	"ibm/container_cryptography_scanner/provider/filesystem"
-	"ibm/container_cryptography_scanner/scanner/config"
+	"ibm/container_cryptography_scanner/scanner/plugins"
 	"ibm/container_cryptography_scanner/scanner/plugins/certificates"
 	"ibm/container_cryptography_scanner/scanner/plugins/javasecurity"
 	"log"
@@ -41,7 +41,7 @@ func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath str
 
 // scanner is used internally to represent a single scanner with several plugins (e.g. java.security plugin) scanning a single filesystem (e.g. a docker image layer)
 type scanner struct {
-	configPlugins []config.Plugin
+	configPlugins []plugins.Plugin
 	filesystem    filesystem.Filesystem
 }
 
@@ -83,7 +83,7 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 func newScanner(filesystem filesystem.Filesystem) scanner {
 	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem.GetIdentifier())
 	scanner := scanner{}
-	scanner.configPlugins = []config.Plugin{
+	scanner.configPlugins = []plugins.Plugin{
 		&javasecurity.JavaSecurityPlugin{},
 		&certificates.CertificatesPlugin{},
 	}

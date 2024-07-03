@@ -54,9 +54,24 @@ Flags:
 Use "cics [command] --help" for more information about a command.
 ```
 
-Supported Configurations:
-  - `java.security` configuration
-    - `jdk.tls.disabledAlgorithms`
+## Plugins
+  - `java.security` Configuration Plugin:
+    - Searches the filessystem for the `java.security` file and reads the configuration
+    - Reads the `jdk.tls.disabledAlgorithms` property and checks if any of the algorithms are used in the given CBOM
+    - Based on the results, a confidence level is assigned to the restricted (or not restricted) algorithms in the CBOM
+  - X.509 Certificate Plugin:
+    - Searches the filesystem for X.509 certificates
+    - Adds the certificates to the CBOM, as well as signature algorithms, public keys and public key algorithms
+
+Additional plugins can be added by implementing the `Plugin` interface from `ibm/container_cryptography_scanner/scanner/plugins` and adding the plugin to the `plugins` list in the `Scanner` struct in `ibm/container_cryptography_scanner/scanner/scanner.go`: 
+
+```go
+scanner.configPlugins = []plugins.Plugin{
+    &javasecurity.JavaSecurityPlugin{},
+    &certificates.CertificatesPlugin{},
+    &myplugin.MyPlugin{},
+}
+```
 
 ## Security Disclaimer
 The CICS performs several filesystem reads based on the user input and may print the contents of these files to the stderr console. Do not use this tools on untrusted input or provide the output to untrusted parties.
