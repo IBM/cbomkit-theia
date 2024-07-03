@@ -1,0 +1,91 @@
+{
+  "bomFormat": "CycloneDX",
+  "specVersion": "1.6",
+  "serialNumber": "urn:uuid:bb9e86cb-180c-4e21-8b93-9a37f346379e",
+  "version": 1,
+  "components": [
+    {
+      "bom-ref": "67d10549-3936-4934-b1c7-e42ff60e7c81",
+      "type": "cryptographic-asset",
+      "name": "Linagora CA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "Linagora CA",
+          "issuerName": "Linagora CA",
+          "notValidBefore": "2015-09-14T08:50:19Z",
+          "notValidAfter": "2025-09-11T08:50:19Z",
+          "signatureAlgorithmRef": "405a4fe2-e687-4993-9961-22fe07830a0c",
+          "subjectPublicKeyRef": "6b936beb-16e4-488f-baa6-f349c13fa405",
+          "certificateFormat": "X.509",
+          "certificateExtension": ".pem"
+        }
+      }
+    },
+    {
+      "bom-ref": "405a4fe2-e687-4993-9961-22fe07830a0c",
+      "type": "cryptographic-asset",
+      "name": "SHA256-RSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "256",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "padding": "pkcs1v15",
+          "cryptoFunctions": [
+            "sign",
+            "digest"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.11"
+      }
+    },
+    {
+      "bom-ref": "6b936beb-16e4-488f-baa6-f349c13fa405",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "56ab8b8d-5663-43f9-a026-d06bf33aefba",
+          "size": 2048
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "56ab8b8d-5663-43f9-a026-d06bf33aefba",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "encapsulate",
+            "decapsulate"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    }
+  ]
+}
