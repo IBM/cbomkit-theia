@@ -48,7 +48,7 @@ type scanner struct {
 // Call all plugins for this scanner to find config files in the underlying filesystem
 func (scanner *scanner) findConfigFiles() error {
 	for _, plugin := range scanner.configPlugins {
-		slog.Info("Finding config files", "plugin", plugin.GetName())
+		slog.Info("Finding relevant files", "plugin", plugin.GetName())
 		err := plugin.ParseRelevantFilesFromFilesystem(scanner.filesystem)
 		if err != nil {
 			return err
