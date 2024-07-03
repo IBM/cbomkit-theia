@@ -16,7 +16,7 @@ var testfileFolder string = "./testdata"
 var outputExtension string = "/out/bom.json"
 var bomFolderExtension string = "/in/bom.json"
 var dockerfileExtension string = "/image/Dockerfile"
-var fsExtension string = "/fs"
+var dirExtension string = "/dir"
 
 type testType int
 
@@ -33,9 +33,13 @@ var tests = []struct {
 	err            bool
 }{
 	{testTypeImageBuild, "", "/0_empty", false},
-	{testTypeImageBuild, "", "/1_exclude_single_algorithm", false},
 	{testTypeImageGet, "busybox", "/0_empty", false},
+	{testTypeImageBuild, "", "/1_exclude_single_algorithm", false},
 	{testTypeImageBuild, "", "/2_tomcat", false},
+	{testTypeImageBuild, "", "/3_certificates", false},
+	{testTypeDir, "", "/4_unknown_keySize", false},
+	{testTypeDir, "", "/5_single_certificate", false},
+	{testTypeDir, "", "/6_malformed_java_security", false},
 }
 
 func runImage(image docker.ActiveImage, target *os.File, bomFilePath string, bomSchemaPath string) error {
@@ -60,7 +64,7 @@ func TestScan(t *testing.T) {
 
 			switch test.testType {
 			case testTypeImageBuild:
-				dockerfilePath := testfileFolder + test.in + dockerfileExtension
+				dockerfilePath := filepath.Join(testfileFolder, test.in, dockerfileExtension)
 				image, err := docker.BuildNewImage(dockerfilePath)
 				assert.NoError(t, err)
 				defer image.TearDown()
@@ -71,7 +75,7 @@ func TestScan(t *testing.T) {
 				defer image.TearDown()
 				runErr = runImage(image, tempTarget, bomFolder, schemaPath)
 			case testTypeDir:
-				fs := filesystem.NewPlainFilesystem(test.in)
+				fs := filesystem.NewPlainFilesystem(filepath.Join(testfileFolder, test.in, dirExtension))
 				assert.NoError(t, err)
 				runErr = scanner.CreateAndRunScan(fs, tempTarget, bomFolder, schemaPath)
 			}
