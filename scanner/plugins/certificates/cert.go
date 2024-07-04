@@ -190,7 +190,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
-		return cdx.Component{}, errX509UnknownAlgorithm
+		return getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm), errX509UnknownAlgorithm
 	}
 }
 
@@ -281,7 +281,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyAlgo
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
-		return cdx.Component{}, errX509UnknownAlgorithm
+		return getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm), errX509UnknownAlgorithm
 	}
 }
 
