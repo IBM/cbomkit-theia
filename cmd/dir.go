@@ -13,6 +13,9 @@ var dirCmd = &cobra.Command{
 	Short: "Verify CBOM using a directory",
 	Long: `Verify CBOM using a directory
 
+- Verifies the CBOM assuming that the given directory is the filesystem the application runs in
+- Provides the most value if directory contains the whole Linux filesystem tree that the application runs in
+
 Supported image/filesystem sources:
 - local directory
 
