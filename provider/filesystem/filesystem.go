@@ -13,7 +13,7 @@ import (
 )
 
 // A simple interface for a function to walk directories
-type SimpleWalkDirFunc func(path string) error
+type SimpleWalkDirFunc func(filesystem Filesystem, path string) error
 
 // Filesystem interface is mainly used to interact with all types of possible data source (e.g. directories, docker images etc.); for images this represents a squashed layer
 type Filesystem interface {
@@ -48,7 +48,7 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 			panic(err)
 		}
 
-		err = fn(relativePath)
+		err = fn(plainFilesystem, relativePath)
 
 		if go_errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
 			slog.Warn(err.Error())

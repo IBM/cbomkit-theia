@@ -18,7 +18,6 @@ import (
 
 // Plugin to parse certificates from the filesystem
 type CertificatesPlugin struct {
-	filesystem filesystem.Filesystem
 	certs      []*x509CertificateWithMetadata
 }
 
@@ -28,16 +27,24 @@ func (certificatesPlugin *CertificatesPlugin) GetName() string {
 }
 
 // Check every file for a certificate and parse it if possible
-func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err error) {
+func (certificatesPlugin *CertificatesPlugin) walkDirFunc(filesystem filesystem.Filesystem, path string) (err error) {
 	switch filepath.Ext(path) {
 	case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
-		certs, err := certificatesPlugin.parsex509CertFromPath(path)
+		raw, err := filesystem.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		certs, err := certificatesPlugin.parsex509CertFromPath(raw, path)
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
 		}
 		certificatesPlugin.certs = append(certificatesPlugin.certs, certs...)
 	case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
-		certs, err := certificatesPlugin.parsePKCS7FromPath(path)
+		raw, err := filesystem.ReadFile(path)
+		if err != nil {
+			return err
+		}
+		certs, err := certificatesPlugin.parsePKCS7FromPath(raw, path)
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
 		}
@@ -50,14 +57,8 @@ func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err erro
 }
 
 // Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
-func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string) ([]*x509CertificateWithMetadata, error) {
-	rawFileBytes, err := certificatesPlugin.filesystem.ReadFile(path)
-
-	if err != nil {
-		return make([]*x509CertificateWithMetadata, 0), nil
-	}
-
-	rest := rawFileBytes
+func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
+	rest := raw
 	var blocks []*pem.Block
 	for len(rest) != 0 {
 		var newBlock *pem.Block
@@ -74,7 +75,7 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 	}
 
 	if len(blocks) == 0 {
-		return parseCertificatesToX509CertificateWithMetadata(rawFileBytes, path)
+		return parseCertificatesToX509CertificateWithMetadata(raw, path)
 	}
 
 	certs := make([]*x509CertificateWithMetadata, 0, len(blocks))
@@ -87,16 +88,11 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 		certs = append(certs, moreCerts...)
 	}
 
-	return certs, err
+	return certs, nil
 }
 
 // Parse X.509 certificates from a PKCS7 file (base64 PEM format)
-func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]*x509CertificateWithMetadata, error) {
-	raw, err := certificatesPlugin.filesystem.ReadFile(path)
-	if err != nil {
-		return make([]*x509CertificateWithMetadata, 0), err
-	}
-
+func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
 	block, _ := pem.Decode(raw)
 
 	pkcs7Object, err := pkcs7.Parse(block.Bytes)
@@ -119,7 +115,6 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]
 
 // Parse all certificates from the given filesystem
 func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error {
-	certificatesPlugin.filesystem = filesystem
 	err := filesystem.WalkDir(certificatesPlugin.walkDirFunc)
 	slog.Info("Certificate searching done", "count", len(certificatesPlugin.certs))
 	return err

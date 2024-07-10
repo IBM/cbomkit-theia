@@ -3,6 +3,7 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
@@ -20,10 +21,10 @@ General
 */
 
 // Checks single files while walking a file tree and parses a config if possible
-func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(filesystem filesystem.Filesystem, path string) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
 		slog.Info("Adding java.security config file", "path", path)
-		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
+		content, err := filesystem.ReadFile(path)
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
 		}
@@ -206,19 +207,19 @@ container image related
 const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 
 // Tries to get a config from the filesystem and checks the Config for potentially relevant information
-func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
+func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig(filesystem filesystem.Filesystem) error {
 	slog.Info("Checking filesystem config for additional security properties")
 
-	config, ok := javaSecurityPlugin.filesystem.GetConfig()
+	config, ok := filesystem.GetConfig()
 	if !ok {
-		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
+		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", filesystem.GetIdentifier())
 		return nil
 	}
 
-	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
+	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config, filesystem)
 
 	if go_errors.Is(err, errNilProperties) {
-		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", filesystem.GetIdentifier())
 		return nil
 	}
 
@@ -226,7 +227,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
 }
 
 // Searches the image config for potentially relevant CMD parameters and potentially adds new properties
-func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(config v1.Config) (err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(config v1.Config, filesystem filesystem.Filesystem) (err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
 
 	if javaSecurityPlugin.security.Properties == nil { // We do not have a security file
@@ -235,7 +236,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 
 	allowAdditionalFiles := javaSecurityPlugin.security.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
-		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
+		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", filesystem.GetIdentifier())
 		return nil
 	}
 
@@ -257,7 +258,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 				}
 			}
 
-			content, err := javaSecurityPlugin.filesystem.ReadFile(value)
+			content, err := filesystem.ReadFile(value)
 			if err != nil {
 				if strings.Contains(err.Error(), "could not find file path in Tree") {
 					slog.Warn("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)

@@ -19,7 +19,6 @@ import (
 // Implements the config/ConfigPlugin interface
 type JavaSecurityPlugin struct {
 	security   JavaSecurity
-	filesystem filesystem.Filesystem
 }
 
 // Get the name of the plugin for debugging purposes
@@ -29,8 +28,6 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
 func (javaSecurityPlugin *JavaSecurityPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) (err error) {
-	javaSecurityPlugin.filesystem = filesystem
-
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
 		os.Exit(1)
@@ -45,7 +42,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) ParseRelevantFilesFromFilesystem(f
 		return nil
 	}
 
-	err = javaSecurityPlugin.checkConfig()
+	err = javaSecurityPlugin.checkConfig(filesystem)
 	if err != nil {
 		return err
 	}
@@ -86,7 +83,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 
 	joinedinsufficientInformationErrors := errors.Join(insufficientInformationErrors...)
 	if joinedinsufficientInformationErrors != nil {
-		slog.Warn("Run finished with insufficient information errors", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier(), "errors", errors.Join(insufficientInformationErrors...).Error())
+		slog.Warn("Run finished with insufficient information errors", "errors", errors.Join(insufficientInformationErrors...).Error())
 	}
 
 	return advancedCompSlice.GetComponentSlice(), nil

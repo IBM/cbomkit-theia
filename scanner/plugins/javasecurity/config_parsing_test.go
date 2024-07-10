@@ -183,7 +183,6 @@ func setUpCMD(originalKey string, originalValue string, newKey string, newValue 
 			config,
 			[]JavaSecurityAlgorithmRestriction{},
 		},
-		filesystem: docker.GetSquashedFilesystem(image),
 	}
 
 	filesToDelete := []string{filesystem, dockerfile}
@@ -204,7 +203,7 @@ func TestCMDArgumentAdditionalCMD(t *testing.T) {
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig()
+		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
 		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
@@ -222,7 +221,7 @@ func TestCMDArgumentAdditionalENTRYPOINT(t *testing.T) {
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig()
+		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
 		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
@@ -240,7 +239,7 @@ func TestCMDArgumentOverride(t *testing.T) {
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig()
+		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
 		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
@@ -256,7 +255,7 @@ func TestCMDArgumentNoArgument(t *testing.T) {
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig()
+		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
 		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
@@ -272,7 +271,7 @@ func TestCMDArgumentNotAllowed(t *testing.T) {
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig()
+		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
 		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
