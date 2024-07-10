@@ -12,17 +12,35 @@ import (
 	"os"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"go.uber.org/dig"
 )
 
+type ScannerParameterStruct struct {
+	dig.In
+
+	Fs            filesystem.Filesystem
+	Target        *os.File
+	BomFilePath   string `name:"bomFilePath"`
+	BomSchemaPath string `name:"bomSchemaPath"`
+	Plugins       []plugins.Plugin
+}
+
+func GetAllPlugins() []plugins.Plugin {
+	return []plugins.Plugin{
+		&javasecurity.JavaSecurityPlugin{},
+		&certificates.CertificatesPlugin{},
+	}
+}
+
 // High-level function to do most heavy lifting for scanning a filesystem with a BOM. Output is written to target.
-func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath string, bomSchemaPath string) error {
-	bom, err := cyclonedx.ParseBOM(bomFilePath, bomSchemaPath)
+func CreateAndRunScan(params ScannerParameterStruct) error {
+	bom, err := cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
 
 	if err != nil {
 		return err
 	}
 
-	scanner := newScanner(fs)
+	scanner := newScanner(params.Fs, params.Plugins)
 	newBom, err := scanner.scan(*bom)
 	if err != nil {
 		return err
@@ -30,7 +48,7 @@ func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath str
 
 	log.Default().Println("FINISHED SCANNING")
 
-	err = cyclonedx.WriteBOM(&newBom, target)
+	err = cyclonedx.WriteBOM(&newBom, params.Target)
 
 	if err != nil {
 		return err
@@ -80,13 +98,10 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 }
 
 // Create a new scanner object for the specific filesystem
-func newScanner(filesystem filesystem.Filesystem) scanner {
+func newScanner(filesystem filesystem.Filesystem, plugins []plugins.Plugin) scanner {
 	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem.GetIdentifier())
 	scanner := scanner{}
-	scanner.configPlugins = []plugins.Plugin{
-		&javasecurity.JavaSecurityPlugin{},
-		&certificates.CertificatesPlugin{},
-	}
+	scanner.configPlugins = plugins
 	scanner.filesystem = filesystem
 
 	return scanner

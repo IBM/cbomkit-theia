@@ -2,11 +2,13 @@ package image
 
 import (
 	"ibm/container-image-cryptography-scanner/provider/docker"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	"ibm/container-image-cryptography-scanner/scanner"
 	"os"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"
+	"go.uber.org/dig"
 )
 
 var dockerHost string
@@ -37,10 +39,39 @@ func prepareImageAndRun(image docker.ActiveImage, err error) {
 	}
 	defer image.TearDown()
 
-	fs := docker.GetSquashedFilesystem(image)
-	bom := viper.GetString("bom")
-	schema := viper.GetString("schema")
-	scanner.CreateAndRunScan(fs, os.Stdout, bom, schema)
+	container := dig.New()
+
+	if err = container.Provide(func() filesystem.Filesystem {
+		return docker.GetSquashedFilesystem(image)
+	}); err != nil {
+		panic(err)
+	}
+
+	if err = container.Provide(func() string {
+		return viper.GetString("bom")
+	}, dig.Name("bomFilePath")); err != nil {
+		panic(err)
+	}
+
+	if err = container.Provide(func() string {
+		return viper.GetString("schema")
+	}, dig.Name("bomSchemaPath")); err != nil {
+		panic(err)
+	}
+
+	if err = container.Provide(func() *os.File {
+		return os.Stdout
+	}); err != nil {
+		panic(err)
+	}
+
+	if err = container.Provide(scanner.GetAllPlugins); err != nil {
+		panic(err)
+	}
+
+	if err = container.Invoke(scanner.CreateAndRunScan); err != nil {
+		panic(err)
+	}
 }
 
 func init() {
