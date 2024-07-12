@@ -8,6 +8,12 @@
       "bom-ref": "67d10549-3936-4934-b1c7-e42ff60e7c81",
       "type": "cryptographic-asset",
       "name": "www.example.com",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -33,6 +39,12 @@
       "bom-ref": "405a4fe2-e687-4993-9961-22fe07830a0c",
       "type": "cryptographic-asset",
       "name": "SHA1-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -56,6 +68,12 @@
       "bom-ref": "6b936beb-16e4-488f-baa6-f349c13fa405",
       "type": "cryptographic-asset",
       "name": "RSA-8192",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -70,6 +88,12 @@
       "bom-ref": "56ab8b8d-5663-43f9-a026-d06bf33aefba",
       "type": "cryptographic-asset",
       "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -91,6 +115,12 @@
       "bom-ref": "9716e03c-eb12-40da-a96a-3c135a496cf7",
       "type": "cryptographic-asset",
       "name": "www.example.com",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -116,6 +146,12 @@
       "bom-ref": "f58e0192-1b69-475e-a01e-2649a7df7650",
       "type": "cryptographic-asset",
       "name": "RSA-8192",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -130,6 +166,12 @@
       "bom-ref": "13d24139-ad11-4fac-a5db-91de678dfa13",
       "type": "cryptographic-asset",
       "name": "Linagora CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -155,6 +197,12 @@
       "bom-ref": "eb743289-a983-48b5-ac09-913f26598feb",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -178,6 +226,12 @@
       "bom-ref": "0ede7f80-9dd3-457a-8ce3-fce6dbf998d9",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -192,6 +246,12 @@
       "bom-ref": "499cea55-d04b-4aa0-89ce-37962e4f2f6c",
       "type": "cryptographic-asset",
       "name": "GitHub, Inc.",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -217,6 +277,12 @@
       "bom-ref": "4e5a8372-5bf9-4a99-854d-d94ebb7cfdc2",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -231,6 +297,12 @@
       "bom-ref": "4f2cf9a8-f166-480d-be2f-d91f7d685082",
       "type": "cryptographic-asset",
       "name": "DigiCert SHA2 Assured ID Code Signing CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -256,6 +328,12 @@
       "bom-ref": "118e0d88-1e58-425a-85ec-083de6c15d18",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -270,6 +348,12 @@
       "bom-ref": "6c477c4c-d07e-45a9-bc72-8ba62939973d",
       "type": "cryptographic-asset",
       "name": "DigiCert Assured ID Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -295,6 +379,12 @@
       "bom-ref": "7aa86e48-0255-4b8b-9127-3eb725e400e8",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -309,6 +399,12 @@
       "bom-ref": "3bbf3b58-2bb1-409e-83c4-8561d82a14c6",
       "type": "cryptographic-asset",
       "name": "COMODO RSA Domain Validation Secure Server CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -334,6 +430,12 @@
       "bom-ref": "b7aeffd5-3153-4d5e-a302-a0c3529be971",
       "type": "cryptographic-asset",
       "name": "SHA384-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -357,6 +459,12 @@
       "bom-ref": "89450057-91c4-4cdf-b566-de2720e83126",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -371,6 +479,12 @@
       "bom-ref": "b0520892-8237-4fd5-bde7-bf4b32901b11",
       "type": "cryptographic-asset",
       "name": "COMODO RSA Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -396,6 +510,12 @@
       "bom-ref": "3c6d0856-966b-4c38-81cd-dbf44af57234",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {

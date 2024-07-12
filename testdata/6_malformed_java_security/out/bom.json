@@ -8,6 +8,12 @@
       "bom-ref": "67d10549-3936-4934-b1c7-e42ff60e7c81",
       "type": "cryptographic-asset",
       "name": "Linagora CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -33,6 +39,12 @@
       "bom-ref": "405a4fe2-e687-4993-9961-22fe07830a0c",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -56,6 +68,12 @@
       "bom-ref": "6b936beb-16e4-488f-baa6-f349c13fa405",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -70,6 +88,12 @@
       "bom-ref": "56ab8b8d-5663-43f9-a026-d06bf33aefba",
       "type": "cryptographic-asset",
       "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {

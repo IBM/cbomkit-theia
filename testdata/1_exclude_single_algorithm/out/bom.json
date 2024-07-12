@@ -250,6 +250,12 @@
       "bom-ref": "67d10549-3936-4934-b1c7-e42ff60e7c81",
       "type": "cryptographic-asset",
       "name": "ACCVRAIZ1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -275,6 +281,12 @@
       "bom-ref": "405a4fe2-e687-4993-9961-22fe07830a0c",
       "type": "cryptographic-asset",
       "name": "SHA1-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -298,6 +310,12 @@
       "bom-ref": "6b936beb-16e4-488f-baa6-f349c13fa405",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -312,6 +330,12 @@
       "bom-ref": "56ab8b8d-5663-43f9-a026-d06bf33aefba",
       "type": "cryptographic-asset",
       "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -333,6 +357,12 @@
       "bom-ref": "9716e03c-eb12-40da-a96a-3c135a496cf7",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -356,6 +386,12 @@
       "bom-ref": "57e40c04-c524-4b30-9931-41bb0a7ed747",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -379,6 +415,12 @@
       "bom-ref": "f58e0192-1b69-475e-a01e-2649a7df7650",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -393,6 +435,12 @@
       "bom-ref": "13d24139-ad11-4fac-a5db-91de678dfa13",
       "type": "cryptographic-asset",
       "name": "Actalis Authentication Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -418,6 +466,12 @@
       "bom-ref": "0ede7f80-9dd3-457a-8ce3-fce6dbf998d9",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -432,6 +486,12 @@
       "bom-ref": "499cea55-d04b-4aa0-89ce-37962e4f2f6c",
       "type": "cryptographic-asset",
       "name": "AddTrust Class 1 CA Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -457,6 +517,12 @@
       "bom-ref": "4e5a8372-5bf9-4a99-854d-d94ebb7cfdc2",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -471,6 +537,12 @@
       "bom-ref": "4f2cf9a8-f166-480d-be2f-d91f7d685082",
       "type": "cryptographic-asset",
       "name": "AffirmTrust Commercial",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -496,6 +568,12 @@
       "bom-ref": "118e0d88-1e58-425a-85ec-083de6c15d18",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -510,6 +588,12 @@
       "bom-ref": "6c477c4c-d07e-45a9-bc72-8ba62939973d",
       "type": "cryptographic-asset",
       "name": "AffirmTrust Networking",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -535,6 +619,12 @@
       "bom-ref": "7aa86e48-0255-4b8b-9127-3eb725e400e8",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -549,6 +639,12 @@
       "bom-ref": "3bbf3b58-2bb1-409e-83c4-8561d82a14c6",
       "type": "cryptographic-asset",
       "name": "AffirmTrust Premium",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -574,6 +670,12 @@
       "bom-ref": "b7aeffd5-3153-4d5e-a302-a0c3529be971",
       "type": "cryptographic-asset",
       "name": "SHA384-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -597,6 +699,12 @@
       "bom-ref": "89450057-91c4-4cdf-b566-de2720e83126",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -611,6 +719,12 @@
       "bom-ref": "b0520892-8237-4fd5-bde7-bf4b32901b11",
       "type": "cryptographic-asset",
       "name": "AffirmTrust Premium ECC",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -636,6 +750,12 @@
       "bom-ref": "a56e5a31-2a35-4e58-a17a-4c3267e2660e",
       "type": "cryptographic-asset",
       "name": "ECDSA-SHA384",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -658,6 +778,12 @@
       "bom-ref": "3c6d0856-966b-4c38-81cd-dbf44af57234",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -671,6 +797,12 @@
       "bom-ref": "ecfe5ffa-3485-40da-a0e0-66edbb929ebe",
       "type": "cryptographic-asset",
       "name": "ECDSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -692,6 +824,12 @@
       "bom-ref": "58296b6d-1258-43e4-8be7-574b46126b55",
       "type": "cryptographic-asset",
       "name": "Amazon Root CA 1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -717,6 +855,12 @@
       "bom-ref": "12176dae-ada2-4645-af12-6ef5d73640ee",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -731,6 +875,12 @@
       "bom-ref": "ad663d5a-4591-40ce-9681-0eb09be50eca",
       "type": "cryptographic-asset",
       "name": "Amazon Root CA 2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -756,6 +906,12 @@
       "bom-ref": "df6be7b6-efe0-45d0-9ce6-6a01212a118b",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -770,6 +926,12 @@
       "bom-ref": "d1eb6efa-017b-41ce-b84d-225e5ac21e7c",
       "type": "cryptographic-asset",
       "name": "Amazon Root CA 3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -795,6 +957,12 @@
       "bom-ref": "6d0f0f91-49f5-4027-870d-71957b44cf3a",
       "type": "cryptographic-asset",
       "name": "ECDSA-SHA256",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -817,6 +985,12 @@
       "bom-ref": "818e363c-3322-4e81-8b7e-d4f509cb1ee1",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -830,6 +1004,12 @@
       "bom-ref": "99143f0b-663e-449b-add0-057c01737f06",
       "type": "cryptographic-asset",
       "name": "Amazon Root CA 4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -855,6 +1035,12 @@
       "bom-ref": "feb469c4-89d4-4a7b-a9d7-66ba6b1aa1e6",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -868,6 +1054,12 @@
       "bom-ref": "185d324c-46e2-405b-8373-e20261561579",
       "type": "cryptographic-asset",
       "name": "Atos TrustedRoot 2011",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -893,6 +1085,12 @@
       "bom-ref": "019ce4b7-b8cc-4217-983d-fab7b15b33dd",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -907,6 +1105,12 @@
       "bom-ref": "88a7190c-827a-4c8c-8546-92dac36a916f",
       "type": "cryptographic-asset",
       "name": "Autoridad de Certificacion Firmaprofesional CIF A62634068",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -932,6 +1136,12 @@
       "bom-ref": "da28b8d5-2a27-411d-982e-5d272a57b293",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -946,6 +1156,12 @@
       "bom-ref": "46a372b7-a6de-4d52-9cef-f012dd138ca0",
       "type": "cryptographic-asset",
       "name": "Baltimore CyberTrust Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -971,6 +1187,12 @@
       "bom-ref": "6989434d-9ee3-4413-b89b-b6542490918f",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -985,6 +1207,12 @@
       "bom-ref": "efb3e481-9897-416e-bf3e-5ce024e5de85",
       "type": "cryptographic-asset",
       "name": "Buypass Class 2 Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1010,6 +1238,12 @@
       "bom-ref": "f30b10e1-6c85-4138-93a2-1ca476fac548",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1024,6 +1258,12 @@
       "bom-ref": "ff6b1619-d9bd-409b-9f91-b4ae9fb678c2",
       "type": "cryptographic-asset",
       "name": "Buypass Class 3 Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1049,6 +1289,12 @@
       "bom-ref": "3335872f-3658-4f94-bf93-d0f9a886acc5",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1063,6 +1309,12 @@
       "bom-ref": "6d787417-ef02-49b9-a278-7adb01e1e85a",
       "type": "cryptographic-asset",
       "name": "CA Disig Root R2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1088,6 +1340,12 @@
       "bom-ref": "e2e9ed12-d1fc-4c47-bd59-1e114ba7aee9",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1102,6 +1360,12 @@
       "bom-ref": "88a1fd3c-5b1f-404a-94c5-e64db407ccf9",
       "type": "cryptographic-asset",
       "name": "CFCA EV ROOT",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1127,6 +1391,12 @@
       "bom-ref": "55f4d0b7-bb90-4e4c-b769-12ca28380c1c",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1141,6 +1411,12 @@
       "bom-ref": "81b701e3-3b54-4c5c-834a-8203b9469ae3",
       "type": "cryptographic-asset",
       "name": "COMODO Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1166,6 +1442,12 @@
       "bom-ref": "3bee990d-350a-45cf-8c55-89e620ab58ed",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1180,6 +1462,12 @@
       "bom-ref": "56cc5e03-c93a-43fb-a70b-050c7dcd005d",
       "type": "cryptographic-asset",
       "name": "COMODO ECC Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1205,6 +1493,12 @@
       "bom-ref": "104d92e0-a880-4284-a005-29ac466fda5c",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1218,6 +1512,12 @@
       "bom-ref": "eb8dd3a5-5ed3-45a8-9b1d-606f0f6042b6",
       "type": "cryptographic-asset",
       "name": "COMODO RSA Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1243,6 +1543,12 @@
       "bom-ref": "19979015-8d55-45e8-859b-e4b1593e4b36",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1257,6 +1563,12 @@
       "bom-ref": "4d292d75-53da-4766-aa80-3137e935b721",
       "type": "cryptographic-asset",
       "name": "Chambers of Commerce Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1282,6 +1594,12 @@
       "bom-ref": "0c4d2854-1588-4a40-a612-bb3ee6419c82",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1296,6 +1614,12 @@
       "bom-ref": "638c1ada-38e5-4823-a025-c2740c6fe43d",
       "type": "cryptographic-asset",
       "name": "Global Chambersign Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1321,6 +1645,12 @@
       "bom-ref": "b25579dc-c873-459f-b4da-b5099f085503",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1335,6 +1665,12 @@
       "bom-ref": "0ef83d8a-cedf-4821-9be7-f1c5157d93c2",
       "type": "cryptographic-asset",
       "name": "Certigna",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1360,6 +1696,12 @@
       "bom-ref": "a4be0232-63f0-47a6-90e9-d2a033c00841",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1374,6 +1716,12 @@
       "bom-ref": "68a2def8-18b2-41c5-aed9-2f84677e7bdd",
       "type": "cryptographic-asset",
       "name": "Certigna Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1399,6 +1747,12 @@
       "bom-ref": "79c39552-0138-419a-9e34-855d16f319ee",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1413,6 +1767,12 @@
       "bom-ref": "d0c2c65e-82fd-40c0-994d-049b6d151a88",
       "type": "cryptographic-asset",
       "name": "Certum CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1438,6 +1798,12 @@
       "bom-ref": "684dd8b2-f5d9-498a-a64f-f1f5e6e4fab1",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1452,6 +1818,12 @@
       "bom-ref": "8068d03f-42f9-4fda-9ac8-2f79785876b3",
       "type": "cryptographic-asset",
       "name": "Certum Trusted Network CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1477,6 +1849,12 @@
       "bom-ref": "8809739b-486a-4ddd-b784-b39eef9d884b",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1491,6 +1869,12 @@
       "bom-ref": "ee31927a-28f2-4407-aeb8-1f9ac75299ba",
       "type": "cryptographic-asset",
       "name": "Certum Trusted Network CA 2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1516,6 +1900,12 @@
       "bom-ref": "5d13587c-a956-43d9-a2e0-2fc4ac5b663c",
       "type": "cryptographic-asset",
       "name": "SHA512-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -1539,6 +1929,12 @@
       "bom-ref": "4c89033a-1491-4f17-85f0-b04b84360c9d",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1553,6 +1949,12 @@
       "bom-ref": "44811e1e-e43c-4318-bc6c-b9fa8c1049e3",
       "type": "cryptographic-asset",
       "name": "Chambers of Commerce Root - 2008",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1578,6 +1980,12 @@
       "bom-ref": "3dbcdf01-28cb-40c7-a137-90e6a463d336",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1592,6 +2000,12 @@
       "bom-ref": "47f64ca0-c510-4fcb-b9d5-033fcce421af",
       "type": "cryptographic-asset",
       "name": "AAA Certificate Services",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1617,6 +2031,12 @@
       "bom-ref": "00591801-7083-497c-b3f4-47c2858d1dfc",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1631,6 +2051,12 @@
       "bom-ref": "3c523367-69b8-4416-87dc-ed2ae1f5ab44",
       "type": "cryptographic-asset",
       "name": "Cybertrust Global Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1656,6 +2082,12 @@
       "bom-ref": "67245693-fa56-4ce7-82d2-e7632544695b",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1670,6 +2102,12 @@
       "bom-ref": "bdd1dbe4-2161-45aa-93ae-01b6c8015ec5",
       "type": "cryptographic-asset",
       "name": "D-TRUST Root CA 3 2013",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1695,6 +2133,12 @@
       "bom-ref": "f6c74c1a-7090-4cd2-9172-0f4808def788",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1709,6 +2153,12 @@
       "bom-ref": "4d7bc47a-df65-4b99-b4fb-ba03a8686816",
       "type": "cryptographic-asset",
       "name": "D-TRUST Root Class 3 CA 2 2009",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1734,6 +2184,12 @@
       "bom-ref": "a3f36ec0-b0bb-4aa7-a9be-ab92b902c048",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1748,6 +2204,12 @@
       "bom-ref": "aa2bcc43-fba9-47a2-bfcc-f75935ea87cd",
       "type": "cryptographic-asset",
       "name": "D-TRUST Root Class 3 CA 2 EV 2009",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1773,6 +2235,12 @@
       "bom-ref": "b9b18dd6-094e-4d17-abd1-4e23f1865433",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1787,6 +2255,12 @@
       "bom-ref": "4e8c6579-e2f8-41e4-a9ef-bc6953d0f296",
       "type": "cryptographic-asset",
       "name": "DST Root CA X3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1812,6 +2286,12 @@
       "bom-ref": "99e6f253-87ec-47b1-b31a-50e97be1530b",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1826,6 +2306,12 @@
       "bom-ref": "69a756f5-1d6d-4abc-8c04-498ff14d1a52",
       "type": "cryptographic-asset",
       "name": "DigiCert Assured ID Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1851,6 +2337,12 @@
       "bom-ref": "be40abb3-a2a3-45b3-8cfa-6178566cda5f",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1865,6 +2357,12 @@
       "bom-ref": "deea5ffb-23a4-43ee-b9c1-ad56df58155a",
       "type": "cryptographic-asset",
       "name": "DigiCert Assured ID Root G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1890,6 +2388,12 @@
       "bom-ref": "181cd5d7-db98-4858-9c38-4c1ca0ee0716",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1904,6 +2408,12 @@
       "bom-ref": "bf289861-8656-4f5d-b169-27b936a44ff0",
       "type": "cryptographic-asset",
       "name": "DigiCert Assured ID Root G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1929,6 +2439,12 @@
       "bom-ref": "393b4d23-ca8c-4557-bfe2-63b11a170efb",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1942,6 +2458,12 @@
       "bom-ref": "4abe72bb-355b-41c8-8368-40b8ace4d9fd",
       "type": "cryptographic-asset",
       "name": "DigiCert Global Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -1967,6 +2489,12 @@
       "bom-ref": "8cb35b80-2146-4da4-af6b-46ae22431bc4",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -1981,6 +2509,12 @@
       "bom-ref": "8dc1f483-f0ae-4966-82c5-11ed14aa914e",
       "type": "cryptographic-asset",
       "name": "DigiCert Global Root G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2006,6 +2540,12 @@
       "bom-ref": "b128dd11-b35c-474e-a3c8-229c47879c33",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2020,6 +2560,12 @@
       "bom-ref": "3a4dddac-da4c-46e0-985d-5765ac736805",
       "type": "cryptographic-asset",
       "name": "DigiCert Global Root G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2045,6 +2591,12 @@
       "bom-ref": "fef7dc7f-de4b-48ed-8572-609d781adff3",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2058,6 +2610,12 @@
       "bom-ref": "38f37d4c-8934-460f-a6a5-da6c8c0399c2",
       "type": "cryptographic-asset",
       "name": "DigiCert High Assurance EV Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2083,6 +2641,12 @@
       "bom-ref": "ef5b2a04-36f9-4dcb-9e88-f5e41ef00512",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2097,6 +2661,12 @@
       "bom-ref": "10dc9a28-7b8a-4650-bf3e-79661851fa3f",
       "type": "cryptographic-asset",
       "name": "DigiCert Trusted Root G4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2122,6 +2692,12 @@
       "bom-ref": "62d2af49-d077-4050-85cc-349ea1839ca7",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2136,6 +2712,12 @@
       "bom-ref": "67981c88-c8c8-4e88-95b3-3ef78a2e9eac",
       "type": "cryptographic-asset",
       "name": "E-Tugra Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2161,6 +2743,12 @@
       "bom-ref": "a4b8387d-b114-4e2a-96d8-4d65eb4ea2cb",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2175,6 +2763,12 @@
       "bom-ref": "429ab8e2-e8c7-4894-88d7-a4b3dda02215",
       "type": "cryptographic-asset",
       "name": "EC-ACC",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2200,6 +2794,12 @@
       "bom-ref": "4c640103-23c2-4b55-9443-da9aeec8b58a",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2214,6 +2814,12 @@
       "bom-ref": "89ebec02-b54d-42f3-83c1-fedd93b36f99",
       "type": "cryptographic-asset",
       "name": "EE Certification Centre Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2239,6 +2845,12 @@
       "bom-ref": "8d4e3d7d-c422-4c20-967d-647a2089417f",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2253,6 +2865,12 @@
       "bom-ref": "d1b7b943-b324-40d8-8d30-6b1dcb8e580f",
       "type": "cryptographic-asset",
       "name": "Entrust.net Certification Authority (2048)",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2278,6 +2896,12 @@
       "bom-ref": "2b57fcae-4b7a-4e27-8088-bd11bd5ba11f",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2292,6 +2916,12 @@
       "bom-ref": "351cd686-8999-4b40-91cf-9d37bc8d1141",
       "type": "cryptographic-asset",
       "name": "Entrust Root Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2317,6 +2947,12 @@
       "bom-ref": "388b5af4-0125-4785-ba8b-68c62f8c21a4",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2331,6 +2967,12 @@
       "bom-ref": "f2d29e2d-104c-4a95-8869-4037ee34965f",
       "type": "cryptographic-asset",
       "name": "Entrust Root Certification Authority - EC1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2356,6 +2998,12 @@
       "bom-ref": "ce7eeffc-83d2-4773-9f07-547f5b53527a",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2369,6 +3017,12 @@
       "bom-ref": "e313dd40-fa9c-47e4-afc6-c4d061f24273",
       "type": "cryptographic-asset",
       "name": "Entrust Root Certification Authority - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2394,6 +3048,12 @@
       "bom-ref": "846f80ed-a35f-4acd-af07-8b5de306c70d",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2408,6 +3068,12 @@
       "bom-ref": "168d8174-e159-4544-8d38-bc92258e01ec",
       "type": "cryptographic-asset",
       "name": "Entrust Root Certification Authority - G4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2433,6 +3099,12 @@
       "bom-ref": "dca8838f-738c-4f7e-8e82-ba007deb700e",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2447,6 +3119,12 @@
       "bom-ref": "4fc89bbf-d326-4d13-b65f-594c00a1db0d",
       "type": "cryptographic-asset",
       "name": "GDCA TrustAUTH R5 ROOT",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2472,6 +3150,12 @@
       "bom-ref": "c9a78769-cc1a-442b-944a-b08974fea7a6",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2486,6 +3170,12 @@
       "bom-ref": "220c1911-64f6-45bc-8603-1d49491ff54e",
       "type": "cryptographic-asset",
       "name": "GTS Root R1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2511,6 +3201,12 @@
       "bom-ref": "d71d5f8b-2aa7-42c0-8c8d-da29fd415c56",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2525,6 +3221,12 @@
       "bom-ref": "bf8dd641-dc1f-444e-afaf-721d90803527",
       "type": "cryptographic-asset",
       "name": "GTS Root R2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2550,6 +3252,12 @@
       "bom-ref": "6aa51cfd-f531-40aa-be54-c0b0dcc4bb06",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2564,6 +3272,12 @@
       "bom-ref": "54807121-5889-42a2-98ab-60f03b3ef18a",
       "type": "cryptographic-asset",
       "name": "GTS Root R3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2589,6 +3303,12 @@
       "bom-ref": "468309a9-db10-407e-a537-4bc6b1c8da09",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2602,6 +3322,12 @@
       "bom-ref": "14df81d2-7ccb-4bb8-9045-0af35ac8fb7b",
       "type": "cryptographic-asset",
       "name": "GTS Root R4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2627,6 +3353,12 @@
       "bom-ref": "2f0d2325-5028-4c43-8e23-73c3ccba3f16",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2640,6 +3372,12 @@
       "bom-ref": "276d77d2-f1bf-4c8c-b61f-08685153b2df",
       "type": "cryptographic-asset",
       "name": "GeoTrust Global CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2665,6 +3403,12 @@
       "bom-ref": "26b3c2a9-6935-47b9-a9dd-c9cc8affd1e8",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2679,6 +3423,12 @@
       "bom-ref": "18773cb4-68cd-474b-8a96-cbb942d2be7d",
       "type": "cryptographic-asset",
       "name": "GeoTrust Primary Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2704,6 +3454,12 @@
       "bom-ref": "880be19a-0a37-4fa2-bcb0-f726068f7c3e",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2718,6 +3474,12 @@
       "bom-ref": "57c75969-ef01-4fc6-8a1b-cf9c70a2956a",
       "type": "cryptographic-asset",
       "name": "GeoTrust Primary Certification Authority - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2743,6 +3505,12 @@
       "bom-ref": "a1c4202c-3d93-4280-bf9d-d1af8a810f95",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2756,6 +3524,12 @@
       "bom-ref": "e1a041d9-99fd-453f-a2a3-b955e8aeac04",
       "type": "cryptographic-asset",
       "name": "GeoTrust Primary Certification Authority - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2781,6 +3555,12 @@
       "bom-ref": "56d1de8e-83fb-40c5-a1bb-20e5dcd30bc1",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2795,6 +3575,12 @@
       "bom-ref": "cd017768-2260-4f57-9520-6be9bcb1dc65",
       "type": "cryptographic-asset",
       "name": "GeoTrust Universal CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2820,6 +3606,12 @@
       "bom-ref": "25e58dca-60c9-40e1-b354-de82ecaf5c61",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2834,6 +3626,12 @@
       "bom-ref": "4385ccb4-03ac-47ed-b9ad-e942654f1556",
       "type": "cryptographic-asset",
       "name": "GeoTrust Universal CA 2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2859,6 +3657,12 @@
       "bom-ref": "2ad3288e-4c82-4260-8e19-221a2be783f0",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2873,6 +3677,12 @@
       "bom-ref": "d6ce02ae-1595-458c-b8dd-4459a25836d2",
       "type": "cryptographic-asset",
       "name": "GlobalSign",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2898,6 +3708,12 @@
       "bom-ref": "f6f95ec7-aa14-4c46-bbdd-cc527d469bfe",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2911,6 +3727,12 @@
       "bom-ref": "24c931d8-9950-485c-bd56-4e4e7f61fbc9",
       "type": "cryptographic-asset",
       "name": "GlobalSign",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2936,6 +3758,12 @@
       "bom-ref": "330094d8-516a-4680-9683-bac8d5a5a799",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2949,6 +3777,12 @@
       "bom-ref": "d3209766-147d-4774-90dd-e4f0102c475d",
       "type": "cryptographic-asset",
       "name": "GlobalSign Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -2974,6 +3808,12 @@
       "bom-ref": "0cd353f2-bc95-446e-bd76-5f1326162c17",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -2988,6 +3828,12 @@
       "bom-ref": "066c897c-96e8-4cb0-8df6-343eb7e53a03",
       "type": "cryptographic-asset",
       "name": "GlobalSign",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3013,6 +3859,12 @@
       "bom-ref": "b69487f9-f177-46f2-b11c-9bfeeb575f0c",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3027,6 +3879,12 @@
       "bom-ref": "bb7a7554-c818-484f-b244-3b5d4c87dd46",
       "type": "cryptographic-asset",
       "name": "GlobalSign",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3052,6 +3910,12 @@
       "bom-ref": "c0742df0-5f6b-4133-a417-c22fd695f293",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3066,6 +3930,12 @@
       "bom-ref": "bd1a915c-2555-4250-a349-493467cee937",
       "type": "cryptographic-asset",
       "name": "GlobalSign",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3091,6 +3961,12 @@
       "bom-ref": "3375998a-9b2c-4f5a-8a3e-e53203a74470",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3105,6 +3981,12 @@
       "bom-ref": "c555f72c-2da7-49e9-9b4e-a0d47d546392",
       "type": "cryptographic-asset",
       "name": "Global Chambersign Root - 2008",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3130,6 +4012,12 @@
       "bom-ref": "8ea2dac5-331f-4269-b26d-cd7c79117678",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3144,6 +4032,12 @@
       "bom-ref": "b21f690f-e2b7-43e7-bee3-89ea62e43ea8",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3167,6 +4061,12 @@
       "bom-ref": "8590d2b1-91f0-4274-8c74-f8a60786943d",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3181,6 +4081,12 @@
       "bom-ref": "58f4c580-4868-49d0-97c6-f65d43d23ac8",
       "type": "cryptographic-asset",
       "name": "Go Daddy Root Certificate Authority - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3206,6 +4112,12 @@
       "bom-ref": "e73acfd0-d423-41b2-80cc-e88f64064d30",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3220,6 +4132,12 @@
       "bom-ref": "b7acd15b-daf8-47b9-ab6f-26ab0a7e2a3b",
       "type": "cryptographic-asset",
       "name": "Hellenic Academic and Research Institutions ECC RootCA 2015",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3245,6 +4163,12 @@
       "bom-ref": "02a8f648-f0e2-456a-8507-4b61dcd66b7b",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3258,6 +4182,12 @@
       "bom-ref": "a53612d9-151c-4e39-a3d4-dd1ae84d7dc0",
       "type": "cryptographic-asset",
       "name": "Hellenic Academic and Research Institutions RootCA 2011",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3283,6 +4213,12 @@
       "bom-ref": "e17f3a7d-654c-415a-991b-76511ec98dd8",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3297,6 +4233,12 @@
       "bom-ref": "4876615b-a897-473e-b1ac-7226a3adcd12",
       "type": "cryptographic-asset",
       "name": "Hellenic Academic and Research Institutions RootCA 2015",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3322,6 +4264,12 @@
       "bom-ref": "6a5dd52b-5131-4184-ac51-8626aa5c4d57",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3336,6 +4284,12 @@
       "bom-ref": "67f97995-cf24-4c3a-a008-0137edb98ec0",
       "type": "cryptographic-asset",
       "name": "Hongkong Post Root CA 1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3361,6 +4315,12 @@
       "bom-ref": "d0b9fbe4-7399-42c9-8976-c56b74720442",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3375,6 +4335,12 @@
       "bom-ref": "8a1b4920-97d5-4a5e-bae4-c44d286288d0",
       "type": "cryptographic-asset",
       "name": "Hongkong Post Root CA 3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3400,6 +4366,12 @@
       "bom-ref": "1a2949eb-735a-4fd9-b715-9bf96a8b6db2",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3414,6 +4386,12 @@
       "bom-ref": "4468ab98-24a0-4fad-a85e-d83a01a4262f",
       "type": "cryptographic-asset",
       "name": "ISRG Root X1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3439,6 +4417,12 @@
       "bom-ref": "012ac9bf-c4e5-4d10-8bae-d49e1e24937d",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3453,6 +4437,12 @@
       "bom-ref": "37e69618-3cac-4ec6-b3fd-d5702fd9e9a3",
       "type": "cryptographic-asset",
       "name": "IdenTrust Commercial Root CA 1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3478,6 +4468,12 @@
       "bom-ref": "fb957683-c142-4689-bae2-ef5bf6dba851",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3492,6 +4488,12 @@
       "bom-ref": "d02d0b0b-4d3e-41a9-8324-cf3d564c82e9",
       "type": "cryptographic-asset",
       "name": "IdenTrust Public Sector Root CA 1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3517,6 +4519,12 @@
       "bom-ref": "fac7f010-3e92-4f36-b49c-c6e8e39e9259",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3531,6 +4539,12 @@
       "bom-ref": "30c6e18f-883e-43bc-bbc2-de9e8d81a4ff",
       "type": "cryptographic-asset",
       "name": "Izenpe.com",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3556,6 +4570,12 @@
       "bom-ref": "296aee64-81c1-485e-98d8-e63a8ad0d636",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3570,6 +4590,12 @@
       "bom-ref": "da5e42c3-5d09-4cda-aaeb-606fc115652c",
       "type": "cryptographic-asset",
       "name": "LuxTrust Global Root 2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3595,6 +4621,12 @@
       "bom-ref": "e2196506-15d2-4cb1-b7e9-c047f9c6251e",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3609,6 +4641,12 @@
       "bom-ref": "d88fb1cb-ace4-43b8-9658-f86d5b121ee5",
       "type": "cryptographic-asset",
       "name": "Microsec e-Szigno Root CA 2009",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3634,6 +4672,12 @@
       "bom-ref": "4aa70c08-fd9b-4291-b9d6-b4663ed08623",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3648,6 +4692,12 @@
       "bom-ref": "bdd65f21-beb1-45cd-bffa-811e441235e5",
       "type": "cryptographic-asset",
       "name": "NetLock Arany (Class Gold) Főtanúsítvány",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3673,6 +4723,12 @@
       "bom-ref": "879f6a8b-356d-49c4-b7a7-1c8e4308820c",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3687,6 +4743,12 @@
       "bom-ref": "2f714980-b218-457e-b0f4-e09c1538b69e",
       "type": "cryptographic-asset",
       "name": "Network Solutions Certificate Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3712,6 +4774,12 @@
       "bom-ref": "d9d9308f-fff4-4224-bd50-424bddf0ebc6",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3726,6 +4794,12 @@
       "bom-ref": "e00015f3-be9e-4729-a599-9647a820eeff",
       "type": "cryptographic-asset",
       "name": "OISTE WISeKey Global Root GA CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3751,6 +4825,12 @@
       "bom-ref": "364f09f7-f090-44f4-b64c-430fe9f09ec1",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3765,6 +4845,12 @@
       "bom-ref": "19a850c5-af06-45d8-adc0-1ac8650bf4ba",
       "type": "cryptographic-asset",
       "name": "OISTE WISeKey Global Root GB CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3790,6 +4876,12 @@
       "bom-ref": "6dc52347-b779-4423-8651-d9b08461d3aa",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3804,6 +4896,12 @@
       "bom-ref": "753babc4-f74c-49e5-b484-22e52f3f89e8",
       "type": "cryptographic-asset",
       "name": "OISTE WISeKey Global Root GC CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3829,6 +4927,12 @@
       "bom-ref": "7ac5e198-6873-40b6-91e8-521471cdc65b",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3842,6 +4946,12 @@
       "bom-ref": "1032d62e-3e6a-4fa6-a690-f44b7994f877",
       "type": "cryptographic-asset",
       "name": "QuoVadis Root Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3867,6 +4977,12 @@
       "bom-ref": "c138c46b-0001-4e9f-83c7-eaba43c23e07",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3881,6 +4997,12 @@
       "bom-ref": "cd6bff18-ea20-4245-a3cb-392c8c72fce0",
       "type": "cryptographic-asset",
       "name": "QuoVadis Root CA 1 G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3906,6 +5028,12 @@
       "bom-ref": "af788946-4f42-4aed-a225-3bac824d2e77",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3920,6 +5048,12 @@
       "bom-ref": "7bd7b3cc-a371-4803-82b3-f524613af302",
       "type": "cryptographic-asset",
       "name": "QuoVadis Root CA 2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3945,6 +5079,12 @@
       "bom-ref": "32f35b63-cf52-47b4-99f4-ccd42b92c9eb",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3959,6 +5099,12 @@
       "bom-ref": "099976f0-1f8b-4e54-aee6-f4e687e832da",
       "type": "cryptographic-asset",
       "name": "QuoVadis Root CA 2 G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -3984,6 +5130,12 @@
       "bom-ref": "24b591fd-bb73-46a9-831b-acab1dd765f7",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -3998,6 +5150,12 @@
       "bom-ref": "24d3b485-e050-40ad-adf0-fbaaf12abf59",
       "type": "cryptographic-asset",
       "name": "QuoVadis Root CA 3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4023,6 +5181,12 @@
       "bom-ref": "5bcf9009-c669-4872-8f98-507842215928",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4037,6 +5201,12 @@
       "bom-ref": "1ae87018-4549-4260-822c-a6128bcefdfb",
       "type": "cryptographic-asset",
       "name": "QuoVadis Root CA 3 G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4062,6 +5232,12 @@
       "bom-ref": "b6dffdc7-f47d-48ab-af44-96ce947be4db",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4076,6 +5252,12 @@
       "bom-ref": "14e4c805-69ce-48f6-bc03-638f037e154a",
       "type": "cryptographic-asset",
       "name": "SSL.com EV Root Certification Authority ECC",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4101,6 +5283,12 @@
       "bom-ref": "a0e0f9c7-f4b3-4182-9683-be09884ded34",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4114,6 +5302,12 @@
       "bom-ref": "7b5fd478-66ab-4d4d-a430-99a36b6e251b",
       "type": "cryptographic-asset",
       "name": "SSL.com EV Root Certification Authority RSA R2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4139,6 +5333,12 @@
       "bom-ref": "e54565e8-bcf9-428a-b1ac-1962fa548091",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4153,6 +5353,12 @@
       "bom-ref": "daf744a2-e8a8-4872-87aa-086b73e31a90",
       "type": "cryptographic-asset",
       "name": "SSL.com Root Certification Authority ECC",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4178,6 +5384,12 @@
       "bom-ref": "06af4481-1f09-495c-adca-899b0359fb84",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4191,6 +5403,12 @@
       "bom-ref": "0386d867-8523-40d4-820a-818c5f67e4c0",
       "type": "cryptographic-asset",
       "name": "SSL.com Root Certification Authority RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4216,6 +5434,12 @@
       "bom-ref": "2cf2a1fc-8bd4-4b11-bc29-9d59cfd6bc05",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4230,6 +5454,12 @@
       "bom-ref": "17428fa5-3e6f-47df-a917-3b4b10f5a70e",
       "type": "cryptographic-asset",
       "name": "SZAFIR ROOT CA2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4255,6 +5485,12 @@
       "bom-ref": "6f328b7f-28bd-49a7-b92b-cc1fb74ea873",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4269,6 +5505,12 @@
       "bom-ref": "8dd4ec60-3cf2-4530-8bd0-4b929cddfaaf",
       "type": "cryptographic-asset",
       "name": "SecureSign RootCA11",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4294,6 +5536,12 @@
       "bom-ref": "b5181d25-f9c7-4b66-b419-9fef3160f4f8",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4308,6 +5556,12 @@
       "bom-ref": "8e4a5d53-ae8d-4e57-a662-888f86ad492d",
       "type": "cryptographic-asset",
       "name": "SecureTrust CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4333,6 +5587,12 @@
       "bom-ref": "bd52a609-ee75-4ff5-9ca6-b50a5f4b3130",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4347,6 +5607,12 @@
       "bom-ref": "11d3fb54-46df-4c86-808d-2a70a2280626",
       "type": "cryptographic-asset",
       "name": "Secure Global CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4372,6 +5638,12 @@
       "bom-ref": "b8cf3e0c-c817-46f8-82d9-fdf1139ee075",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4386,6 +5658,12 @@
       "bom-ref": "7cdc22f3-9fc6-45b4-95a4-2416aaf8a40f",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4409,6 +5687,12 @@
       "bom-ref": "fb3caa9c-9be6-4828-bc96-f953088c4429",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4423,6 +5707,12 @@
       "bom-ref": "0ab6a6b8-9069-4dc9-8872-5585852251d1",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4446,6 +5736,12 @@
       "bom-ref": "9c66c151-bff2-4fd1-9d83-413f48ff9d37",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4460,6 +5756,12 @@
       "bom-ref": "8fa0d5a3-a667-4779-87da-c386e98bf360",
       "type": "cryptographic-asset",
       "name": "Sonera Class2 CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4485,6 +5787,12 @@
       "bom-ref": "1bf1f614-9ac1-4f6c-8797-f4154eb9bd9c",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4499,6 +5807,12 @@
       "bom-ref": "c3371d6b-5f7f-4636-a27b-31e9f2cac65b",
       "type": "cryptographic-asset",
       "name": "Staat der Nederlanden EV Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4524,6 +5838,12 @@
       "bom-ref": "1d28dc85-e932-4bab-bc68-992c336a935b",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4538,6 +5858,12 @@
       "bom-ref": "e2342981-bd02-4b2e-80c5-550493f0f9d5",
       "type": "cryptographic-asset",
       "name": "Staat der Nederlanden Root CA - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4563,6 +5889,12 @@
       "bom-ref": "3c83f49b-0d90-426b-b8c4-ec0013788b6c",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4577,6 +5909,12 @@
       "bom-ref": "9b52a284-2680-4426-88c5-0b319f90b4d5",
       "type": "cryptographic-asset",
       "name": "Staat der Nederlanden Root CA - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4602,6 +5940,12 @@
       "bom-ref": "2e3b390c-7e2d-4925-86ca-3142451b0470",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4616,6 +5960,12 @@
       "bom-ref": "9dfa1e39-75a1-4f91-8c43-dc84ad66dd96",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4639,6 +5989,12 @@
       "bom-ref": "6a1c9981-2095-4231-a15a-3c1b0a4eb0ba",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4653,6 +6009,12 @@
       "bom-ref": "9b7c452d-bbbf-4c83-a40c-1a8127c2b9fc",
       "type": "cryptographic-asset",
       "name": "Starfield Root Certificate Authority - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4678,6 +6040,12 @@
       "bom-ref": "bc1320b0-942a-41b1-a3f6-baeaee709b50",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4692,6 +6060,12 @@
       "bom-ref": "71aee506-95db-4873-bb6d-00dc5da6dc95",
       "type": "cryptographic-asset",
       "name": "Starfield Services Root Certificate Authority - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4717,6 +6091,12 @@
       "bom-ref": "4f9279ad-52d5-4e6e-8ad0-7c0ba569de40",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4731,6 +6111,12 @@
       "bom-ref": "448154a9-b0b7-44d7-82d9-80aab541ffd3",
       "type": "cryptographic-asset",
       "name": "SwissSign Gold CA - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4756,6 +6142,12 @@
       "bom-ref": "31a9cc22-83ea-4467-9856-dadca97e5c5d",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4770,6 +6162,12 @@
       "bom-ref": "3d3d5565-c3fc-4ca5-a489-c6beba880e34",
       "type": "cryptographic-asset",
       "name": "SwissSign Platinum CA - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4795,6 +6193,12 @@
       "bom-ref": "5f61c56a-774a-4059-93f1-6a3ff5f3a735",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4809,6 +6213,12 @@
       "bom-ref": "e50b80cf-66da-4523-a78d-728a28016b08",
       "type": "cryptographic-asset",
       "name": "SwissSign Silver CA - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4834,6 +6244,12 @@
       "bom-ref": "60ec11de-e10e-42d0-a074-b74db245056d",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4848,6 +6264,12 @@
       "bom-ref": "734a0e36-2be6-487c-be54-1fd22b8d78b7",
       "type": "cryptographic-asset",
       "name": "Symantec Class 1 Public Primary Certification Authority - G4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4873,6 +6295,12 @@
       "bom-ref": "8ccd6dfc-dfb8-4896-ac30-c91237f4bbbe",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4886,6 +6314,12 @@
       "bom-ref": "95fe0ce6-9ecd-4329-affa-b0e45a4c6d25",
       "type": "cryptographic-asset",
       "name": "Symantec Class 1 Public Primary Certification Authority - G6",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4911,6 +6345,12 @@
       "bom-ref": "49a45530-c40d-4468-9b9e-91121c59a70f",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4925,6 +6365,12 @@
       "bom-ref": "111e8008-44ac-4540-9b74-9a97b3d0f6cb",
       "type": "cryptographic-asset",
       "name": "Symantec Class 2 Public Primary Certification Authority - G4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4950,6 +6396,12 @@
       "bom-ref": "0ea896c7-fa3d-47e5-8181-fae3154c48d0",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -4963,6 +6415,12 @@
       "bom-ref": "d04a763a-b223-489a-a0f7-193d2ad591b6",
       "type": "cryptographic-asset",
       "name": "Symantec Class 2 Public Primary Certification Authority - G6",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -4988,6 +6446,12 @@
       "bom-ref": "00247ed1-67c7-4c91-a5ad-39645a0e7eff",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5002,6 +6466,12 @@
       "bom-ref": "fd8b1af3-859b-40f0-af7f-4730071d57f2",
       "type": "cryptographic-asset",
       "name": "T-TeleSec GlobalRoot Class 2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5027,6 +6497,12 @@
       "bom-ref": "633cce3f-ee9f-4b73-90ae-c0fd43af38d6",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5041,6 +6517,12 @@
       "bom-ref": "dc2e2eb3-75ff-459b-a7b8-c9c717a62afb",
       "type": "cryptographic-asset",
       "name": "T-TeleSec GlobalRoot Class 3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5066,6 +6548,12 @@
       "bom-ref": "6c2169d5-7540-4ae3-b0f9-f1cbef921192",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5080,6 +6568,12 @@
       "bom-ref": "e62c82f5-b869-4d73-8158-9922fd2de5c1",
       "type": "cryptographic-asset",
       "name": "TUBITAK Kamu SM SSL Kok Sertifikasi - Surum 1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5105,6 +6599,12 @@
       "bom-ref": "ed029f3c-6496-4964-816b-6ebe7ca481fc",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5119,6 +6619,12 @@
       "bom-ref": "a7e5ae04-1612-4e4e-8afd-ac992648600a",
       "type": "cryptographic-asset",
       "name": "TWCA Global Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5144,6 +6650,12 @@
       "bom-ref": "e441fdd9-83d1-4277-b582-79ed0040fe31",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5158,6 +6670,12 @@
       "bom-ref": "3b4cffab-0d39-4d86-8c6e-4058aaafd2f5",
       "type": "cryptographic-asset",
       "name": "TWCA Root Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5183,6 +6701,12 @@
       "bom-ref": "1a61b1cc-b1d3-4678-a562-b93c40ed6dce",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5197,6 +6721,12 @@
       "bom-ref": "d195b919-9c01-40aa-be61-af37c17f7980",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5220,6 +6750,12 @@
       "bom-ref": "9bfa1318-ad61-4a0a-9d6c-f060d8a4bd43",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5234,6 +6770,12 @@
       "bom-ref": "624d50e4-a4b7-4c5a-82e2-3ef1827ba5d6",
       "type": "cryptographic-asset",
       "name": "TeliaSonera Root CA v1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5259,6 +6801,12 @@
       "bom-ref": "26af96e2-0282-44d1-b525-852d2f741020",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5273,6 +6821,12 @@
       "bom-ref": "ec6cfe5d-b035-42bb-b628-3ea62ec0cf0a",
       "type": "cryptographic-asset",
       "name": "TrustCor ECA-1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5298,6 +6852,12 @@
       "bom-ref": "ee0a1940-e0b2-4294-8a33-b27ea48d56dd",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5312,6 +6872,12 @@
       "bom-ref": "54b8c894-df69-47d1-b695-e468b72d1b01",
       "type": "cryptographic-asset",
       "name": "TrustCor RootCert CA-1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5337,6 +6903,12 @@
       "bom-ref": "1a46f8d3-0d79-4027-a43c-d7b42c9c2645",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5351,6 +6923,12 @@
       "bom-ref": "7987cbea-892a-4bb7-9aff-45baf93b38ed",
       "type": "cryptographic-asset",
       "name": "TrustCor RootCert CA-2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5376,6 +6954,12 @@
       "bom-ref": "f9615ddc-0ebd-4a6e-8aea-6a0750feb02b",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5390,6 +6974,12 @@
       "bom-ref": "c88c8b05-596e-42b2-9c31-26e8ba956d92",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5413,6 +7003,12 @@
       "bom-ref": "27978ed3-f918-41cb-9f33-3a3c9d598998",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5427,6 +7023,12 @@
       "bom-ref": "dfab5d5b-6de6-40ba-9c43-79e0fe2a58b1",
       "type": "cryptographic-asset",
       "name": "UCA Extended Validation Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5452,6 +7054,12 @@
       "bom-ref": "19413f61-8036-43ef-b686-def57971c192",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5466,6 +7074,12 @@
       "bom-ref": "3dcca43b-9f40-4d98-ad11-3d7d728c3381",
       "type": "cryptographic-asset",
       "name": "UCA Global G2 Root",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5491,6 +7105,12 @@
       "bom-ref": "b45ec720-eb46-4876-b882-fcfccfd81317",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5505,6 +7125,12 @@
       "bom-ref": "e7de00b7-ee99-47e5-8ba6-50b14a4debdc",
       "type": "cryptographic-asset",
       "name": "USERTrust ECC Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5530,6 +7156,12 @@
       "bom-ref": "206056e4-d32d-4592-98d7-10d56d780213",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5543,6 +7175,12 @@
       "bom-ref": "cc02df1f-81dd-4374-ab1f-b0ec915e4021",
       "type": "cryptographic-asset",
       "name": "USERTrust RSA Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5568,6 +7206,12 @@
       "bom-ref": "77be3f89-c561-40de-bc3d-827b00233824",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5582,6 +7226,12 @@
       "bom-ref": "19559ded-de83-4306-bdc4-61d8d96f14aa",
       "type": "cryptographic-asset",
       "name": "VeriSign Class 3 Public Primary Certification Authority - G4",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5607,6 +7257,12 @@
       "bom-ref": "a1230b1a-2b0c-4834-82d4-318d1683f1d8",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5620,6 +7276,12 @@
       "bom-ref": "44b459e4-8a30-4896-bae4-523c8fae9048",
       "type": "cryptographic-asset",
       "name": "VeriSign Class 3 Public Primary Certification Authority - G5",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5645,6 +7307,12 @@
       "bom-ref": "524b13ae-7762-4437-b79d-d18bddc0d03d",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5659,6 +7327,12 @@
       "bom-ref": "7ef29081-2641-40ca-8b08-17fdb438a758",
       "type": "cryptographic-asset",
       "name": "VeriSign Universal Root Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5684,6 +7358,12 @@
       "bom-ref": "b66b4708-19d9-4a24-9ce9-8d074cd228ea",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5698,6 +7378,12 @@
       "bom-ref": "35bb13e0-312d-45f0-965c-0a8f20d3f238",
       "type": "cryptographic-asset",
       "name": "VeriSign Class 1 Public Primary Certification Authority - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5723,6 +7409,12 @@
       "bom-ref": "3c66addd-5585-4f9c-bbe0-8df68d7e1f3f",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5737,6 +7429,12 @@
       "bom-ref": "10cfd5d2-c921-44b2-af4e-5f25182adf3f",
       "type": "cryptographic-asset",
       "name": "VeriSign Class 2 Public Primary Certification Authority - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5762,6 +7460,12 @@
       "bom-ref": "0f570c31-95a8-4288-9fb3-3d05d3735860",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5776,6 +7480,12 @@
       "bom-ref": "9b0a1610-c72e-402c-8894-60b1a66dd58a",
       "type": "cryptographic-asset",
       "name": "VeriSign Class 3 Public Primary Certification Authority - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5801,6 +7511,12 @@
       "bom-ref": "553feef2-ded3-49f6-8f49-1e696294bcf6",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5815,6 +7531,12 @@
       "bom-ref": "efeb648a-ee8d-4ec3-b57a-0c2da3523fcd",
       "type": "cryptographic-asset",
       "name": "XRamp Global Certification Authority",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5840,6 +7562,12 @@
       "bom-ref": "d011a00a-10c1-44fb-b4b2-91e01ec3a372",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5854,6 +7582,12 @@
       "bom-ref": "beb7a562-71f0-4712-a91a-ba73414cbf5a",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5877,6 +7611,12 @@
       "bom-ref": "7008e848-3ed9-41f6-99ad-00c7b95492d7",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5891,6 +7631,12 @@
       "bom-ref": "2da7125d-938a-451a-b750-a24d79d26bce",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5914,6 +7660,12 @@
       "bom-ref": "ca77aaf7-8879-42a5-b255-e6602836ebef",
       "type": "cryptographic-asset",
       "name": "RSA-4096",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5928,6 +7680,12 @@
       "bom-ref": "3f40706c-9f33-482d-8283-5315b8705447",
       "type": "cryptographic-asset",
       "name": "emSign ECC Root CA - C3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5953,6 +7711,12 @@
       "bom-ref": "c18ef142-5685-4d80-b953-cb990de1a317",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -5966,6 +7730,12 @@
       "bom-ref": "971e07b2-c8a6-407c-b103-2a8f2fe13e02",
       "type": "cryptographic-asset",
       "name": "emSign ECC Root CA - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -5991,6 +7761,12 @@
       "bom-ref": "e5669247-adb7-42d4-b9cb-3e4ef42861e9",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -6004,6 +7780,12 @@
       "bom-ref": "59c7c681-5248-4231-8f86-786792da0997",
       "type": "cryptographic-asset",
       "name": "emSign Root CA - C1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -6029,6 +7811,12 @@
       "bom-ref": "3841f242-a00f-4fbc-8604-62472c828070",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -6043,6 +7831,12 @@
       "bom-ref": "41397ef2-176e-48ea-84eb-27ed93bd944e",
       "type": "cryptographic-asset",
       "name": "emSign Root CA - G1",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -6068,6 +7862,12 @@
       "bom-ref": "3275c628-7818-46c4-b029-40691e859cc2",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -6082,6 +7882,12 @@
       "bom-ref": "23f820e7-e189-4ac0-a1fb-0b27b2125f3d",
       "type": "cryptographic-asset",
       "name": "thawte Primary Root CA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -6107,6 +7913,12 @@
       "bom-ref": "618e6c47-2241-4ea6-952f-d620472de0b4",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -6121,6 +7933,12 @@
       "bom-ref": "190e3d0e-5b94-4bc8-83e2-bc8c11473283",
       "type": "cryptographic-asset",
       "name": "thawte Primary Root CA - G2",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -6146,6 +7964,12 @@
       "bom-ref": "f9961758-3a32-4c22-adaa-42f2a7c87f34",
       "type": "cryptographic-asset",
       "name": "",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -6159,6 +7983,12 @@
       "bom-ref": "88e3110a-c724-4c67-9301-2b724d9070cf",
       "type": "cryptographic-asset",
       "name": "thawte Primary Root CA - G3",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "evidence": {
         "occurrences": [
           {
@@ -6184,6 +8014,12 @@
       "bom-ref": "657fa686-881a-4a74-9ccc-9a2bdd2964b6",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "100"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
