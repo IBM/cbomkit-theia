@@ -10,6 +10,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"slices"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"go.uber.org/dig"
@@ -70,6 +71,11 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
 		bom.Components = new([]cdx.Component)
 	}
+
+	// Sort the plugins based on the plugin type
+	slices.SortFunc(scanner.configPlugins, func(a plugins.Plugin, b plugins.Plugin) int {
+		return int(a.GetType()) - int(b.GetType())
+	})
 
 	for _, plugin := range scanner.configPlugins {
 		slog.Info("Updating components", "plugin", plugin.GetName())

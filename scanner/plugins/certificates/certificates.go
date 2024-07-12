@@ -27,6 +27,11 @@ func (certificatesPlugin *CertificatesPlugin) GetName() string {
 	return "Certificate File Plugin"
 }
 
+// Get the type of the plugin
+func(certificatesPlugin *CertificatesPlugin) GetType() plugins.PluginType {
+	return plugins.PluginTypeAppend
+}
+
 // Check every file for a certificate and parse it if possible
 func (certificatesPlugin *CertificatesPlugin) walkDirFunc(filesystem filesystem.Filesystem, path string) (err error) {
 	switch filepath.Ext(path) {

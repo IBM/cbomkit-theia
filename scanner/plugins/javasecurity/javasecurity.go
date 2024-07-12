@@ -27,6 +27,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 	return "java.security Plugin"
 }
 
+// Get the type of the plugin
+func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
+	return plugins.PluginTypeVerify
+}
+
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
 func NewJavaSecurityPlugin(filesystem filesystem.Filesystem) (plugins.Plugin, error) {
 	javaSecurityPlugin := &JavaSecurityPlugin{}
