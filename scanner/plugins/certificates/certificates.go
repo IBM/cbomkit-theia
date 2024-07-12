@@ -5,6 +5,7 @@ import (
 	"errors"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
 	"path/filepath"
 	"slices"
@@ -114,10 +115,12 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path
 }
 
 // Parse all certificates from the given filesystem
-func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error {
+func NewCertificatePlugin(filesystem filesystem.Filesystem) (plugins.Plugin, error) {
+	certificatesPlugin := &CertificatesPlugin{}
+	
 	err := filesystem.WalkDir(certificatesPlugin.walkDirFunc)
 	slog.Info("Certificate searching done", "count", len(certificatesPlugin.certs))
-	return err
+	return certificatesPlugin, err
 }
 
 // Add the found certificates to the slice of components

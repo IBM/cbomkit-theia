@@ -65,8 +65,10 @@ func prepareImageAndRun(image docker.ActiveImage, err error) {
 		panic(err)
 	}
 
-	if err = container.Provide(scanner.GetAllPlugins); err != nil {
-		panic(err)
+	for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
+		if err = container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
+			panic(err)
+		}
 	}
 
 	if err = container.Invoke(scanner.CreateAndRunScan); err != nil {

@@ -33,21 +33,23 @@ cics dir my/cool/directory --bom my/bom.json
 		}); err != nil {
 			panic(err)
 		}
-	
+
 		if err := container.Provide(func() string {
 			return bomFilePath
 		}, dig.Name("bomFilePath")); err != nil {
 			panic(err)
 		}
-	
+
 		if err := container.Provide(func() string {
 			return bomSchemaPath
 		}, dig.Name("bomSchemaPath")); err != nil {
 			panic(err)
 		}
-	
-		if err := container.Provide(scanner.GetAllPlugins); err != nil {
-			panic(err)
+
+		for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
+			if err := container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
+				panic(err)
+			}
 		}
 
 		if err := container.Provide(func() *os.File {
@@ -55,7 +57,7 @@ cics dir my/cool/directory --bom my/bom.json
 		}); err != nil {
 			panic(err)
 		}
-	
+
 		if err := container.Invoke(scanner.CreateAndRunScan); err != nil {
 			panic(err)
 		}

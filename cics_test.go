@@ -57,27 +57,29 @@ func TestScan(t *testing.T) {
 			var runErr error
 
 			container := dig.New()
-		
+
 			if err := container.Provide(func() string {
 				return testfileFolder + test.in + bomFolderExtension
 			}, dig.Name("bomFilePath")); err != nil {
 				panic(err)
 			}
-		
+
 			if err := container.Provide(func() string {
 				return schemaPath
 			}, dig.Name("bomSchemaPath")); err != nil {
 				panic(err)
 			}
-		
+
 			if err := container.Provide(func() *os.File {
 				return tempTarget
 			}); err != nil {
 				panic(err)
 			}
-		
-			if err := container.Provide(scanner.GetAllPlugins); err != nil {
-				panic(err)
+
+			for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
+				if err = container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
+					panic(err)
+				}
 			}
 
 			switch test.testType {

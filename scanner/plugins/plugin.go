@@ -1,14 +1,14 @@
 package plugins
 
 import (
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
 )
 
 // Interface to be implemented by all plugins
 type Plugin interface {
 	GetName() string                                                                            // return a name for the plugin
-	ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error                    // find all relevant files in the filesystem
 	UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) // Update all BOM components using found files
 }
+
+type PluginConstructor func(filesystem filesystem.Filesystem) (Plugin, error)

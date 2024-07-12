@@ -7,6 +7,7 @@ import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -27,32 +28,34 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
 }
 
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
-func (javaSecurityPlugin *JavaSecurityPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) (err error) {
+func NewJavaSecurityPlugin(filesystem filesystem.Filesystem) (plugins.Plugin, error) {
+	javaSecurityPlugin := &JavaSecurityPlugin{}
+	
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
 		os.Exit(1)
 	}
 
-	err = filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc)
+	err := filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc)
 	if err != nil {
-		return err
+		return javaSecurityPlugin, err
 	}
 
 	if javaSecurityPlugin.security.Properties == nil {
-		return nil
+		return javaSecurityPlugin, nil
 	}
 
 	err = javaSecurityPlugin.checkConfig(filesystem)
 	if err != nil {
-		return err
+		return javaSecurityPlugin, err
 	}
 
 	err = javaSecurityPlugin.security.extractTLSRules()
 	if err != nil {
-		return err
+		return javaSecurityPlugin, err
 	}
 
-	return nil
+	return javaSecurityPlugin, nil
 }
 
 // High-level function to update a list of components (e.g. remove components and add new ones)

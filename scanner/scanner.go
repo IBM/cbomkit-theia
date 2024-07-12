@@ -20,15 +20,15 @@ type ScannerParameterStruct struct {
 
 	Fs            filesystem.Filesystem
 	Target        *os.File
-	BomFilePath   string `name:"bomFilePath"`
-	BomSchemaPath string `name:"bomSchemaPath"`
-	Plugins       []plugins.Plugin
+	BomFilePath   string           `name:"bomFilePath"`
+	BomSchemaPath string           `name:"bomSchemaPath"`
+	Plugins       []plugins.Plugin `group:"plugins"`
 }
 
-func GetAllPlugins() []plugins.Plugin {
-	return []plugins.Plugin{
-		&javasecurity.JavaSecurityPlugin{},
-		&certificates.CertificatesPlugin{},
+func GetAllPluginConstructors() []plugins.PluginConstructor {
+	return []plugins.PluginConstructor{
+		certificates.NewCertificatePlugin,
+		javasecurity.NewJavaSecurityPlugin,
 	}
 }
 
@@ -63,25 +63,9 @@ type scanner struct {
 	filesystem    filesystem.Filesystem
 }
 
-// Call all plugins for this scanner to find config files in the underlying filesystem
-func (scanner *scanner) findConfigFiles() error {
-	for _, plugin := range scanner.configPlugins {
-		slog.Info("Finding relevant files", "plugin", plugin.GetName())
-		err := plugin.ParseRelevantFilesFromFilesystem(scanner.filesystem)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
-}
-
 // Scan a single BOM using all plugins
 func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
-	err := scanner.findConfigFiles()
-	if err != nil {
-		return cdx.BOM{}, err
-	}
-
+	var err error
 	if bom.Components == nil {
 		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
 		bom.Components = new([]cdx.Component)
