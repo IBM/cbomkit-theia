@@ -26,10 +26,10 @@ type ScannerParameterStruct struct {
 	Plugins       []plugins.Plugin `group:"plugins"`
 }
 
-func GetAllPluginConstructors() []plugins.PluginConstructor {
-	return []plugins.PluginConstructor{
-		certificates.NewCertificatePlugin,
-		javasecurity.NewJavaSecurityPlugin,
+func GetAllPluginConstructors() map[string]plugins.PluginConstructor {
+	return map[string]plugins.PluginConstructor{
+		"certificates": certificates.NewCertificatePlugin,
+		"javasecurity": javasecurity.NewJavaSecurityPlugin,
 	}
 }
 

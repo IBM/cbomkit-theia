@@ -26,4 +26,5 @@ type Plugin interface {
 	UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) // Update all BOM components using found files
 }
 
+// This PluginConstructor function should be exposed by all plugin packages
 type PluginConstructor func(filesystem filesystem.Filesystem) (Plugin, error)

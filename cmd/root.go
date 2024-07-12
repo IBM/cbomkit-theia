@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"ibm/container-image-cryptography-scanner/cmd/image"
+	"ibm/container-image-cryptography-scanner/scanner"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"os"
 	"path/filepath"
 
@@ -75,6 +77,30 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&bomSchemaPath, "schema", filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json"), "BOM schema to validate the given BOM")
 	viper.BindPFlag("schema", rootCmd.PersistentFlags().Lookup("schema"))
 	rootCmd.MarkPersistentFlagFilename("schema", ".json")
+
+	allPluginNames := make([]string, len(scanner.GetAllPluginConstructors()))
+
+	i := 0
+	for k := range scanner.GetAllPluginConstructors() {
+		allPluginNames[i] = k
+		i++
+	}
+
+	pluginNames := rootCmd.PersistentFlags().StringSliceP("plugins", "p", allPluginNames, "list of plugins to use")
+	viper.BindPFlag("plugins", rootCmd.PersistentFlags().Lookup("plugins"))
+
+	pluginConstructors := make([]plugins.PluginConstructor, len(*pluginNames))
+	for _, name := range *pluginNames {
+		constructor, ok := scanner.GetAllPluginConstructors()[name]
+		if !ok {
+			// Error
+			panic(fmt.Sprintf("%v is not a valid plugin name!", name))
+		} else {
+			pluginConstructors = append(pluginConstructors, constructor)
+		}
+	}
+
+	viper.Set("pluginConstructors", pluginConstructors) // TODO: Use this value
 }
 
 // initConfig reads in config file and ENV variables if set.
