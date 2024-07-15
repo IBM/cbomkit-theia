@@ -3,9 +3,11 @@ package cmd
 import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	"ibm/container-image-cryptography-scanner/scanner"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"os"
 
 	"github.com/spf13/cobra"
+	"github.com/spf13/viper"
 	"go.uber.org/dig"
 )
 
@@ -46,7 +48,13 @@ cics dir my/cool/directory --bom my/bom.json
 			panic(err)
 		}
 
-		for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
+		pluginConstructors, ok := viper.Get("pluginConstructors").([]plugins.PluginConstructor)
+
+		if !ok {
+			panic("Could not get pluginConstructors from Viper! This should not happen.")
+		}
+
+		for _, pluginConstructor := range pluginConstructors {
 			if err := container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
 				panic(err)
 			}

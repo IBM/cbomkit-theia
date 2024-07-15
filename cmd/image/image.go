@@ -4,6 +4,7 @@ import (
 	"ibm/container-image-cryptography-scanner/provider/docker"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	"ibm/container-image-cryptography-scanner/scanner"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -65,7 +66,13 @@ func prepareImageAndRun(image docker.ActiveImage, err error) {
 		panic(err)
 	}
 
-	for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
+	pluginConstructors, ok := viper.Get("pluginConstructors").([]plugins.PluginConstructor)
+
+	if !ok {
+		panic("Could not get pluginConstructors from Viper! This should not happen.")
+	}
+
+	for _, pluginConstructor := range pluginConstructors {
 		if err = container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
 			panic(err)
 		}
