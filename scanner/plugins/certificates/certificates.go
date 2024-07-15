@@ -19,7 +19,7 @@ import (
 
 // Plugin to parse certificates from the filesystem
 type CertificatesPlugin struct {
-	certs      []*x509CertificateWithMetadata
+	certs []*x509CertificateWithMetadata
 }
 
 // Get the name of the plugin
@@ -28,12 +28,12 @@ func (certificatesPlugin *CertificatesPlugin) GetName() string {
 }
 
 // Get the type of the plugin
-func(certificatesPlugin *CertificatesPlugin) GetType() plugins.PluginType {
+func (certificatesPlugin *CertificatesPlugin) GetType() plugins.PluginType {
 	return plugins.PluginTypeAppend
 }
 
 // Check every file for a certificate and parse it if possible
-func (certificatesPlugin *CertificatesPlugin) walkDirFunc(filesystem filesystem.Filesystem, path string) (err error) {
+func (certificatesPlugin *CertificatesPlugin) walkDirFunc(filesystem filesystem.Filesystem, path string, res any) (err error) {
 	switch filepath.Ext(path) {
 	case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
 		raw, err := filesystem.ReadFile(path)
@@ -122,8 +122,8 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path
 // Parse all certificates from the given filesystem
 func NewCertificatePlugin(filesystem filesystem.Filesystem) (plugins.Plugin, error) {
 	certificatesPlugin := &CertificatesPlugin{}
-	
-	err := filesystem.WalkDir(certificatesPlugin.walkDirFunc)
+
+	err := filesystem.WalkDir(certificatesPlugin.walkDirFunc, nil)
 	slog.Info("Certificate searching done", "count", len(certificatesPlugin.certs))
 	return certificatesPlugin, err
 }

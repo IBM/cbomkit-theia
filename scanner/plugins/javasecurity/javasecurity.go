@@ -19,7 +19,7 @@ import (
 // Represents the java security plugin in a specific scanning context
 // Implements the config/ConfigPlugin interface
 type JavaSecurityPlugin struct {
-	security   JavaSecurity
+	security JavaSecurity
 }
 
 // Get the name of the plugin for debugging purposes
@@ -35,13 +35,14 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
 func NewJavaSecurityPlugin(filesystem filesystem.Filesystem) (plugins.Plugin, error) {
 	javaSecurityPlugin := &JavaSecurityPlugin{}
-	
+
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
 		os.Exit(1)
 	}
 
-	err := filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc)
+	configurations := new(map[string]JavaSecurity)
+	err := filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc, configurations)
 	if err != nil {
 		return javaSecurityPlugin, err
 	}

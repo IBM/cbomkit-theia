@@ -21,14 +21,14 @@ type Layer struct { // implements Filesystem
 }
 
 // Walk all files in the squashed layer using fn
-func (layer Layer) WalkDir(fn filesystem.SimpleWalkDirFunc) error {
+func (layer Layer) WalkDir(fn filesystem.SimpleWalkDirFunc, res any) error {
 	return layer.image.Layers[layer.index].SquashedTree.Walk(
 		func(path file.Path, f filenode.FileNode) error {
 			if f.FileType == file.TypeDirectory {
 				return nil
 			}
 
-			err := fn(layer, string(path))
+			err := fn(layer, string(path), res)
 
 			if errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
 				slog.Warn(err.Error())

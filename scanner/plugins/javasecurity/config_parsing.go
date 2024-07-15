@@ -21,7 +21,7 @@ General
 */
 
 // Checks single files while walking a file tree and parses a config if possible
-func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(filesystem filesystem.Filesystem, path string) (err error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(filesystem filesystem.Filesystem, path string, res any) (err error) {
 	if javaSecurityPlugin.isConfigFile(path) {
 		slog.Info("Adding java.security config file", "path", path)
 		content, err := filesystem.ReadFile(path)
@@ -32,9 +32,14 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(filesystem files
 		if err != nil {
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
 		}
-		javaSecurityPlugin.security = JavaSecurity{
-			config,
-			[]JavaSecurityAlgorithmRestriction{},
+
+		if javaSecurityPlugin.security.Properties != nil {
+			javaSecurityPlugin.security.Merge(config)
+		} else {
+			javaSecurityPlugin.security = JavaSecurity{
+				config,
+				[]JavaSecurityAlgorithmRestriction{},
+			}
 		}
 	}
 
