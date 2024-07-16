@@ -33,14 +33,13 @@ func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(filesystem files
 			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
 		}
 
-		if javaSecurityPlugin.security.Properties != nil {
-			javaSecurityPlugin.security.Merge(config)
-		} else {
-			javaSecurityPlugin.security = JavaSecurity{
-				config,
-				[]JavaSecurityAlgorithmRestriction{},
-			}
+		results_array, ok := res.(*map[string]*properties.Properties)
+
+		if !ok {
+			slog.Warn("Java Security Plugin did not receive a valid *map[string]JavaSecurity value to store results. This should be investigated.", "value", res)
 		}
+
+		(*results_array)[path] =  config
 	}
 
 	return err
@@ -87,13 +86,38 @@ func removeFromSlice[T interface{}](slice []T, s int) []T {
 
 var errNilProperties = fmt.Errorf("scanner java: properties are nil")
 
+func newJavaSecurity(properties *properties.Properties, filesystem filesystem.Filesystem) (JavaSecurity, error) {
+	additionalSecurityProperties, override, err := checkConfig(properties, filesystem)
+	if err != nil {
+		return JavaSecurity{}, err
+	}
+
+	if !override {
+		if additionalSecurityProperties != nil {
+			properties.Merge(additionalSecurityProperties)
+		}
+	} else {
+		properties = additionalSecurityProperties
+	}
+
+	restrictions, err := extractTLSRules(properties)
+	if err != nil {
+		return JavaSecurity{}, err
+	}
+
+	return JavaSecurity{
+		properties,
+		restrictions,
+	}, err
+}
+
 // Recursively get all comma-separated values of the property key. Recursion is necessary since values can include "include" directives which refer to other properties and include them in this property.
-func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string, err error) {
-	if javaSecurity.Properties == nil {
+func getPropertyValues(properties *properties.Properties, key string) (values []string, err error) {
+	if properties == nil {
 		return values, errNilProperties
 	}
 
-	fullString, ok := javaSecurity.Get(key)
+	fullString, ok := properties.Get(key)
 	if ok {
 		values = strings.Split(fullString, ",")
 		for i, value := range values {
@@ -106,7 +130,7 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 			toBeRemoved = append(toBeRemoved, i)
 			split := strings.Split(value, " ")
 			if len(split) > 1 {
-				includedValues, err := javaSecurity.getPropertyValues(split[1])
+				includedValues, err := getPropertyValues(properties, split[1])
 				if err != nil {
 					return includedValues, err
 				}
@@ -122,16 +146,16 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 
 // Parses the TLS Rules from the java.security file
 // Returns a joined list of errors which occurred during parsing of algorithms
-func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
+func extractTLSRules(securityProperties *properties.Properties) (restrictions []JavaSecurityAlgorithmRestriction, err error) {
 	slog.Info("Extracting TLS rules")
 
 	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
-	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
+	algorithms, err := getPropertyValues(securityProperties, securityPropertiesKey)
 
 	if go_errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.")
 	} else if err != nil {
-		return err
+		return restrictions, err
 	}
 
 	var algorithmParsingErrors []error
@@ -190,7 +214,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				}
 			}
 
-			javaSecurity.tlsDisabledAlgorithms = append(javaSecurity.tlsDisabledAlgorithms, JavaSecurityAlgorithmRestriction{
+			restrictions = append(restrictions, JavaSecurityAlgorithmRestriction{
 				name:            name,
 				keySize:         keySize,
 				keySizeOperator: keySizeOperator,
@@ -200,7 +224,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 		slog.Info("No disabled algorithms specified!", "key", securityPropertiesKey)
 	}
 
-	return go_errors.Join(algorithmParsingErrors...)
+	return restrictions, go_errors.Join(algorithmParsingErrors...)
 }
 
 /*
@@ -212,42 +236,41 @@ container image related
 const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 
 // Tries to get a config from the filesystem and checks the Config for potentially relevant information
-func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig(filesystem filesystem.Filesystem) error {
+func checkConfig(securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
 	slog.Info("Checking filesystem config for additional security properties")
 
-	config, ok := filesystem.GetConfig()
+	imageConfig, ok := filesystem.GetConfig()
 	if !ok {
 		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", filesystem.GetIdentifier())
-		return nil
+		return additionalSecurityProperties, override, nil
 	}
 
-	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config, filesystem)
+	additionalSecurityProperties, override, err = checkForAdditionalSecurityFilesCMDParameter(imageConfig, securityProperties, filesystem)
 
 	if go_errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", filesystem.GetIdentifier())
-		return nil
+		return additionalSecurityProperties, override, nil
 	}
 
-	return err
+	return additionalSecurityProperties, override, err
 }
 
 // Searches the image config for potentially relevant CMD parameters and potentially adds new properties
-func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(config v1.Config, filesystem filesystem.Filesystem) (err error) {
+func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
 
-	if javaSecurityPlugin.security.Properties == nil { // We do not have a security file
-		return errNilProperties
+	if securityProperties == nil { // We do not have a security file
+		return securityProperties, override, errNilProperties
 	}
 
-	allowAdditionalFiles := javaSecurityPlugin.security.GetBool("security.overridePropertiesFile", true)
+	allowAdditionalFiles := securityProperties.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
 		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", filesystem.GetIdentifier())
-		return nil
+		return additionalSecurityProperties, override, nil
 	}
 
 	// Now, let's check for additional files added via CMD
 	var value string
-	var override bool
 	var ok bool
 
 	for _, command := range append(config.Cmd, config.Entrypoint...) {
@@ -255,30 +278,22 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 
 		if ok {
 			slog.Info("Found command that specifies new properties", "command", command)
-			if override {
-				slog.Info("Overriding properties with empty object")
-				javaSecurityPlugin.security = JavaSecurity{
-					properties.NewProperties(), // We override the current loaded property file with an empty object
-					javaSecurityPlugin.security.tlsDisabledAlgorithms,
-				}
-			}
 
 			content, err := filesystem.ReadFile(value)
 			if err != nil {
 				if strings.Contains(err.Error(), "could not find file path in Tree") {
 					slog.Warn("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
-					return nil
+					return additionalSecurityProperties, override, nil
 				} else {
-					return err
+					return additionalSecurityProperties, override, err
 				}
 			}
-			newProperties := properties.MustLoadString(string(content))
-			javaSecurityPlugin.security.Merge(newProperties)
-			return err
+			additionalSecurityProperties, err = properties.LoadString(string(content))
+			return additionalSecurityProperties, override, err
 		}
 	}
 
-	return err
+	return additionalSecurityProperties, override, err
 }
 
 // Tries to extract the value of a flag in command;

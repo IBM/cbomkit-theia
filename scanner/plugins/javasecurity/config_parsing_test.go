@@ -17,7 +17,7 @@ java.security related
 =======
 */
 
-func setUpExtractionOfRule(javaSecurityContent string) JavaSecurity {
+func setUpExtractionOfRule(javaSecurityContent string) *properties.Properties {
 	filesystem, err := os.MkdirTemp("", "CICS_CMD_ARGUMENT_TEST")
 	if err != nil {
 		panic(err)
@@ -32,21 +32,20 @@ func setUpExtractionOfRule(javaSecurityContent string) JavaSecurity {
 
 	config := properties.MustLoadFile(securityFile, properties.UTF8)
 
-	javaSecurity := JavaSecurity{
-		config,
-		[]JavaSecurityAlgorithmRestriction{},
-	}
-
 	os.RemoveAll(filesystem)
 
-	return javaSecurity
+	return config
 }
 
 func TestExtractTLSRules(t *testing.T) {
-	javaSecurity := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize == 3")
+	config := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize == 3")
 
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
-		err := javaSecurity.extractTLSRules()
+		restrictions, err := extractTLSRules(config)
+		javaSecurity := JavaSecurity{
+			config, 
+			restrictions,
+		}
 		assert.NoError(t, err)
 		assert.Len(t, javaSecurity.tlsDisabledAlgorithms, 2)
 		for _, res := range javaSecurity.tlsDisabledAlgorithms {
@@ -65,10 +64,14 @@ func TestExtractTLSRules(t *testing.T) {
 }
 
 func TestExtractTLSRulesNotSupported(t *testing.T) {
-	javaSecurity := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA jdkCA")
+	config := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA jdkCA")
 
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
-		err := javaSecurity.extractTLSRules()
+		restrictions, err := extractTLSRules(config)
+		javaSecurity := JavaSecurity{
+			config, 
+			restrictions,
+		}
 		assert.NoError(t, err)
 		assert.Len(t, javaSecurity.tlsDisabledAlgorithms, 1)
 		for _, res := range javaSecurity.tlsDisabledAlgorithms {
@@ -84,28 +87,32 @@ func TestExtractTLSRulesNotSupported(t *testing.T) {
 }
 
 func TestExtractTLSRulesIllegalValue1(t *testing.T) {
-	javaSecurity := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize keySize")
+	config := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize keySize")
 
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
-		err := javaSecurity.extractTLSRules()
+		_, err := extractTLSRules(config)
 		assert.Error(t, err)
 	})
 }
 
 func TestExtractTLSRulesIllegalValue2(t *testing.T) {
-	javaSecurity := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize | 234")
+	config := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize | 234")
 
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
-		err := javaSecurity.extractTLSRules()
+		_, err := extractTLSRules(config)
 		assert.Error(t, err)
 	})
 }
 
 func TestExtractTLSRulesInclude(t *testing.T) {
-	javaSecurity := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize == 3, include my.new.property\nmy.new.property=DIDYOUGETME keySize >= 123")
+	config := setUpExtractionOfRule("jdk.tls.disabledAlgorithms=SHA384, RSA keySize == 3, include my.new.property\nmy.new.property=DIDYOUGETME keySize >= 123")
 
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
-		err := javaSecurity.extractTLSRules()
+		restrictions, err := extractTLSRules(config)
+		javaSecurity := JavaSecurity{
+			config, 
+			restrictions,
+		}
 		assert.NoError(t, err)
 		assert.Len(t, javaSecurity.tlsDisabledAlgorithms, 3)
 		for _, res := range javaSecurity.tlsDisabledAlgorithms {
@@ -132,7 +139,7 @@ container image related
 =======
 */
 
-func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (JavaSecurityPlugin, []string, docker.ActiveImage) {
+func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (*properties.Properties, []string, docker.ActiveImage) {
 	filesystem, err := os.MkdirTemp("", "CICS_CMD_ARGUMENT_TEST")
 	if err != nil {
 		panic(err)
@@ -178,16 +185,9 @@ func setUpCMD(originalKey string, originalValue string, newKey string, newValue 
 		panic(err)
 	}
 
-	javaSecurityPlugin := JavaSecurityPlugin{
-		security: JavaSecurity{
-			config,
-			[]JavaSecurityAlgorithmRestriction{},
-		},
-	}
-
 	filesToDelete := []string{filesystem, dockerfile}
 
-	return javaSecurityPlugin, filesToDelete, image
+	return config, filesToDelete, image
 }
 
 func tearDown(filesToDelete []string, image docker.ActiveImage) {
@@ -198,16 +198,16 @@ func tearDown(filesToDelete []string, image docker.ActiveImage) {
 }
 
 func TestCMDArgumentAdditionalCMD(t *testing.T) {
-	javaSecurityPlugin, filesToDelete, image := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "CMD", true)
+	config, filesToDelete, image := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "CMD", true)
 	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
+		javaSecurity, err := newJavaSecurity(config, docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
-		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
-		value2, ok2 := javaSecurityPlugin.security.Get("originalkey")
+		value1, ok1 := javaSecurity.Get("mynewtestproperty")
+		value2, ok2 := javaSecurity.Get("originalkey")
 		assert.True(t, ok1)
 		assert.True(t, ok2)
 		assert.Equal(t, value1, "mynewtestvalue")
@@ -216,16 +216,16 @@ func TestCMDArgumentAdditionalCMD(t *testing.T) {
 }
 
 func TestCMDArgumentAdditionalENTRYPOINT(t *testing.T) {
-	javaSecurityPlugin, filesToDelete, image := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "ENTRYPOINT", true)
+	config, filesToDelete, image := setUpCMD("originalkey", "originalvalue", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties=", "ENTRYPOINT", true)
 	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
+		javaSecurity, err := newJavaSecurity(config, docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
-		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
-		value2, ok2 := javaSecurityPlugin.security.Get("originalkey")
+		value1, ok1 := javaSecurity.Get("mynewtestproperty")
+		value2, ok2 := javaSecurity.Get("originalkey")
 		assert.True(t, ok1)
 		assert.True(t, ok2)
 		assert.Equal(t, value1, "mynewtestvalue")
@@ -234,15 +234,15 @@ func TestCMDArgumentAdditionalENTRYPOINT(t *testing.T) {
 }
 
 func TestCMDArgumentOverride(t *testing.T) {
-	javaSecurityPlugin, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", true)
+	config, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", true)
 	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
+		javaSecurity, err := newJavaSecurity(config, docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
-		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		value1, ok1 := javaSecurity.Get("mynewtestproperty")
 		assert.True(t, ok1)
 		assert.NotEqual(t, value1, "THISSHOULDNOTBEHERE")
 		assert.Equal(t, value1, "mynewtestvalue")
@@ -250,15 +250,15 @@ func TestCMDArgumentOverride(t *testing.T) {
 }
 
 func TestCMDArgumentNoArgument(t *testing.T) {
-	javaSecurityPlugin, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "", "CMD", true)
+	config, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "", "CMD", true)
 	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
+		javaSecurity, err := newJavaSecurity(config, docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
-		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		value1, ok1 := javaSecurity.Get("mynewtestproperty")
 		assert.True(t, ok1)
 		assert.Equal(t, value1, "THISSHOULDNOTBEHERE")
 		assert.NotEqual(t, value1, "mynewtestvalue")
@@ -266,15 +266,15 @@ func TestCMDArgumentNoArgument(t *testing.T) {
 }
 
 func TestCMDArgumentNotAllowed(t *testing.T) {
-	javaSecurityPlugin, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", false)
+	config, filesToDelete, image := setUpCMD("mynewtestproperty", "THISSHOULDNOTBEHERE", "mynewtestproperty", "mynewtestvalue", "-Djava.security.properties==", "CMD", false)
 	defer tearDown(filesToDelete, image)
 
 	t.Run("Additional java.security files via CMD", func(t *testing.T) {
 
-		err := javaSecurityPlugin.checkConfig(docker.GetSquashedFilesystem(image))
+		javaSecurity, err := newJavaSecurity(config, docker.GetSquashedFilesystem(image))
 		assert.NoError(t, err, "checkConfig failed")
 
-		value1, ok1 := javaSecurityPlugin.security.Get("mynewtestproperty")
+		value1, ok1 := javaSecurity.Get("mynewtestproperty")
 		assert.True(t, ok1)
 		assert.Equal(t, value1, "THISSHOULDNOTBEHERE")
 		assert.NotEqual(t, value1, "mynewtestvalue")

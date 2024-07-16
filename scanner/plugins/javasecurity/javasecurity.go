@@ -1,7 +1,6 @@
 package javasecurity
 
 import (
-	"errors"
 	go_errors "errors"
 	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
@@ -41,27 +40,17 @@ func NewJavaSecurityPlugin(filesystem filesystem.Filesystem) (plugins.Plugin, er
 		os.Exit(1)
 	}
 
-	configurations := new(map[string]JavaSecurity)
-	err := filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc, configurations)
+	configurations := make(map[string]*properties.Properties)
+	err := filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc, &configurations)
 	if err != nil {
 		return javaSecurityPlugin, err
 	}
 
-	if javaSecurityPlugin.security.Properties == nil {
-		return javaSecurityPlugin, nil
-	}
+	configuration := chooseMostLikelyConfiguration(&configurations)
 
-	err = javaSecurityPlugin.checkConfig(filesystem)
-	if err != nil {
-		return javaSecurityPlugin, err
-	}
+	javaSecurityPlugin.security, err = newJavaSecurity(configuration, filesystem)
 
-	err = javaSecurityPlugin.security.extractTLSRules()
-	if err != nil {
-		return javaSecurityPlugin, err
-	}
-
-	return javaSecurityPlugin, nil
+	return javaSecurityPlugin, err
 }
 
 // High-level function to update a list of components (e.g. remove components and add new ones)
@@ -90,12 +79,20 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 		}
 	}
 
-	joinedinsufficientInformationErrors := errors.Join(insufficientInformationErrors...)
+	joinedinsufficientInformationErrors := go_errors.Join(insufficientInformationErrors...)
 	if joinedinsufficientInformationErrors != nil {
-		slog.Warn("Run finished with insufficient information errors", "errors", errors.Join(insufficientInformationErrors...).Error())
+		slog.Warn("Run finished with insufficient information errors", "errors", go_errors.Join(insufficientInformationErrors...).Error())
 	}
 
 	return advancedCompSlice.GetComponentSlice(), nil
+}
+
+func chooseMostLikelyConfiguration(configurations *map[string]*properties.Properties) *properties.Properties {
+	// TODO: Do something useful here
+	for _, prop := range *configurations {
+		return prop
+	}
+	return &properties.Properties{}
 }
 
 // Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
