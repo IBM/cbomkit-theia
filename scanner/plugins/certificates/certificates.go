@@ -18,9 +18,7 @@ import (
 )
 
 // Plugin to parse certificates from the filesystem
-type CertificatesPlugin struct {
-	certs []*x509CertificateWithMetadata
-}
+type CertificatesPlugin struct {}
 
 // Get the name of the plugin
 func (certificatesPlugin *CertificatesPlugin) GetName() string {
@@ -33,41 +31,8 @@ func (certificatesPlugin *CertificatesPlugin) GetType() plugins.PluginType {
 }
 
 // Parse all certificates from the given filesystem
-func NewCertificatePlugin(fs filesystem.Filesystem) (plugins.Plugin, error) {
-	certificatesPlugin := &CertificatesPlugin{}
-
-	err := fs.WalkDir(
-		func(fs filesystem.Filesystem, path string) (err error) {
-			switch filepath.Ext(path) {
-			case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
-				raw, err := fs.ReadFile(path)
-				if err != nil {
-					return err
-				}
-				certs, err := certificatesPlugin.parsex509CertFromPath(raw, path)
-				if err != nil {
-					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
-				}
-				certificatesPlugin.certs = append(certificatesPlugin.certs, certs...)
-			case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
-				raw, err := fs.ReadFile(path)
-				if err != nil {
-					return err
-				}
-				certs, err := certificatesPlugin.parsePKCS7FromPath(raw, path)
-				if err != nil {
-					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
-				}
-				certificatesPlugin.certs = append(certificatesPlugin.certs, certs...)
-			default:
-				return err
-			}
-
-			return err
-		})
-
-	slog.Info("Certificate searching done", "count", len(certificatesPlugin.certs))
-	return certificatesPlugin, err
+func NewCertificatePlugin() (plugins.Plugin, error) {
+	return &CertificatesPlugin{}, nil
 }
 
 // Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
@@ -128,10 +93,44 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path
 }
 
 // Add the found certificates to the slice of components
-func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+func (certificatesPlugin *CertificatesPlugin) UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+	certificates := []*x509CertificateWithMetadata{}
+
+	err = fs.WalkDir(
+		func(path string) (err error) {
+			switch filepath.Ext(path) {
+			case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
+				raw, err := fs.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				certs, err := certificatesPlugin.parsex509CertFromPath(raw, path)
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
+				}
+				certificates = append(certificates, certs...)
+			case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
+				raw, err := fs.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				certs, err := certificatesPlugin.parsePKCS7FromPath(raw, path)
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
+				}
+				certificates = append(certificates, certs...)
+			default:
+				return err
+			}
+
+			return err
+		})
+
+	slog.Info("Certificate searching done", "count", len(certificates))
+
 	uuid.SetRand(rand.New(rand.NewSource(1)))
 
-	for _, cert := range certificatesPlugin.certs {
+	for _, cert := range certificates {
 		cdxComps, err := cert.generateCDXComponents()
 		if errors.Is(err, errX509UnknownAlgorithm) {
 			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)

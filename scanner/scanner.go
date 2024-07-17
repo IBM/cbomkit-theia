@@ -79,7 +79,7 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 
 	for _, plugin := range scanner.configPlugins {
 		slog.Info("Updating components", "plugin", plugin.GetName())
-		*bom.Components, err = plugin.UpdateComponents(*bom.Components)
+		*bom.Components, err = plugin.UpdateComponents(scanner.filesystem, *bom.Components)
 		if err != nil {
 			return bom, fmt.Errorf("scanner: plugin (%v) failed to updated components of bom; %w", plugin.GetName(), err)
 		}

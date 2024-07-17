@@ -6,7 +6,7 @@ import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"	
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -17,9 +17,7 @@ import (
 
 // Represents the java security plugin in a specific scanning context
 // Implements the config/ConfigPlugin interface
-type JavaSecurityPlugin struct {
-	security JavaSecurity
-}
+type JavaSecurityPlugin struct {}
 
 // Get the name of the plugin for debugging purposes
 func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
@@ -32,9 +30,12 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
 }
 
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
-func NewJavaSecurityPlugin(fs filesystem.Filesystem) (plugins.Plugin, error) {
-	javaSecurityPlugin := &JavaSecurityPlugin{}
+func NewJavaSecurityPlugin() (plugins.Plugin, error) {
+	return &JavaSecurityPlugin{}, nil
+}
 
+// High-level function to update a list of components (e.g. remove components and add new ones)
+func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) ([]cdx.Component, error) {
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
 		os.Exit(1)
@@ -43,7 +44,7 @@ func NewJavaSecurityPlugin(fs filesystem.Filesystem) (plugins.Plugin, error) {
 	configurations := make(map[string]*properties.Properties)
 
 	err := fs.WalkDir(
-		func(fs filesystem.Filesystem, path string) (err error) {
+		func(path string) (err error) {
 			if javaSecurityPlugin.isConfigFile(path) {
 				slog.Info("Adding java.security config file", "path", path)
 				content, err := fs.ReadFile(path)
@@ -62,18 +63,13 @@ func NewJavaSecurityPlugin(fs filesystem.Filesystem) (plugins.Plugin, error) {
 		})
 
 	if err != nil {
-		return javaSecurityPlugin, err
+		return []cdx.Component{}, err
 	}
 
 	configuration := chooseMostLikelyConfiguration(configurations)
 
-	javaSecurityPlugin.security, err = newJavaSecurity(configuration, fs)
+	security, err := newJavaSecurity(configuration, fs)
 
-	return javaSecurityPlugin, err
-}
-
-// High-level function to update a list of components (e.g. remove components and add new ones)
-func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.Component) ([]cdx.Component, error) {
 	insufficientInformationErrors := []error{}
 
 	advancedCompSlice := advancedcomponentslice.FromComponentSlice(components)
@@ -81,7 +77,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 	for i, comp := range components {
 		if comp.Type == cdx.ComponentTypeCryptographicAsset {
 			if comp.CryptoProperties != nil {
-				err := javaSecurityPlugin.updateComponent(i, advancedCompSlice)
+				err := security.updateComponent(i, advancedCompSlice)
 
 				slog.Debug("Component has been analyzed and confidence has been set", "component", advancedCompSlice.GetByIndex(i).Name, "confidence", advancedCompSlice.GetByIndex(i).Confidence.GetValue())
 
@@ -115,9 +111,9 @@ func chooseMostLikelyConfiguration(configurations map[string]*properties.Propert
 }
 
 // Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
-func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
+func (javaSecurity *JavaSecurity) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
 	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
-		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", javaSecurityPlugin.GetName(), "component", component.Name)
+		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", "java.security Plugin", "component", component.Name)
 	}
 
 	for _, occurrence := range *component.Evidence.Occurrences {
@@ -131,9 +127,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) isComponentAffectedByConfig(compon
 }
 
 // Update a single component; returns nil if component is not allowed
-func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) (err error) {
+func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) (err error) {
 
-	ok, err := javaSecurityPlugin.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
+	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
 
 	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 		return err
@@ -141,7 +137,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) updateComponent(index int, advance
 
 	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType {
 	case cdx.CryptoAssetTypeProtocol:
-		return javaSecurityPlugin.security.updateProtocolComponent(index, advancedcomponentslice)
+		return javaSecurity.updateProtocolComponent(index, advancedcomponentslice)
 	default:
 		return nil
 	}

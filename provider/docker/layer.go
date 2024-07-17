@@ -28,7 +28,7 @@ func (layer Layer) WalkDir(fn filesystem.SimpleWalkDirFunc) error {
 				return nil
 			}
 
-			err := fn(layer, string(path))
+			err := fn(string(path))
 
 			if errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
 				slog.Warn(err.Error())
