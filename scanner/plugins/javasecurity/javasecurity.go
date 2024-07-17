@@ -32,7 +32,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
 }
 
 // Parses all relevant information from the filesystem and creates underlying data structure for evaluation
-func NewJavaSecurityPlugin(filesystem filesystem.Filesystem) (plugins.Plugin, error) {
+func NewJavaSecurityPlugin(fs filesystem.Filesystem) (plugins.Plugin, error) {
 	javaSecurityPlugin := &JavaSecurityPlugin{}
 
 	properties.ErrorHandler = func(err error) {
@@ -41,14 +41,33 @@ func NewJavaSecurityPlugin(filesystem filesystem.Filesystem) (plugins.Plugin, er
 	}
 
 	configurations := make(map[string]*properties.Properties)
-	err := filesystem.WalkDir(javaSecurityPlugin.configWalkDirFunc, &configurations)
+
+	err := fs.WalkDir(
+		func(fs filesystem.Filesystem, path string) (err error) {
+			if javaSecurityPlugin.isConfigFile(path) {
+				slog.Info("Adding java.security config file", "path", path)
+				content, err := fs.ReadFile(path)
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
+				}
+				config, err := properties.LoadString(string(content))
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
+				}
+
+				configurations[path] = config
+			}
+
+			return err
+		})
+
 	if err != nil {
 		return javaSecurityPlugin, err
 	}
 
-	configuration := chooseMostLikelyConfiguration(&configurations)
+	configuration := chooseMostLikelyConfiguration(configurations)
 
-	javaSecurityPlugin.security, err = newJavaSecurity(configuration, filesystem)
+	javaSecurityPlugin.security, err = newJavaSecurity(configuration, fs)
 
 	return javaSecurityPlugin, err
 }
@@ -87,9 +106,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(components []cdx.
 	return advancedCompSlice.GetComponentSlice(), nil
 }
 
-func chooseMostLikelyConfiguration(configurations *map[string]*properties.Properties) *properties.Properties {
+func chooseMostLikelyConfiguration(configurations map[string]*properties.Properties) *properties.Properties {
 	// TODO: Do something useful here
-	for _, prop := range *configurations {
+	for _, prop := range configurations {
 		return prop
 	}
 	return &properties.Properties{}

@@ -13,14 +13,14 @@ import (
 )
 
 // A simple interface for a function to walk directories
-type SimpleWalkDirFunc func(filesystem Filesystem, path string, res any) error
+type SimpleWalkDirFunc func(filesystem Filesystem, path string) error
 
 // Filesystem interface is mainly used to interact with all types of possible data source (e.g. directories, docker images etc.); for images this represents a squashed layer
 type Filesystem interface {
-	WalkDir(fn SimpleWalkDirFunc, res any) (err error) // Walk the full filesystem using the SimpleWalkDirFunc fn, store any results in res
-	ReadFile(path string) (content []byte, err error)  // Read a specific file with a path from root of the filesystem
-	GetConfig() (config v1.Config, ok bool)            // Get a config of this filesystem in container image format (if it exists)
-	GetIdentifier() string                             // Identifier for this specific filesystem; can be used for logging
+	WalkDir(fn SimpleWalkDirFunc) (err error)         // Walk the full filesystem using the SimpleWalkDirFunc fn
+	ReadFile(path string) (content []byte, err error) // Read a specific file with a path from root of the filesystem
+	GetConfig() (config v1.Config, ok bool)           // Get a config of this filesystem in container image format (if it exists)
+	GetIdentifier() string                            // Identifier for this specific filesystem; can be used for logging
 }
 
 // Simple plain filesystem that is constructed from the directory
@@ -36,7 +36,7 @@ func NewPlainFilesystem(rootPath string) PlainFilesystem {
 }
 
 // Walk the whole PlainFilesystem using fn
-func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc, res any) error {
+func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 	return filepath.WalkDir(plainFilesystem.rootPath, func(path string, d fs.DirEntry, err error) error {
 		if d.IsDir() {
 			return nil
@@ -48,7 +48,7 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc, res any) er
 			panic(err)
 		}
 
-		err = fn(plainFilesystem, relativePath, res)
+		err = fn(plainFilesystem, relativePath)
 
 		if go_errors.Is(err, scanner_errors.ErrParsingFailedAlthoughChecked) {
 			slog.Warn(err.Error())
