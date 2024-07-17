@@ -41,8 +41,8 @@ func CreateAndRunScan(params ScannerParameterStruct) error {
 		return err
 	}
 
-	scanner := newScanner(params.Fs, params.Plugins)
-	newBom, err := scanner.scan(*bom)
+	scanner := newScanner(params.Plugins)
+	newBom, err := scanner.scan(*bom, params.Fs)
 	if err != nil {
 		return err
 	}
@@ -61,11 +61,10 @@ func CreateAndRunScan(params ScannerParameterStruct) error {
 // scanner is used internally to represent a single scanner with several plugins (e.g. java.security plugin) scanning a single filesystem (e.g. a docker image layer)
 type scanner struct {
 	configPlugins []plugins.Plugin
-	filesystem    filesystem.Filesystem
 }
 
 // Scan a single BOM using all plugins
-func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
+func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, error) {
 	var err error
 	if bom.Components == nil {
 		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
@@ -79,7 +78,7 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 
 	for _, plugin := range scanner.configPlugins {
 		slog.Info("Updating components", "plugin", plugin.GetName())
-		*bom.Components, err = plugin.UpdateComponents(scanner.filesystem, *bom.Components)
+		*bom.Components, err = plugin.UpdateComponents(fs, *bom.Components)
 		if err != nil {
 			return bom, fmt.Errorf("scanner: plugin (%v) failed to updated components of bom; %w", plugin.GetName(), err)
 		}
@@ -88,11 +87,9 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 }
 
 // Create a new scanner object for the specific filesystem
-func newScanner(filesystem filesystem.Filesystem, plugins []plugins.Plugin) scanner {
-	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem.GetIdentifier())
-	scanner := scanner{}
-	scanner.configPlugins = plugins
-	scanner.filesystem = filesystem
-
-	return scanner
+func newScanner(plugins []plugins.Plugin) scanner {
+	slog.Debug("Initializing a new scanner", "plugins", plugins)
+	return scanner{
+		configPlugins: plugins,
+	}
 }

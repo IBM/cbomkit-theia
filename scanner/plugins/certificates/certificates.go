@@ -35,63 +35,6 @@ func NewCertificatePlugin() (plugins.Plugin, error) {
 	return &CertificatesPlugin{}, nil
 }
 
-// Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
-func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
-	rest := raw
-	var blocks []*pem.Block
-	for len(rest) != 0 {
-		var newBlock *pem.Block
-		newBlock, rest = pem.Decode(rest)
-		if newBlock != nil {
-			if newBlock.Type != "CERTIFICATE" {
-				slog.Warn("PEM file contains part that is not yet supported, continuing anyway", "unsupported_type", newBlock.Type)
-				continue
-			}
-			blocks = append(blocks, newBlock)
-		} else {
-			break
-		}
-	}
-
-	if len(blocks) == 0 {
-		return parseCertificatesToX509CertificateWithMetadata(raw, path)
-	}
-
-	certs := make([]*x509CertificateWithMetadata, 0, len(blocks))
-
-	for _, block := range blocks {
-		moreCerts, err := parseCertificatesToX509CertificateWithMetadata(block.Bytes, path)
-		if err != nil {
-			return moreCerts, err
-		}
-		certs = append(certs, moreCerts...)
-	}
-
-	return certs, nil
-}
-
-// Parse X.509 certificates from a PKCS7 file (base64 PEM format)
-func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
-	block, _ := pem.Decode(raw)
-
-	pkcs7Object, err := pkcs7.Parse(block.Bytes)
-	if err != nil || pkcs7Object == nil {
-		return make([]*x509CertificateWithMetadata, 0), err
-	}
-
-	certsWithMetadata := make([]*x509CertificateWithMetadata, 0, len(pkcs7Object.Certificates))
-
-	for _, cert := range pkcs7Object.Certificates {
-		certWithMetadata, err := newX509CertificateWithMetadata(cert, path)
-		if err != nil {
-			return make([]*x509CertificateWithMetadata, 0), err
-		}
-		certsWithMetadata = append(certsWithMetadata, certWithMetadata)
-	}
-
-	return certsWithMetadata, nil
-}
-
 // Add the found certificates to the slice of components
 func (certificatesPlugin *CertificatesPlugin) UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) (updatedComponents []cdx.Component, err error) {
 	certificates := []*x509CertificateWithMetadata{}
@@ -161,6 +104,63 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(fs filesystem.Fil
 	}
 
 	return uniqueComponents, nil
+}
+
+// Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
+func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
+	rest := raw
+	var blocks []*pem.Block
+	for len(rest) != 0 {
+		var newBlock *pem.Block
+		newBlock, rest = pem.Decode(rest)
+		if newBlock != nil {
+			if newBlock.Type != "CERTIFICATE" {
+				slog.Warn("PEM file contains part that is not yet supported, continuing anyway", "unsupported_type", newBlock.Type)
+				continue
+			}
+			blocks = append(blocks, newBlock)
+		} else {
+			break
+		}
+	}
+
+	if len(blocks) == 0 {
+		return parseCertificatesToX509CertificateWithMetadata(raw, path)
+	}
+
+	certs := make([]*x509CertificateWithMetadata, 0, len(blocks))
+
+	for _, block := range blocks {
+		moreCerts, err := parseCertificatesToX509CertificateWithMetadata(block.Bytes, path)
+		if err != nil {
+			return moreCerts, err
+		}
+		certs = append(certs, moreCerts...)
+	}
+
+	return certs, nil
+}
+
+// Parse X.509 certificates from a PKCS7 file (base64 PEM format)
+func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
+	block, _ := pem.Decode(raw)
+
+	pkcs7Object, err := pkcs7.Parse(block.Bytes)
+	if err != nil || pkcs7Object == nil {
+		return make([]*x509CertificateWithMetadata, 0), err
+	}
+
+	certsWithMetadata := make([]*x509CertificateWithMetadata, 0, len(pkcs7Object.Certificates))
+
+	for _, cert := range pkcs7Object.Certificates {
+		certWithMetadata, err := newX509CertificateWithMetadata(cert, path)
+		if err != nil {
+			return make([]*x509CertificateWithMetadata, 0), err
+		}
+		certsWithMetadata = append(certsWithMetadata, certWithMetadata)
+	}
+
+	return certsWithMetadata, nil
 }
 
 // Check if comp is contained in list while ignoring BOMReferences

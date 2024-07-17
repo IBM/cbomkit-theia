@@ -4,12 +4,14 @@ import (
 	go_errors "errors"
 	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 	"strconv"
 	"strings"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/magiconair/properties"
 )
@@ -20,33 +22,8 @@ General
 =======
 */
 
-// Checks single files while walking a file tree and parses a config if possible
-func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(filesystem filesystem.Filesystem, path string, res any) (err error) {
-	if javaSecurityPlugin.isConfigFile(path) {
-		slog.Info("Adding java.security config file", "path", path)
-		content, err := filesystem.ReadFile(path)
-		if err != nil {
-			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
-		}
-		config, err := properties.LoadString(string(content))
-		if err != nil {
-			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
-		}
-
-		results_array, ok := res.(*map[string]*properties.Properties)
-
-		if !ok {
-			slog.Warn("Java Security Plugin did not receive a valid *map[string]JavaSecurity value to store results. This should be investigated.", "value", res)
-		}
-
-		(*results_array)[path] =  config
-	}
-
-	return err
-}
-
 // Checks whether the current file at path is a java.security config file
-func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
+func (*JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
 	dir, _ := filepath.Split(path)
 	dir = filepath.Clean(dir)
@@ -79,13 +56,6 @@ type JavaSecurity struct {
 	tlsDisabledAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
-// Remove a single item by index s from a slice
-func removeFromSlice[T interface{}](slice []T, s int) []T {
-	return append(slice[:s], slice[s+1:]...)
-}
-
-var errNilProperties = fmt.Errorf("scanner java: properties are nil")
-
 func newJavaSecurity(properties *properties.Properties, filesystem filesystem.Filesystem) (JavaSecurity, error) {
 	additionalSecurityProperties, override, err := checkConfig(properties, filesystem)
 	if err != nil {
@@ -111,8 +81,48 @@ func newJavaSecurity(properties *properties.Properties, filesystem filesystem.Fi
 	}, err
 }
 
+// Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
+func (*JavaSecurity) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
+	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
+		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", "java.security Plugin", "component", component.Name)
+	}
+
+	for _, occurrence := range *component.Evidence.Occurrences {
+		if filepath.Ext(occurrence.Location) == ".java" {
+			return true, nil
+		}
+	}
+
+	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
+	return false, nil
+}
+
+// Update a single component; returns nil if component is not allowed
+func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) (err error) {
+
+	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
+
+	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
+		return err
+	}
+
+	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType {
+	case cdx.CryptoAssetTypeProtocol:
+		return javaSecurity.updateProtocolComponent(index, advancedcomponentslice)
+	default:
+		return nil
+	}
+}
+
+var errNilProperties = fmt.Errorf("scanner java: properties are nil")
+
+// Remove a single item by index s from a slice
+func removeFromSlice[T interface{}](slice []T, s int) []T {
+	return append(slice[:s], slice[s+1:]...)
+}
+
 // Recursively get all comma-separated values of the property key. Recursion is necessary since values can include "include" directives which refer to other properties and include them in this property.
-func getPropertyValues(properties *properties.Properties, key string) (values []string, err error) {
+func getPropertyValuesRecursively(properties *properties.Properties, key string) (values []string, err error) {
 	if properties == nil {
 		return values, errNilProperties
 	}
@@ -130,7 +140,7 @@ func getPropertyValues(properties *properties.Properties, key string) (values []
 			toBeRemoved = append(toBeRemoved, i)
 			split := strings.Split(value, " ")
 			if len(split) > 1 {
-				includedValues, err := getPropertyValues(properties, split[1])
+				includedValues, err := getPropertyValuesRecursively(properties, split[1])
 				if err != nil {
 					return includedValues, err
 				}
@@ -150,7 +160,7 @@ func extractTLSRules(securityProperties *properties.Properties) (restrictions []
 	slog.Info("Extracting TLS rules")
 
 	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
-	algorithms, err := getPropertyValues(securityProperties, securityPropertiesKey)
+	algorithms, err := getPropertyValuesRecursively(securityProperties, securityPropertiesKey)
 
 	if go_errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.")

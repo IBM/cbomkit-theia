@@ -44,7 +44,7 @@ func (confidenceLevel *ConfidenceLevel) GetValue() int {
 }
 
 // Generate a CycloneDX component property from this confidence
-func (confidenceLevel *ConfidenceLevel) GetProp() cdx.Property {
+func (confidenceLevel *ConfidenceLevel) GetProperty() cdx.Property {
 	return cdx.Property{
 		Name:  "cics_confidence_level",
 		Value: fmt.Sprint(confidenceLevel.value),
@@ -62,7 +62,9 @@ func (confidenceLevel *ConfidenceLevel) Modify(modifier ConfidenceLevelModifier)
 	}
 }
 
-/* Sets the value of this ConfidenceLevel to the average of all sub ConfidenceLevels; set ignoreMaxConfidence to ignore sub ConfidenceLevels with value confidenceLevelMax
+/*
+	Sets the value of this ConfidenceLevel to the average of all sub ConfidenceLevels; set ignoreMaxConfidence to ignore sub ConfidenceLevels with value confidenceLevelMax
+
 Example:
 
 a, b, c := New(), New(),  New()

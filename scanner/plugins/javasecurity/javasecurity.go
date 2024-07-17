@@ -6,10 +6,9 @@ import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"	
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
 	"os"
-	"path/filepath"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/magiconair/properties"
@@ -17,7 +16,12 @@ import (
 
 // Represents the java security plugin in a specific scanning context
 // Implements the config/ConfigPlugin interface
-type JavaSecurityPlugin struct {}
+type JavaSecurityPlugin struct{}
+
+// Creates underlying data structure for evaluation
+func NewJavaSecurityPlugin() (plugins.Plugin, error) {
+	return &JavaSecurityPlugin{}, nil
+}
 
 // Get the name of the plugin for debugging purposes
 func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
@@ -29,12 +33,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
 	return plugins.PluginTypeVerify
 }
 
-// Parses all relevant information from the filesystem and creates underlying data structure for evaluation
-func NewJavaSecurityPlugin() (plugins.Plugin, error) {
-	return &JavaSecurityPlugin{}, nil
-}
-
-// High-level function to update a list of components (e.g. remove components and add new ones)
+// High-level function to update a list of components (e.g. remove components and add new ones) based on the underlying filesystem
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) ([]cdx.Component, error) {
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
@@ -66,9 +65,13 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 		return []cdx.Component{}, err
 	}
 
-	configuration := chooseMostLikelyConfiguration(configurations)
+	configuration := javaSecurityPlugin.chooseMostLikelyConfiguration(configurations)
 
 	security, err := newJavaSecurity(configuration, fs)
+
+	if err != nil {
+		return []cdx.Component{}, err
+	}
 
 	insufficientInformationErrors := []error{}
 
@@ -102,43 +105,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 	return advancedCompSlice.GetComponentSlice(), nil
 }
 
-func chooseMostLikelyConfiguration(configurations map[string]*properties.Properties) *properties.Properties {
+func (*JavaSecurityPlugin) chooseMostLikelyConfiguration(configurations map[string]*properties.Properties) *properties.Properties {
 	// TODO: Do something useful here
 	for _, prop := range configurations {
 		return prop
 	}
 	return &properties.Properties{}
-}
-
-// Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
-func (javaSecurity *JavaSecurity) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
-	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
-		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", "java.security Plugin", "component", component.Name)
-	}
-
-	for _, occurrence := range *component.Evidence.Occurrences {
-		if filepath.Ext(occurrence.Location) == ".java" {
-			return true, nil
-		}
-	}
-
-	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
-	return false, nil
-}
-
-// Update a single component; returns nil if component is not allowed
-func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) (err error) {
-
-	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
-
-	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
-		return err
-	}
-
-	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType {
-	case cdx.CryptoAssetTypeProtocol:
-		return javaSecurity.updateProtocolComponent(index, advancedcomponentslice)
-	default:
-		return nil
-	}
 }

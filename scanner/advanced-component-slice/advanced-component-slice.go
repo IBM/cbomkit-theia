@@ -59,7 +59,7 @@ func (advancedComponentSlice *AdvancedComponentSlice) GetComponentSlice() []cdx.
 	finalCompSlice := make([]cdx.Component, 0, len(advancedComponentSlice.components))
 
 	for _, compWithConf := range advancedComponentSlice.components {
-		addPropertyOrCreateNew(compWithConf.Component, compWithConf.Confidence.GetProp())
+		addPropertyOrCreateNew(compWithConf.Component, compWithConf.Confidence.GetProperty())
 		finalCompSlice = append(finalCompSlice, *compWithConf.Component)
 	}
 
