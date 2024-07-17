@@ -130,7 +130,7 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 		restrictionStandardized, subAlgorithmStandardized := standardizeString(javaSecurityAlgorithmRestriction.name), standardizeString(subAlgorithm)
 		if strings.EqualFold(restrictionStandardized, subAlgorithmStandardized) {
 
-			confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeExtreme)
+			confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeHigh)
 
 			// Is the component a protocol? --> If yes, we do not have anything left to compare
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
