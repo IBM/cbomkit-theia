@@ -11,7 +11,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -42,7 +42,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -71,7 +71,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -91,7 +91,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -118,7 +118,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -149,7 +149,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -169,7 +169,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -200,7 +200,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -229,7 +229,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -249,7 +249,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -280,7 +280,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -300,7 +300,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -331,7 +331,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -351,7 +351,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -382,7 +382,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -402,7 +402,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -433,7 +433,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -462,7 +462,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -482,7 +482,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -513,7 +513,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
