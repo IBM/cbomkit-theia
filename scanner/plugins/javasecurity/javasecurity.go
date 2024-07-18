@@ -80,6 +80,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 	for i, comp := range components {
 		if comp.Type == cdx.ComponentTypeCryptographicAsset {
 			if comp.CryptoProperties != nil {
+
+				if comp.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol || comp.CryptoProperties.AssetType == cdx.CryptoAssetTypeAlgorithm {
+					advancedCompSlice.GetByIndex(i).SetPrintConfidenceLevel(true)
+				}
+
 				err := security.updateComponent(i, advancedCompSlice)
 
 				slog.Debug("Component has been analyzed and confidence has been set", "component", advancedCompSlice.GetByIndex(i).Name, "confidence", advancedCompSlice.GetByIndex(i).Confidence.GetValue())

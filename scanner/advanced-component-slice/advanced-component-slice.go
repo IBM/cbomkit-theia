@@ -10,6 +10,11 @@ import (
 type componentWithConfidence struct {
 	*cdx.Component
 	Confidence *confidencelevel.ConfidenceLevel
+	printConfidenceLevel bool
+}
+
+func (componentWithConfidence *componentWithConfidence) SetPrintConfidenceLevel(value bool) {
+	componentWithConfidence.printConfidenceLevel = value
 }
 
 // Slice of componentWithConfidence with a map mapping BOMReference to index in the components slice; bomRefMap can be used to access members of components by BOMReference without searching for the BOMReference in the structs itself
@@ -29,6 +34,7 @@ func FromComponentSlice(slice []cdx.Component) *AdvancedComponentSlice {
 		advancedComponentSlice.components = append(advancedComponentSlice.components, componentWithConfidence{
 			Component:  &comp,
 			Confidence: confidencelevel.New(),
+			printConfidenceLevel: false,
 		})
 
 		if comp.BOMRef != "" {
@@ -59,7 +65,9 @@ func (advancedComponentSlice *AdvancedComponentSlice) GetComponentSlice() []cdx.
 	finalCompSlice := make([]cdx.Component, 0, len(advancedComponentSlice.components))
 
 	for _, compWithConf := range advancedComponentSlice.components {
-		addPropertyOrCreateNew(compWithConf.Component, compWithConf.Confidence.GetProperty())
+		if compWithConf.printConfidenceLevel {
+			addPropertyOrCreateNew(compWithConf.Component, compWithConf.Confidence.GetProperty())
+		}
 		finalCompSlice = append(finalCompSlice, *compWithConf.Component)
 	}
 

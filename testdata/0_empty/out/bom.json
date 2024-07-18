@@ -60,12 +60,6 @@
       "bom-ref": "crypto/certificate/google.com@sha256:1e15e0fbd3ce95bde5945633ae96add551341b11e5bae7bba12e98ad84a5beb4",
       "type": "cryptographic-asset",
       "name": "google.com",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
       "cryptoProperties": {
         "assetType": "certificate",
         "certificateProperties": {
@@ -111,12 +105,6 @@
       "bom-ref": "crypto/key/rsa-2048@1.2.840.113549.1.1.1",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
