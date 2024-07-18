@@ -18,6 +18,7 @@ type ConfidenceLevelModifier int
 
 const (
 	confidenceLevelMax                                             = 100
+	confidenceLevelDefault                                         = 50
 	confidenceLevelMin                                             = 0
 	ConfidenceLevelModifierPositiveExtreme ConfidenceLevelModifier = 50
 	ConfidenceLevelModifierPositiveHigh    ConfidenceLevelModifier = 30
@@ -34,7 +35,7 @@ func New() *ConfidenceLevel {
 	return &ConfidenceLevel{
 		count: 0,
 		sum:   0,
-		value: confidenceLevelMax,
+		value: confidenceLevelDefault,
 	}
 }
 
@@ -63,7 +64,7 @@ func (confidenceLevel *ConfidenceLevel) Modify(modifier ConfidenceLevelModifier)
 }
 
 /*
-	Sets the value of this ConfidenceLevel to the average of all sub ConfidenceLevels; set ignoreMaxConfidence to ignore sub ConfidenceLevels with value confidenceLevelMax
+	Sets the value of this ConfidenceLevel to the average of all sub ConfidenceLevels; set ignoreDefaultConfidence to ignore sub ConfidenceLevels with value confidenceLevelDefault
 
 Example:
 
@@ -77,8 +78,8 @@ Now a.GetValue() returns the average of b.GetValue() and c.GetValue(). (a.value 
 
 Warning: a, b and c are not permanently linked by this. AddSubConfidenceLevel just calculates the average in this moment
 */
-func (confidenceLevel *ConfidenceLevel) AddSubConfidenceLevel(sub ConfidenceLevel, ignoreMaxConfidence bool) {
-	if ignoreMaxConfidence && sub.value == confidenceLevelMax {
+func (confidenceLevel *ConfidenceLevel) AddSubConfidenceLevel(sub ConfidenceLevel, ignoreDefaultConfidence bool) {
+	if ignoreDefaultConfidence && sub.value == confidenceLevelDefault {
 		return
 	}
 	confidenceLevel.count++
