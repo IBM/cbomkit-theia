@@ -9,8 +9,11 @@ import (
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
 	"os"
+	"path/filepath"
+	"strings"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/magiconair/properties"
 )
 
@@ -65,7 +68,13 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 		return []cdx.Component{}, err
 	}
 
-	configuration := javaSecurityPlugin.chooseMostLikelyConfiguration(configurations)
+	dockerConfig, ok := fs.GetConfig()
+	var configuration *properties.Properties
+	if ok && len(configurations) > 1 {
+		configuration = javaSecurityPlugin.chooseMostLikelyConfiguration(configurations, dockerConfig)
+	} else {
+		configuration = chooseFirstConfiguration(configurations)
+	}
 
 	security, err := newJavaSecurity(configuration, fs)
 
@@ -110,10 +119,54 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 	return advancedCompSlice.GetComponentSlice(), nil
 }
 
-func (*JavaSecurityPlugin) chooseMostLikelyConfiguration(configurations map[string]*properties.Properties) *properties.Properties {
-	// TODO: Do something useful here
+func chooseFirstConfiguration(configurations map[string]*properties.Properties) *properties.Properties {
+	// Choose the first one
 	for _, prop := range configurations {
 		return prop
 	}
-	return &properties.Properties{}
+
+	return nil
+}
+
+func (*JavaSecurityPlugin) chooseMostLikelyConfiguration(configurations map[string]*properties.Properties, dockerConfig v1.Config) (chosenProp *properties.Properties) {
+	jdkPath, ok := getJDKPath(dockerConfig)
+	if !ok {
+		return chooseFirstConfiguration(configurations)
+	}
+
+	for path, conf := range configurations {
+		if strings.HasPrefix(path, jdkPath) {
+			return conf
+		}
+	}
+
+	return chooseFirstConfiguration(configurations)
+}
+
+func getJDKPath(dockerConfig v1.Config) (value string, ok bool) {
+	jdkPath, ok := getJDKPathFromEnvironmentVariables(dockerConfig.Env)
+	if ok {
+		return jdkPath, true
+	}
+
+	return "", false
+}
+
+func getJDKPathFromEnvironmentVariables(envVariables []string) (value string, ok bool) {
+	for _, env := range envVariables {
+		keyAndValue := strings.Split(env, "=")
+		key := keyAndValue[0]
+		value := keyAndValue[1]
+
+		switch key {
+		case "JAVA_HOME", "JDK_HOME":
+			return value, true
+		case "JRE_HOME":
+			return filepath.Dir(value), true
+		default:
+			continue
+		}
+	}
+
+	return "", false
 }
