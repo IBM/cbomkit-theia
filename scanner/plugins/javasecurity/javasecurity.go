@@ -149,6 +149,11 @@ func getJDKPath(dockerConfig v1.Config) (value string, ok bool) {
 		return jdkPath, true
 	}
 
+	jdkPath, ok = getJDKPathFromRunCommand(dockerConfig)
+	if ok {
+		return jdkPath, true
+	}
+
 	return "", false
 }
 
@@ -165,6 +170,28 @@ func getJDKPathFromEnvironmentVariables(envVariables []string) (value string, ok
 			return filepath.Dir(value), true
 		default:
 			continue
+		}
+	}
+
+	return "", false
+}
+
+const LINE_SEPARATOR = "/"
+
+func getJDKPathFromRunCommand(dockerConfig v1.Config) (value string, ok bool) {
+	for _, s := range append(dockerConfig.Cmd, dockerConfig.Entrypoint...) {
+		if strings.Contains(s, "java") {
+			// Try to extract only the binary path
+			fields := strings.Fields(s)
+			if len(fields) > 0 {
+				path := fields[0]
+				pathList := strings.Split(path, LINE_SEPARATOR)
+				for i, pathElement := range pathList {
+					if strings.Contains(pathElement, "jdk") {
+						return LINE_SEPARATOR+filepath.Join(pathList[:i+1]...), true
+					}
+				}
+			}
 		}
 	}
 
