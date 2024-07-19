@@ -176,7 +176,6 @@ func extractTLSRules(securityProperties *properties.Properties) (restrictions []
 			keySizeOperator := keySizeOperatorNone
 			name := algorithm
 
-			// TODO: Include directives other than "keySize" (see java.security for reference) --> "usage" is probably the most important one
 			if strings.Contains(algorithm, "jdkCA") ||
 				strings.Contains(algorithm, "denyAfter") ||
 				strings.Contains(algorithm, "usage") {

@@ -10,7 +10,7 @@ import (
 	"path/filepath"
 	"slices"
 
-	"go.mozilla.org/pkcs7" // TODO: Deprecated -> Replace
+	"go.mozilla.org/pkcs7"
 	"golang.org/x/exp/rand"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
