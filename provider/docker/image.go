@@ -125,7 +125,6 @@ func BuildNewImage(dockerfilePath string) (image ActiveImage, err error) {
 // Parses a DockerImage from an identifier, possibly pulling it from a registry;
 // Caller is responsible to call image.TearDown() after usage
 func GetPrebuiltImage(name string) (image ActiveImage, err error) {
-
 	slog.Info("Getting prebuilt image", "image", name)
 	// context for network requests
 	ctx, cancel := context.WithCancel(context.Background())
@@ -169,8 +168,9 @@ func GetSquashedFilesystem(image ActiveImage) filesystem.Filesystem {
 // Get a squashed filesystem at layer with index index
 func GetSquashedFilesystemAtIndex(image ActiveImage, index int) filesystem.Filesystem {
 	return Layer{
+		Layer: image.Layers[index],
 		index: index,
-		image: image,
+		image: &image,
 	}
 }
 

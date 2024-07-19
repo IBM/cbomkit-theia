@@ -15,6 +15,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
+	go.uber.org/dig v1.17.1
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 )
 

@@ -25,7 +25,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -57,7 +57,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -89,7 +89,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -128,7 +128,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -160,7 +160,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -189,7 +189,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -222,7 +222,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -249,7 +249,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -278,12 +278,6 @@
       "bom-ref": "dc5dd4f9-4e51-4f86-bd7a-bb15dbf2e721",
       "type": "cryptographic-asset",
       "name": "key:pbkdf2withhmacsha1",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "100"
-        }
-      ],
       "evidence": {
         "occurrences": [
           {
@@ -304,12 +298,6 @@
       "bom-ref": "8acf80b8-6a36-4a93-a6d7-77cb272e8a00",
       "type": "cryptographic-asset",
       "name": "key:aes",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "100"
-        }
-      ],
       "evidence": {
         "occurrences": [
           {
@@ -334,7 +322,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "evidence": {
@@ -382,7 +370,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "35"
+          "value": "0"
         }
       ],
       "evidence": {
@@ -422,7 +410,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -449,7 +437,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "35"
+          "value": "0"
         }
       ],
       "cryptoProperties": {
@@ -478,7 +466,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -527,6 +515,12 @@
       "bom-ref": "405a4fe2-e687-4993-9961-22fe07830a0c",
       "type": "cryptographic-asset",
       "name": "SHA1-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -564,6 +558,12 @@
       "bom-ref": "56ab8b8d-5663-43f9-a026-d06bf33aefba",
       "type": "cryptographic-asset",
       "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -608,6 +608,12 @@
       "bom-ref": "57e40c04-c524-4b30-9931-41bb0a7ed747",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -670,6 +676,12 @@
       "bom-ref": "eb743289-a983-48b5-ac09-913f26598feb",
       "type": "cryptographic-asset",
       "name": "ECDSA-SHA384",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -705,6 +717,12 @@
       "bom-ref": "4bb60cc0-be2b-4b3b-b126-f3944b810d88",
       "type": "cryptographic-asset",
       "name": "ECDSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -907,6 +925,12 @@
       "bom-ref": "a56e5a31-2a35-4e58-a17a-4c3267e2660e",
       "type": "cryptographic-asset",
       "name": "SHA384-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -1085,6 +1109,12 @@
       "bom-ref": "b5946a44-04b4-4c70-a9d3-6053d300addf",
       "type": "cryptographic-asset",
       "name": "ECDSA-SHA256",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -1843,6 +1873,12 @@
       "bom-ref": "527bc991-a7bf-4a09-8031-a651143a885e",
       "type": "cryptographic-asset",
       "name": "SHA512-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {

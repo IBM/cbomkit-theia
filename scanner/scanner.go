@@ -10,27 +10,46 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"slices"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"go.uber.org/dig"
 )
 
+type ScannerParameterStruct struct {
+	dig.In
+
+	Fs            filesystem.Filesystem
+	Target        *os.File
+	BomFilePath   string           `name:"bomFilePath"`
+	BomSchemaPath string           `name:"bomSchemaPath"`
+	Plugins       []plugins.Plugin `group:"plugins"`
+}
+
+func GetAllPluginConstructors() map[string]plugins.PluginConstructor {
+	return map[string]plugins.PluginConstructor{
+		"certificates": certificates.NewCertificatePlugin,
+		"javasecurity": javasecurity.NewJavaSecurityPlugin,
+	}
+}
+
 // High-level function to do most heavy lifting for scanning a filesystem with a BOM. Output is written to target.
-func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath string, bomSchemaPath string) error {
-	bom, err := cyclonedx.ParseBOM(bomFilePath, bomSchemaPath)
+func CreateAndRunScan(params ScannerParameterStruct) error {
+	bom, err := cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
 
 	if err != nil {
 		return err
 	}
 
-	scanner := newScanner(fs)
-	newBom, err := scanner.scan(*bom)
+	scanner := newScanner(params.Plugins)
+	newBom, err := scanner.scan(*bom, params.Fs)
 	if err != nil {
 		return err
 	}
 
 	log.Default().Println("FINISHED SCANNING")
 
-	err = cyclonedx.WriteBOM(&newBom, target)
+	err = cyclonedx.WriteBOM(&newBom, params.Target)
 
 	if err != nil {
 		return err
@@ -42,36 +61,24 @@ func CreateAndRunScan(fs filesystem.Filesystem, target *os.File, bomFilePath str
 // scanner is used internally to represent a single scanner with several plugins (e.g. java.security plugin) scanning a single filesystem (e.g. a docker image layer)
 type scanner struct {
 	configPlugins []plugins.Plugin
-	filesystem    filesystem.Filesystem
-}
-
-// Call all plugins for this scanner to find config files in the underlying filesystem
-func (scanner *scanner) findConfigFiles() error {
-	for _, plugin := range scanner.configPlugins {
-		slog.Info("Finding relevant files", "plugin", plugin.GetName())
-		err := plugin.ParseRelevantFilesFromFilesystem(scanner.filesystem)
-		if err != nil {
-			return err
-		}
-	}
-	return nil
 }
 
 // Scan a single BOM using all plugins
-func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
-	err := scanner.findConfigFiles()
-	if err != nil {
-		return cdx.BOM{}, err
-	}
-
+func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, error) {
+	var err error
 	if bom.Components == nil {
 		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
 		bom.Components = new([]cdx.Component)
 	}
 
+	// Sort the plugins based on the plugin type
+	slices.SortFunc(scanner.configPlugins, func(a plugins.Plugin, b plugins.Plugin) int {
+		return int(a.GetType()) - int(b.GetType())
+	})
+
 	for _, plugin := range scanner.configPlugins {
 		slog.Info("Updating components", "plugin", plugin.GetName())
-		*bom.Components, err = plugin.UpdateComponents(*bom.Components)
+		*bom.Components, err = plugin.UpdateComponents(fs, *bom.Components)
 		if err != nil {
 			return bom, fmt.Errorf("scanner: plugin (%v) failed to updated components of bom; %w", plugin.GetName(), err)
 		}
@@ -80,14 +87,9 @@ func (scanner *scanner) scan(bom cdx.BOM) (cdx.BOM, error) {
 }
 
 // Create a new scanner object for the specific filesystem
-func newScanner(filesystem filesystem.Filesystem) scanner {
-	slog.Debug("Initializing a new scanner from filesystem", "filesystem", filesystem.GetIdentifier())
-	scanner := scanner{}
-	scanner.configPlugins = []plugins.Plugin{
-		&javasecurity.JavaSecurityPlugin{},
-		&certificates.CertificatesPlugin{},
+func newScanner(plugins []plugins.Plugin) scanner {
+	slog.Debug("Initializing a new scanner", "plugins", plugins)
+	return scanner{
+		configPlugins: plugins,
 	}
-	scanner.filesystem = filesystem
-
-	return scanner
 }

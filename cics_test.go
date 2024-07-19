@@ -10,6 +10,7 @@ import (
 	"ibm/container-image-cryptography-scanner/scanner"
 
 	"github.com/stretchr/testify/assert"
+	"go.uber.org/dig"
 )
 
 var testfileFolder string = "./testdata"
@@ -42,18 +43,11 @@ var tests = []struct {
 	{testTypeDir, "", "/6_malformed_java_security", false},
 }
 
-func runImage(image docker.ActiveImage, target *os.File, bomFilePath string, bomSchemaPath string) error {
-	fs := docker.GetSquashedFilesystem(image)
-	return scanner.CreateAndRunScan(fs, target, bomFilePath, bomSchemaPath)
-}
-
 func TestScan(t *testing.T) {
 	schemaPath := filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json")
 
 	for _, test := range tests {
 		t.Run(test.in+", BOM: "+test.in, func(t *testing.T) {
-			bomFolder := testfileFolder + test.in + bomFolderExtension
-
 			tempTarget, err := os.CreateTemp("", "TestParseBOM")
 			if err != nil {
 				panic(err)
@@ -62,22 +56,58 @@ func TestScan(t *testing.T) {
 
 			var runErr error
 
+			container := dig.New()
+
+			if err := container.Provide(func() string {
+				return testfileFolder + test.in + bomFolderExtension
+			}, dig.Name("bomFilePath")); err != nil {
+				panic(err)
+			}
+
+			if err := container.Provide(func() string {
+				return schemaPath
+			}, dig.Name("bomSchemaPath")); err != nil {
+				panic(err)
+			}
+
+			if err := container.Provide(func() *os.File {
+				return tempTarget
+			}); err != nil {
+				panic(err)
+			}
+
+			for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
+				if err = container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
+					panic(err)
+				}
+			}
+
 			switch test.testType {
 			case testTypeImageBuild:
 				dockerfilePath := filepath.Join(testfileFolder, test.in, dockerfileExtension)
 				image, err := docker.BuildNewImage(dockerfilePath)
 				assert.NoError(t, err)
 				defer image.TearDown()
-				runErr = runImage(image, tempTarget, bomFolder, schemaPath)
+				err = container.Provide(func() filesystem.Filesystem {
+					return docker.GetSquashedFilesystem(image)
+				})
+				assert.NoError(t, err)
+				runErr = container.Invoke(scanner.CreateAndRunScan)
 			case testTypeImageGet:
 				image, err := docker.GetPrebuiltImage(test.additionalInfo)
 				assert.NoError(t, err)
 				defer image.TearDown()
-				runErr = runImage(image, tempTarget, bomFolder, schemaPath)
-			case testTypeDir:
-				fs := filesystem.NewPlainFilesystem(filepath.Join(testfileFolder, test.in, dirExtension))
+				err = container.Provide(func() filesystem.Filesystem {
+					return docker.GetSquashedFilesystem(image)
+				})
 				assert.NoError(t, err)
-				runErr = scanner.CreateAndRunScan(fs, tempTarget, bomFolder, schemaPath)
+				runErr = container.Invoke(scanner.CreateAndRunScan)
+			case testTypeDir:
+				err := container.Provide(func() filesystem.Filesystem {
+					return filesystem.NewPlainFilesystem(filepath.Join(testfileFolder, test.in, dirExtension))
+				})
+				assert.NoError(t, err)
+				runErr = container.Invoke(scanner.CreateAndRunScan)
 			}
 
 			if test.err {
