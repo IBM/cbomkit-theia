@@ -7,6 +7,7 @@ require (
 	github.com/anchore/go-logger v0.0.0-20240217160628-ee28a485904f
 	github.com/anchore/stereoscope v0.0.2
 	github.com/docker/docker v26.1.3+incompatible
+	github.com/dominikbraun/graph v0.23.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/google/uuid v1.6.0
 	github.com/magiconair/properties v1.8.7
