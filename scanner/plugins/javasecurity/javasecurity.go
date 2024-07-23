@@ -37,7 +37,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
 }
 
 // High-level function to update a list of components (e.g. remove components and add new ones) based on the underlying filesystem
-func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) ([]cdx.Component, error) {
+func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
 		os.Exit(1)
@@ -65,7 +65,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 		})
 
 	if err != nil {
-		return []cdx.Component{}, err
+		return err
 	}
 
 	dockerConfig, ok := fs.GetConfig()
@@ -79,14 +79,14 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 	security, err := newJavaSecurity(configuration, fs)
 
 	if err != nil {
-		return []cdx.Component{}, err
+		return err
 	}
 
 	insufficientInformationErrors := []error{}
 
-	advancedCompSlice := advancedcomponentslice.FromComponentSlice(components)
+	advancedCompSlice := advancedcomponentslice.FromComponentSlice(*bom.Components)
 
-	for i, comp := range components {
+	for i, comp := range *bom.Components {
 		if comp.Type == cdx.ComponentTypeCryptographicAsset {
 			if comp.CryptoProperties != nil {
 
@@ -102,7 +102,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 					if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 						insufficientInformationErrors = append(insufficientInformationErrors, err)
 					} else {
-						return nil, fmt.Errorf("scanner java: error while updating component %v\n%w", advancedCompSlice.GetByIndex(i).Name, err)
+						return fmt.Errorf("scanner java: error while updating component %v\n%w", advancedCompSlice.GetByIndex(i).Name, err)
 					}
 				}
 			} else {
@@ -116,7 +116,9 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateComponents(fs filesystem.Fil
 		slog.Warn("Run finished with insufficient information errors", "errors", go_errors.Join(insufficientInformationErrors...).Error())
 	}
 
-	return advancedCompSlice.GetComponentSlice(), nil
+	*bom.Components = advancedCompSlice.GetComponentSlice()
+
+	return nil
 }
 
 func chooseFirstConfiguration(configurations map[string]*properties.Properties) *properties.Properties {

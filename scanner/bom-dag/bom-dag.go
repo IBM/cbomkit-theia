@@ -50,14 +50,14 @@ func EdgeDependencyType(dependencyType BomDAGDependencyType) func(*graph.EdgePro
 	}
 }
 
-func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, []cdx.Dependency, error) {
+func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference][]string, error) {
 	components := make([]cdx.Component, 0)
 	dependencyMap := make(map[cdx.BOMReference][]string, 0)
 
 	adjacencyMap, err := bomDAG.AdjacencyMap()
 
 	if err != nil {
-		return []cdx.Component{}, []cdx.Dependency{}, err
+		return components, dependencyMap, err
 	}
 
 	for compHash, compOutgoingEdges := range adjacencyMap {
@@ -93,16 +93,7 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, []cdx.Dependency, err
 		components = append(components, component)
 	}
 
-	dependencies := make([]cdx.Dependency, 0)
-
-	for ref, dependsOn := range dependencyMap {
-		dependencies = append(dependencies, cdx.Dependency{
-			Ref: string(ref),
-			Dependencies: &dependsOn,
-		})
-	}
-
-	return components, dependencies, nil
+	return components, dependencyMap, nil
 }
 
 func (bomDAG *BomDAG) Merge(other BomDAG) error {

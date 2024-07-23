@@ -61,7 +61,7 @@ func parseCertificatesToX509CertificateWithMetadata(der []byte, path string) ([]
 }
 
 // Generate CycloneDX components from the x509CertificateWithMetadata (e.g. certificate, signature algorithm, public key and public key algorithm)
-func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXComponents() ([]cdx.Component, error) {
+func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXComponents() ([]cdx.Component, []cdx.Dependency, error) {
 	dag := bomdag.NewBomDAG()
 
 	// Creating BOM Components
@@ -72,7 +72,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXCompo
 
 	err := errors.Join(err1, err2, err3)
 	if err != nil {
-		return []cdx.Component{}, err
+		return []cdx.Component{}, []cdx.Dependency{}, err
 	}
 
 	// Adding BOM Components to DAG
@@ -94,7 +94,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXCompo
 
 	err = errors.Join(err1, err2, err3, err4, err5, err6)
 	if err != nil {
-		return []cdx.Component{}, err
+		return []cdx.Component{}, []cdx.Dependency{}, err
 	}
 
 	// Creating Edges in DAG
@@ -115,18 +115,12 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXCompo
 
 	err = errors.Join(err1, err2, err3, err4, err5, err6)
 	if err != nil {
-		return []cdx.Component{}, err
+		return []cdx.Component{}, []cdx.Dependency{}, err
 	}
 
-	components, dependencies, err := dag.GetCDXComponents()
+	components, dependencyMap, err := dag.GetCDXComponents()
 
-	if err != nil {
-		return []cdx.Component{}, err
-	}
-
-	print(dependencies) // TODO
-
-	return components, nil
+	return components, dependencyMapToStructSlice(dependencyMap), err
 }
 
 // Generate the CycloneDX component for the certificate

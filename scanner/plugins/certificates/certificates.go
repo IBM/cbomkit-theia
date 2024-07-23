@@ -18,7 +18,7 @@ import (
 )
 
 // Plugin to parse certificates from the filesystem
-type CertificatesPlugin struct {}
+type CertificatesPlugin struct{}
 
 // Get the name of the plugin
 func (certificatesPlugin *CertificatesPlugin) GetName() string {
@@ -36,10 +36,10 @@ func NewCertificatePlugin() (plugins.Plugin, error) {
 }
 
 // Add the found certificates to the slice of components
-func (certificatesPlugin *CertificatesPlugin) UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) (updatedComponents []cdx.Component, err error) {
+func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	certificates := []*x509CertificateWithMetadata{}
 
-	err = fs.WalkDir(
+	err := fs.WalkDir(
 		func(path string) (err error) {
 			switch filepath.Ext(path) {
 			case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
@@ -69,41 +69,31 @@ func (certificatesPlugin *CertificatesPlugin) UpdateComponents(fs filesystem.Fil
 			return err
 		})
 
+	if err != nil {
+		return err
+	}
+
 	slog.Info("Certificate searching done", "count", len(certificates))
 
+	// This ensures that the generated UUIDs are deterministic
 	uuid.SetRand(rand.New(rand.NewSource(1)))
 
+	dependencies := make([]cdx.Dependency, 0)
+
 	for _, cert := range certificates {
-		cdxComps, err := cert.generateCDXComponents()
+		cdxComps, certDependencies, err := cert.generateCDXComponents()
 		if errors.Is(err, errX509UnknownAlgorithm) {
 			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)
 		} else if err != nil {
-			return cdxComps, err
+			return err
 		}
-		components = append(components, cdxComps...)
+		*bom.Components = append(*bom.Components, cdxComps...)
+		dependencies = MergeDependencyStructSlice(dependencies, certDependencies)
 	}
 
-	// Removing all duplicates
-	uniqueComponents := make([]cdx.Component, 0)
-	bomRefsToReplace := make(map[cdx.BOMReference]cdx.BOMReference)
-	for _, comp := range components {
-		if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-			uniqueComponents = append(uniqueComponents, comp)
-			continue
-		}
-		contains, collider := strippedAlgorithmContains(comp, uniqueComponents)
-		if !contains {
-			uniqueComponents = append(uniqueComponents, comp)
-		} else {
-			bomRefsToReplace[cdx.BOMReference(comp.BOMRef)] = cdx.BOMReference(collider.BOMRef)
-		}
-	}
+	bom.Dependencies = &dependencies
 
-	for oldRef, newRef := range bomRefsToReplace {
-		replaceBomRefUsages(oldRef, newRef, &uniqueComponents)
-	}
-
-	return uniqueComponents, nil
+	return nil
 }
 
 // Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
@@ -218,4 +208,45 @@ func replaceBomRefUsages(oldRef cdx.BOMReference, newRef cdx.BOMReference, compo
 			}
 		}
 	}
+}
+
+func dependencyMapToStructSlice(dependencyMap map[cdx.BOMReference][]string) []cdx.Dependency {
+	dependencies := make([]cdx.Dependency, 0)
+
+	for ref, dependsOn := range dependencyMap {
+		dependencies = append(dependencies, cdx.Dependency{
+			Ref:          string(ref),
+			Dependencies: &dependsOn,
+		})
+	}
+
+	return dependencies
+}
+
+func MergeDependencyStructSlice(this []cdx.Dependency, other []cdx.Dependency) []cdx.Dependency {
+	for _, otherStruct := range other {
+		i := IndexBomRefInDependencySlice(this, cdx.BOMReference(otherStruct.Ref))
+		if i != -1 {
+			// Merge
+			for _, s := range *otherStruct.Dependencies {
+				if !slices.Contains(*this[i].Dependencies, s) {
+					*this[i].Dependencies = append(*this[i].Dependencies, s)
+				}
+			}
+		} else {
+			this = append(this, otherStruct)
+		}
+	}
+	return this
+}
+
+// Return index in slice if bomRef is found in slice or -1 if not present
+func IndexBomRefInDependencySlice(slice []cdx.Dependency, bomRef cdx.BOMReference) int {
+	for i, dep := range slice {
+		if dep.Ref == string(bomRef) {
+			return i
+		}
+	}
+
+	return -1
 }
