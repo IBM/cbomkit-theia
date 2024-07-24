@@ -16,8 +16,113 @@ type BomDAG struct {
 	Root [32]byte
 }
 
+type cleaner struct {
+	set   func(comp *cdx.Component, value any)
+	unset func(comp *cdx.Component) any
+}
+
 func hashComponent(comp cdx.Component) [32]byte {
 	var b bytes.Buffer
+	cleaners := []cleaner{
+		{
+			set: func(comp *cdx.Component, value any) {
+				comp.BOMRef = value.(string)
+			},
+			unset: func(comp *cdx.Component) any {
+				temp := comp.BOMRef
+				comp.BOMRef = ""
+				return temp
+			},
+		},
+		{
+			set: func(comp *cdx.Component, value any) {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.CertificateProperties != nil {
+					comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = value.(cdx.BOMReference)
+				}
+			},
+			unset: func(comp *cdx.Component) any {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.CertificateProperties != nil {
+					temp := comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef
+					comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = ""
+					return temp
+				}
+				return nil
+			},
+		},
+		{
+			set: func(comp *cdx.Component, value any) {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.CertificateProperties != nil {
+					comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = value.(cdx.BOMReference)
+				}
+			},
+			unset: func(comp *cdx.Component) any {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.CertificateProperties != nil {
+					temp := comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef
+					comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = ""
+					return temp
+				}
+				return nil
+			},
+		},
+		{
+			set: func(comp *cdx.Component, value any) {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
+					comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = value.(cdx.BOMReference)
+				}
+			},
+			unset: func(comp *cdx.Component) any {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
+					temp := comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef
+					comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = ""
+					return temp
+				}
+				return nil
+			},
+		},
+		{
+			set: func(comp *cdx.Component, value any) {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.RelatedCryptoMaterialProperties != nil && comp.CryptoProperties.RelatedCryptoMaterialProperties.SecuredBy != nil {
+					comp.CryptoProperties.RelatedCryptoMaterialProperties.SecuredBy.AlgorithmRef = value.(cdx.BOMReference)
+				}
+			},
+			unset: func(comp *cdx.Component) any {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.RelatedCryptoMaterialProperties != nil && comp.CryptoProperties.RelatedCryptoMaterialProperties.SecuredBy != nil {
+					temp := comp.CryptoProperties.RelatedCryptoMaterialProperties.SecuredBy.AlgorithmRef
+					comp.CryptoProperties.RelatedCryptoMaterialProperties.SecuredBy.AlgorithmRef = ""
+					return temp
+				}
+				return nil
+			},
+		},
+		{
+			set: func(comp *cdx.Component, value any) {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.ProtocolProperties != nil && comp.CryptoProperties.ProtocolProperties.CryptoRefArray != nil {
+					comp.CryptoProperties.ProtocolProperties.CryptoRefArray = value.(*[]cdx.BOMReference)
+				}
+			},
+			unset: func(comp *cdx.Component) any {
+				if comp.CryptoProperties != nil && comp.CryptoProperties.ProtocolProperties != nil && comp.CryptoProperties.ProtocolProperties.CryptoRefArray != nil {
+					temp := comp.CryptoProperties.ProtocolProperties.CryptoRefArray
+					comp.CryptoProperties.ProtocolProperties.CryptoRefArray = new([]cdx.BOMReference)
+					return temp
+				}
+				return nil
+			},
+		},
+	}
+
+	temp := make([]any, len(cleaners))
+
+	for i, cleaner := range cleaners {
+		temp[i] = cleaner.unset(&comp)
+	}
+
+	defer func(cleaners []cleaner, comp cdx.Component, temp []any) {
+		for i, cleaner := range cleaners {
+			temp[i] = cleaner.unset(&comp)
+		}
+	}(cleaners, comp, temp)
+
 	gob.NewEncoder(&b).Encode(comp)
 	return sha256.Sum256(b.Bytes())
 }
@@ -25,11 +130,11 @@ func hashComponent(comp cdx.Component) [32]byte {
 func NewBomDAG() BomDAG {
 	rootComponent := cdx.Component{}
 	rootHash := hashComponent(rootComponent)
-	graph := graph.New(hashComponent, graph.Acyclic(), graph.Directed(), graph.PreventCycles(), graph.Rooted())
-	graph.AddVertex(rootComponent)
+	g := graph.New(hashComponent, graph.Acyclic(), graph.Directed(), graph.PreventCycles(), graph.Rooted())
+	g.AddVertex(rootComponent, graph.VertexAttribute("label", "root"))
 	return BomDAG{
-		Graph: graph,
-		Root: rootHash,
+		Graph: g,
+		Root:  rootHash,
 	}
 }
 
@@ -37,11 +142,11 @@ type BomDAGDependencyType string
 
 const (
 	BomDAGDependencyTypeDependsOn                                            BomDAGDependencyType = "dependsOn"
-	BomDAGDependencyTypeCertificatePropertiesSignatureAlgorithmRef           BomDAGDependencyType = "CertificateProperties.SignatureAlgorithmRef"
-	BomDAGDependencyTypeCertificatePropertiesSubjectPublicKeyRef             BomDAGDependencyType = "CertificateProperties.SubjectPublicKeyRef"
-	BomDAGDependencyTypeRelatedCryptoMaterialPropertiesAlgorithmRef          BomDAGDependencyType = "RelatedCryptoMaterialProperties.AlgorithmRef"
-	BomDAGDependencyTypeRelatedCryptoMaterialPropertiesSecuredByAlgorithmRef BomDAGDependencyType = "RelatedCryptoMaterialProperties.securedBy.AlgorithmRef"
-	BomDAGDependencyTypeProtocolPropertiesCryptoRefArrayElement              BomDAGDependencyType = "protocolProperties.cryptoRefArray"
+	BomDAGDependencyTypeCertificatePropertiesSignatureAlgorithmRef           BomDAGDependencyType = "CertificatePropertiesSignatureAlgorithmRef"
+	BomDAGDependencyTypeCertificatePropertiesSubjectPublicKeyRef             BomDAGDependencyType = "CertificatePropertiesSubjectPublicKeyRef"
+	BomDAGDependencyTypeRelatedCryptoMaterialPropertiesAlgorithmRef          BomDAGDependencyType = "RelatedCryptoMaterialPropertiesAlgorithmRef"
+	BomDAGDependencyTypeRelatedCryptoMaterialPropertiesSecuredByAlgorithmRef BomDAGDependencyType = "RelatedCryptoMaterialPropertiessecuredByAlgorithmRef"
+	BomDAGDependencyTypeProtocolPropertiesCryptoRefArrayElement              BomDAGDependencyType = "protocolPropertiescryptoRefArray"
 )
 
 func EdgeDependencyType(dependencyType BomDAGDependencyType) func(*graph.EdgeProperties) {
@@ -66,13 +171,15 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference]
 		}
 		component, _ := bomDAG.Vertex(compHash)
 		component.BOMRef = hex.EncodeToString(compHash[:])
-		dependencyMap[cdx.BOMReference(component.BOMRef)] = make([]string, 0)
 
 		for _, edge := range compOutgoingEdges {
 			targetBomRef := cdx.BOMReference(hex.EncodeToString(edge.Target[:]))
 			for edgeType, _ := range edge.Properties.Attributes {
 				switch edgeType {
 				case string(BomDAGDependencyTypeDependsOn):
+					if _, ok := dependencyMap[cdx.BOMReference(component.BOMRef)]; !ok {
+						dependencyMap[cdx.BOMReference(component.BOMRef)] = make([]string, 0)
+					}
 					dependencyMap[cdx.BOMReference(component.BOMRef)] = append(dependencyMap[cdx.BOMReference(component.BOMRef)], string(targetBomRef))
 				case string(BomDAGDependencyTypeCertificatePropertiesSignatureAlgorithmRef):
 					component.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = targetBomRef
@@ -186,6 +293,6 @@ func (bomDAG *BomDAG) GetVertexOrAddNew(value cdx.Component, options ...func(*gr
 		return hash, nil
 	}
 
-	err = bomDAG.AddVertex(value, options...)
+	err = bomDAG.AddVertex(value, append(options, graph.VertexAttribute("label", value.Name))...)
 	return hash, err
 }

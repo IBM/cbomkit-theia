@@ -60,8 +60,7 @@ func parseCertificatesToX509CertificateWithMetadata(der []byte, path string) ([]
 	return certsWithMetadata, err
 }
 
-// Generate CycloneDX components from the x509CertificateWithMetadata (e.g. certificate, signature algorithm, public key and public key algorithm)
-func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXComponents() ([]cdx.Component, []cdx.Dependency, error) {
+func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateDAG() (bomdag.BomDAG, error) {
 	dag := bomdag.NewBomDAG()
 
 	// Creating BOM Components
@@ -72,7 +71,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXCompo
 
 	err := errors.Join(err1, err2, err3)
 	if err != nil {
-		return []cdx.Component{}, []cdx.Dependency{}, err
+		return dag, err
 	}
 
 	// Adding BOM Components to DAG
@@ -94,7 +93,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXCompo
 
 	err = errors.Join(err1, err2, err3, err4, err5, err6)
 	if err != nil {
-		return []cdx.Component{}, []cdx.Dependency{}, err
+		return dag, err
 	}
 
 	// Creating Edges in DAG
@@ -113,7 +112,13 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXCompo
 	err5 = dag.AddEdge(signatureAlgorithmHash, signatureAlgorithmHashHash,
 		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeDependsOn))
 
-	err = errors.Join(err1, err2, err3, err4, err5, err6)
+	return dag, errors.Join(err1, err2, err3, err4, err5, err6)
+}
+
+// Generate CycloneDX components from the x509CertificateWithMetadata (e.g. certificate, signature algorithm, public key and public key algorithm)
+func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateCDXComponents() ([]cdx.Component, []cdx.Dependency, error) {
+	dag, err := x509CertificateWithMetadata.generateDAG()
+
 	if err != nil {
 		return []cdx.Component{}, []cdx.Dependency{}, err
 	}

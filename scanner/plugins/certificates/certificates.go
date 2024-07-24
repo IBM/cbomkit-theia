@@ -13,6 +13,8 @@ import (
 	"go.mozilla.org/pkcs7"
 	"golang.org/x/exp/rand"
 
+	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/uuid"
 )
@@ -78,20 +80,41 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 	// This ensures that the generated UUIDs are deterministic
 	uuid.SetRand(rand.New(rand.NewSource(1)))
 
-	dependencies := make([]cdx.Dependency, 0)
+	dag := bomdag.NewBomDAG()
 
 	for _, cert := range certificates {
-		cdxComps, certDependencies, err := cert.generateCDXComponents()
+		certDAG, err := cert.generateDAG()
 		if errors.Is(err, errX509UnknownAlgorithm) {
 			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)
 		} else if err != nil {
 			return err
 		}
-		*bom.Components = append(*bom.Components, cdxComps...)
-		dependencies = MergeDependencyStructSlice(dependencies, certDependencies)
+
+		if err := dag.Merge(certDAG); err != nil {
+			slog.Error("Merging of DAGs failed", "certificate path", cert.path)
+			return err
+		}
 	}
 
-	bom.Dependencies = &dependencies
+	components, dependencyMap, err := dag.GetCDXComponents()
+
+	if err != nil {
+		return err
+	}
+
+	//file, _ := os.Create("./mygraph.gv")
+	//_ = draw.DOT(dag, file)
+
+	if bom.Components == nil {
+		comps := make([]cdx.Component, 0, len(components))
+		bom.Components = &comps
+	}
+	*bom.Components = append(*bom.Components, components...)
+	if bom.Dependencies == nil {
+		deps := make([]cdx.Dependency, 0, len(dependencyMap))
+		bom.Dependencies = &deps
+	}
+	*bom.Dependencies = MergeDependencyStructSlice(*bom.Dependencies, dependencyMapToStructSlice(dependencyMap))
 
 	return nil
 }

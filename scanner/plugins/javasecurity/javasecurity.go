@@ -38,6 +38,10 @@ func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
 
 // High-level function to update a list of components (e.g. remove components and add new ones) based on the underlying filesystem
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
+	if bom.Components == nil {
+		return nil
+	}
+
 	properties.ErrorHandler = func(err error) {
 		slog.Error("Fatal error occurred during parsing of the java.security file", "err", err.Error())
 		os.Exit(1)
