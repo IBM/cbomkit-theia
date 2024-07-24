@@ -3,10 +3,12 @@ package certificates
 import (
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"slices"
 
@@ -16,6 +18,7 @@ import (
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/dominikbraun/graph/draw"
 	"github.com/google/uuid"
 )
 
@@ -102,8 +105,12 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		return err
 	}
 
-	//file, _ := os.Create("./mygraph.gv")
-	//_ = draw.DOT(dag, file)
+	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
+		slog.Warn("Failed to create directory for graphs. Skipping this step.")
+	} else {
+		file, _ := os.Create(filepath.Join(".", "cics_graphs", fmt.Sprintf("%v_certificate_graph.dot", fs.GetIdentifier())))
+		_ = draw.DOT(dag, file)
+	}
 
 	if bom.Components == nil {
 		comps := make([]cdx.Component, 0, len(components))
