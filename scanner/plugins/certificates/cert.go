@@ -176,8 +176,6 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 		pke := getGenericPKEAlgorithmComponent()
 		pke.Name = "RSA"
 
-		// TODO: Link the components
-
 		return signatureAlgorithmResult{
 			signature: &comp,
 			hash:      &hash,
@@ -372,6 +370,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 	case x509.SHA256WithRSAPSS:
 		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
+		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.11"
 
 		hash := getGenericHashAlgorithmComponent()
@@ -388,6 +387,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 	case x509.SHA384WithRSAPSS:
 		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
+		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.12"
 
 		hash := getGenericHashAlgorithmComponent()
@@ -404,6 +404,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 	case x509.SHA512WithRSAPSS:
 		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
+		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.13"
 
 		hash := getGenericHashAlgorithmComponent()
@@ -532,6 +533,7 @@ func getGenericPublicKeyComponent() cdx.Component {
 			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
 			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
 				Type: cdx.RelatedCryptoMaterialTypePublicKey,
+				ID: uuid.New().String(),
 			},
 		},
 	}
