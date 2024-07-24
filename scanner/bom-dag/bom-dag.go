@@ -22,7 +22,6 @@ type cleaner struct {
 }
 
 func hashComponent(comp cdx.Component) [32]byte {
-	var b bytes.Buffer
 	cleaners := []cleaner{
 		{
 			set: func(comp *cdx.Component, value any) {
@@ -123,6 +122,7 @@ func hashComponent(comp cdx.Component) [32]byte {
 		}
 	}(cleaners, comp, temp)
 
+	var b bytes.Buffer
 	gob.NewEncoder(&b).Encode(comp)
 	return sha256.Sum256(b.Bytes())
 }
@@ -174,7 +174,7 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference]
 
 		for _, edge := range compOutgoingEdges {
 			targetBomRef := cdx.BOMReference(hex.EncodeToString(edge.Target[:]))
-			for edgeType, _ := range edge.Properties.Attributes {
+			for edgeType := range edge.Properties.Attributes {
 				switch edgeType {
 				case string(BomDAGDependencyTypeDependsOn):
 					if _, ok := dependencyMap[cdx.BOMReference(component.BOMRef)]; !ok {
@@ -293,6 +293,14 @@ func (bomDAG *BomDAG) GetVertexOrAddNew(value cdx.Component, options ...func(*gr
 		return hash, nil
 	}
 
-	err = bomDAG.AddVertex(value, append(options, graph.VertexAttribute("label", value.Name))...)
+	label := value.Name
+	if value.CryptoProperties != nil {
+		label = fmt.Sprintf("%v (%v)", label, string(value.CryptoProperties.AssetType))
+		if value.CryptoProperties.RelatedCryptoMaterialProperties != nil {
+			label = fmt.Sprintf("%v (%v)", label, string(value.CryptoProperties.RelatedCryptoMaterialProperties.Type))
+		}
+	}
+
+	err = bomDAG.AddVertex(value, append(options, graph.VertexAttribute("label", label))...)
 	return hash, err
 }
