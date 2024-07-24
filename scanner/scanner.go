@@ -47,6 +47,8 @@ func CreateAndRunScan(params ScannerParameterStruct) error {
 		return err
 	}
 
+	scanner.addMetadata(&newBom)
+
 	log.Default().Println("FINISHED SCANNING")
 
 	err = cyclonedx.WriteBOM(&newBom, params.Target)
@@ -92,4 +94,34 @@ func newScanner(plugins []plugins.Plugin) scanner {
 	return scanner{
 		configPlugins: plugins,
 	}
+}
+
+// Add Metadata to the BOM
+func (scanner *scanner) addMetadata(bom *cdx.BOM) {
+	if bom.Metadata == nil {
+		bom.Metadata = new(cdx.Metadata)
+	}
+	if bom.Metadata.Tools == nil {
+		bom.Metadata.Tools = new(cdx.ToolsChoice)
+	}
+	if bom.Metadata.Tools.Services == nil {
+		services := make([]cdx.Service, 0, 1)
+		bom.Metadata.Tools.Services = &services
+	}
+
+	pluginServices := make([]cdx.Service, len(scanner.configPlugins))
+	for i, plugin := range scanner.configPlugins {
+		pluginServices[i] = cdx.Service{
+			Name: plugin.GetName(),
+		}
+	}
+
+	*bom.Metadata.Tools.Services = append(*bom.Metadata.Tools.Services, cdx.Service{
+		Provider: &cdx.OrganizationalEntity{
+			Name: "IBM Research",
+		},
+		Name:     "Container Image Cryptography Scanner - CICS",
+		Version:  "0.8",
+		Services: &pluginServices,
+	})
 }
