@@ -112,16 +112,21 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		_ = draw.DOT(dag, file)
 	}
 
-	if bom.Components == nil {
-		comps := make([]cdx.Component, 0, len(components))
-		bom.Components = &comps
+	if len(components) > 0 {
+		if bom.Components == nil {
+			comps := make([]cdx.Component, 0, len(components))
+			bom.Components = &comps
+		}
+		*bom.Components = append(*bom.Components, components...)
 	}
-	*bom.Components = append(*bom.Components, components...)
-	if bom.Dependencies == nil {
-		deps := make([]cdx.Dependency, 0, len(dependencyMap))
-		bom.Dependencies = &deps
+
+	if len(dependencyMap) > 0 {
+		if bom.Dependencies == nil {
+			deps := make([]cdx.Dependency, 0, len(dependencyMap))
+			bom.Dependencies = &deps
+		}
+		*bom.Dependencies = MergeDependencyStructSlice(*bom.Dependencies, dependencyMapToStructSlice(dependencyMap))
 	}
-	*bom.Dependencies = MergeDependencyStructSlice(*bom.Dependencies, dependencyMapToStructSlice(dependencyMap))
 
 	return nil
 }
