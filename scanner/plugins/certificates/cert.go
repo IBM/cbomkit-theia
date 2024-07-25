@@ -99,14 +99,11 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateDAG() (b
 	// Creating Edges in DAG
 	err6 = dag.AddEdge(dag.Root, certificateHash)
 	err1 = dag.AddEdge(certificateHash, publicKeyHash,
-		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeCertificatePropertiesSubjectPublicKeyRef),
-		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeDependsOn))
+		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeCertificatePropertiesSubjectPublicKeyRef))
 	err2 = dag.AddEdge(publicKeyHash, publicKeyAlgorithmHash,
-		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeRelatedCryptoMaterialPropertiesAlgorithmRef),
-		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeDependsOn))
+		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeRelatedCryptoMaterialPropertiesAlgorithmRef))
 	err3 = dag.AddEdge(certificateHash, signatureAlgorithmHash,
-		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeCertificatePropertiesSignatureAlgorithmRef),
-		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeDependsOn))
+		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeCertificatePropertiesSignatureAlgorithmRef))
 	err4 = dag.AddEdge(signatureAlgorithmHash, signatureAlgorithmPKEHash,
 		bomdag.EdgeDependencyType(bomdag.BomDAGDependencyTypeDependsOn))
 	err5 = dag.AddEdge(signatureAlgorithmHash, signatureAlgorithmHashHash,
