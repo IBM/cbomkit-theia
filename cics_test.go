@@ -5,9 +5,11 @@ import (
 	"path/filepath"
 	"testing"
 
+	"ibm/container-image-cryptography-scanner/provider/cyclonedx"
 	"ibm/container-image-cryptography-scanner/provider/docker"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	"ibm/container-image-cryptography-scanner/scanner"
+	"ibm/container-image-cryptography-scanner/scanner/compare"
 
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/dig"
@@ -116,17 +118,12 @@ func TestScan(t *testing.T) {
 				assert.NoError(t, runErr, "scan did fail although it should not")
 			}
 
-			output, err := os.ReadFile(tempTarget.Name())
-			if err != nil {
-				panic(err)
-			}
+			bomTrue, err := cyclonedx.ParseBOM(filepath.Join(testfileFolder, test.in, outputExtension), schemaPath)
+			assert.NoError(t, err)
+			bomCurrent, err := cyclonedx.ParseBOM(tempTarget.Name(), schemaPath)
+			assert.NoError(t, err)
 
-			trueOutput, err := os.ReadFile(testfileFolder + test.in + outputExtension)
-			if err != nil {
-				panic(err)
-			}
-
-			assert.JSONEqf(t, string(trueOutput), string(output), "resulting JSONs do not equal")
+			assert.True(t, compare.EqualBOMWithoutRefs(*bomTrue, *bomCurrent))
 		})
 	}
 }
