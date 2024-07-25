@@ -29,3 +29,4 @@ __debug*
 cics_graphs/
 *.svg
 *.dot
+*.png

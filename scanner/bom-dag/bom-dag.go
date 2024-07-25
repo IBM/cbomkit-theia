@@ -152,6 +152,11 @@ const (
 func EdgeDependencyType(dependencyType BomDAGDependencyType) func(*graph.EdgeProperties) {
 	return func(e *graph.EdgeProperties) {
 		e.Attributes[string(dependencyType)] = ""
+		if _, ok := e.Attributes["label"]; !ok {
+			e.Attributes["label"] = string(dependencyType)
+		} else {
+			e.Attributes["label"] = fmt.Sprintf("%v; %v", e.Attributes["label"], string(dependencyType))
+		}
 	}
 }
 
