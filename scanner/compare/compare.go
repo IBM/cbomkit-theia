@@ -123,6 +123,29 @@ func HashCDXComponentWithoutRefs(a cdx.Component) [32]byte {
 	return sha256.Sum256(b.Bytes())
 }
 
+func HashCDXComponentWithoutRefsWithoutEvidence(a cdx.Component) [32]byte {
+	cleaner := cleaner{
+		set: func(comp *cdx.Component, value any) {
+			if comp.Evidence != nil {
+				comp.Evidence = value.(*cdx.Evidence)
+			}
+		},
+		unset: func(comp *cdx.Component) any {
+			if comp.Evidence != nil {
+				temp := comp.Evidence
+				comp.Evidence = new(cdx.Evidence)
+				return temp
+			}
+			return nil
+		},
+	}
+
+	temp := cleaner.unset(&a)
+	defer cleaner.set(&a, temp)
+
+	return HashCDXComponentWithoutRefs(a)
+}
+
 func CompareCDXComponentWithoutRefs(a cdx.Component, b cdx.Component) int {
 	aHash := HashCDXComponentWithoutRefs(a)
 	bHash := HashCDXComponentWithoutRefs(b)

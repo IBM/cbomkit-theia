@@ -8,6 +8,7 @@ import (
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
+	"net/url"
 	"os"
 	"path/filepath"
 	"slices"
@@ -106,10 +107,16 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 	}
 
 	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
-		slog.Warn("Failed to create directory for graphs. Skipping this step.")
+		slog.Warn("Failed to create directory for graphs. Skipping this step.", "error", err.Error())
 	} else {
-		file, _ := os.Create(filepath.Join(".", "cics_graphs", fmt.Sprintf("%v_certificate_graph.dot", fs.GetIdentifier())))
-		_ = draw.DOT(dag, file)
+		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", fs.GetIdentifier()))))
+		if err != nil {
+			slog.Warn("Failed to generate DOT file for graph", "error", err.Error())
+		}
+		err = draw.DOT(dag, file)
+		if err != nil {
+			slog.Warn("Failed to write to DOT file for graph", "error", err.Error())
+		}
 	}
 
 	if len(components) > 0 {
@@ -186,63 +193,6 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path
 	}
 
 	return certsWithMetadata, nil
-}
-
-// Check if comp is contained in list while ignoring BOMReferences
-func strippedAlgorithmContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Component) {
-	if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-		panic("scanner: strippedAlgorithmContains was called on a non-algorithm component")
-	}
-	for _, comp2 := range list {
-		if comp2.CryptoProperties.AssetType == cdx.CryptoAssetTypeAlgorithm && strippedAlgorithmEquals(comp, comp2) {
-			return true, comp2
-		}
-	}
-
-	return false, cdx.Component{}
-}
-
-// Check if a equals b while ignoring BOMReferences
-func strippedAlgorithmEquals(a cdx.Component, b cdx.Component) bool {
-	if a.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm || b.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-		panic("scanner: strippedAlgorithmEquals was called on a non-algorithm component")
-	}
-
-	return a.Name == b.Name &&
-		a.CryptoProperties.AlgorithmProperties.Primitive == b.CryptoProperties.AlgorithmProperties.Primitive &&
-		a.CryptoProperties.AlgorithmProperties.ExecutionEnvironment == b.CryptoProperties.AlgorithmProperties.ExecutionEnvironment &&
-		a.CryptoProperties.AlgorithmProperties.ImplementationPlatform == b.CryptoProperties.AlgorithmProperties.ImplementationPlatform &&
-		slices.Equal(*a.CryptoProperties.AlgorithmProperties.CertificationLevel, *b.CryptoProperties.AlgorithmProperties.CertificationLevel) &&
-		slices.Equal(*a.CryptoProperties.AlgorithmProperties.CryptoFunctions, *b.CryptoProperties.AlgorithmProperties.CryptoFunctions) &&
-		a.CryptoProperties.OID == b.CryptoProperties.OID &&
-		a.CryptoProperties.AlgorithmProperties.Padding == b.CryptoProperties.AlgorithmProperties.Padding
-}
-
-// Replace all usages of oldRef by newRef in components
-func replaceBomRefUsages(oldRef cdx.BOMReference, newRef cdx.BOMReference, components *[]cdx.Component) {
-	for _, comp := range *components {
-		if comp.BOMRef == string(oldRef) {
-			comp.BOMRef = string(newRef)
-		}
-
-		if comp.CryptoProperties != nil {
-			if comp.CryptoProperties.CertificateProperties != nil {
-				if comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef == oldRef {
-					comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = newRef
-					continue
-				}
-				if comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef == oldRef {
-					comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = newRef
-					continue
-				}
-			} else if comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
-				if comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef == oldRef {
-					comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = newRef
-					continue
-				}
-			}
-		}
-	}
 }
 
 func dependencyMapToStructSlice(dependencyMap map[cdx.BOMReference][]string) []cdx.Dependency {

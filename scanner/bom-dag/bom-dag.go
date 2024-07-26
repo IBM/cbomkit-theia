@@ -15,8 +15,6 @@ type BomDAG struct {
 	Root [32]byte
 }
 
-
-
 func NewBomDAG() BomDAG {
 	rootComponent := cdx.Component{}
 	rootHash := compare.HashCDXComponentWithoutRefs(rootComponent)
@@ -37,6 +35,11 @@ const (
 	BomDAGDependencyTypeRelatedCryptoMaterialPropertiesAlgorithmRef          BomDAGDependencyType = "RelatedCryptoMaterialPropertiesAlgorithmRef"
 	BomDAGDependencyTypeRelatedCryptoMaterialPropertiesSecuredByAlgorithmRef BomDAGDependencyType = "RelatedCryptoMaterialPropertiessecuredByAlgorithmRef"
 	BomDAGDependencyTypeProtocolPropertiesCryptoRefArrayElement              BomDAGDependencyType = "protocolPropertiescryptoRefArray"
+	BomDAGDependencyTypeOccurrence                                           BomDAGDependencyType = "occurrence"
+)
+
+const (
+	BomDAGVertexPropertyOccurrence string = "occurrence"
 )
 
 func EdgeDependencyType(dependencyType BomDAGDependencyType) func(*graph.EdgeProperties) {
@@ -61,10 +64,11 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference]
 	}
 
 	for compHash, compOutgoingEdges := range adjacencyMap {
-		if compHash == bomDAG.Root {
+		component, properties, _ := bomDAG.VertexWithProperties(compHash)
+		_, isOccurrence := properties.Attributes[BomDAGVertexPropertyOccurrence]
+		if compHash == bomDAG.Root || isOccurrence {
 			continue
 		}
-		component, _ := bomDAG.Vertex(compHash)
 		component.BOMRef = hex.EncodeToString(compHash[:])
 
 		for _, edge := range compOutgoingEdges {
@@ -89,6 +93,9 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference]
 						component.CryptoProperties.ProtocolProperties.CryptoRefArray = new([]cdx.BOMReference)
 					}
 					*component.CryptoProperties.ProtocolProperties.CryptoRefArray = append(*component.CryptoProperties.ProtocolProperties.CryptoRefArray, targetBomRef)
+				case string(BomDAGDependencyTypeOccurrence):
+					targetVertex, _ := bomDAG.Vertex(edge.Target)
+					*component.Evidence.Occurrences = append(*component.Evidence.Occurrences, *targetVertex.Evidence.Occurrences...)
 				}
 			}
 		}
@@ -180,11 +187,47 @@ func copyVertexProperties(source graph.VertexProperties) func(*graph.VertexPrope
 	}
 }
 
+func (bomDAG *BomDAG) AddVertexWithSeparateOccurrences(value cdx.Component, options ...func(*graph.VertexProperties)) (valueHash [32]byte, err error) {
+	// Extract the occurrence component
+	var occurrenceHashes [][32]byte
+	if value.Evidence != nil && value.Evidence.Occurrences != nil && len(*value.Evidence.Occurrences) > 0 {
+		occurrenceHashes = make([][32]byte, len(*value.Evidence.Occurrences))
+		for i, occurrence := range *value.Evidence.Occurrences {
+			hash, err := bomDAG.GetVertexOrAddNew(cdx.Component{
+				Name: occurrence.Location,
+				Evidence: &cdx.Evidence{
+					Occurrences: &[]cdx.EvidenceOccurrence{occurrence},
+				},
+			}, graph.VertexAttribute(BomDAGVertexPropertyOccurrence, ""))
+			if err != nil {
+				return [32]byte{}, err
+			}
+			occurrenceHashes[i] = hash
+		}
+
+		// Clean it all up
+		value.Evidence.Occurrences = new([]cdx.EvidenceOccurrence)
+	}
+
+	// Create the component and link to occurrences
+	valueHash, err = bomDAG.GetVertexOrAddNew(value, options...)
+	if err != nil {
+		return valueHash, err
+	}
+
+	for _, occurrenceHash := range occurrenceHashes {
+		bomDAG.AddEdge(valueHash, occurrenceHash, EdgeDependencyType(BomDAGDependencyTypeOccurrence))
+	}
+
+	return valueHash, nil
+}
+
 func (bomDAG *BomDAG) GetVertexOrAddNew(value cdx.Component, options ...func(*graph.VertexProperties)) (hash [32]byte, err error) {
 	hash = compare.HashCDXComponentWithoutRefs(value)
 
 	// Does the component already exist?
-	if _, err := bomDAG.Vertex(hash); err != graph.ErrVertexNotFound {
+	_, err = bomDAG.Vertex(hash)
+	if err != graph.ErrVertexNotFound {
 		return hash, nil
 	}
 

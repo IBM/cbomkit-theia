@@ -75,20 +75,20 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateDAG() (b
 	}
 
 	// Adding BOM Components to DAG
-	certificateHash, err1 := dag.GetVertexOrAddNew(certificate)
-	publicKeyAlgorithmHash, err2 := dag.GetVertexOrAddNew(publicKeyAlgorithm)
-	publicKeyHash, err3 := dag.GetVertexOrAddNew(publicKey)
+	certificateHash, err1 := dag.AddVertexWithSeparateOccurrences(certificate)
+	publicKeyAlgorithmHash, err2 := dag.AddVertexWithSeparateOccurrences(publicKeyAlgorithm)
+	publicKeyHash, err3 := dag.AddVertexWithSeparateOccurrences(publicKey)
 
 	var signatureAlgorithmHash, signatureAlgorithmPKEHash, signatureAlgorithmHashHash [32]byte
 	var err4, err5, err6 error
 	if signatureAlgorithm.signature != nil {
-		signatureAlgorithmHash, err4 = dag.GetVertexOrAddNew(*signatureAlgorithm.signature)
+		signatureAlgorithmHash, err4 = dag.AddVertexWithSeparateOccurrences(*signatureAlgorithm.signature)
 	}
 	if signatureAlgorithm.pke != nil {
-		signatureAlgorithmPKEHash, err5 = dag.GetVertexOrAddNew(*signatureAlgorithm.pke)
+		signatureAlgorithmPKEHash, err5 = dag.AddVertexWithSeparateOccurrences(*signatureAlgorithm.pke)
 	}
 	if signatureAlgorithm.hash != nil {
-		signatureAlgorithmHashHash, err6 = dag.GetVertexOrAddNew(*signatureAlgorithm.hash)
+		signatureAlgorithmHashHash, err6 = dag.AddVertexWithSeparateOccurrences(*signatureAlgorithm.hash)
 	}
 
 	err = errors.Join(err1, err2, err3, err4, err5, err6)
@@ -161,16 +161,16 @@ type signatureAlgorithmResult struct {
 func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgorithmComponent() (signatureAlgorithmResult, error) {
 	switch x509CertificateWithMetadata.SignatureAlgorithm {
 	case x509.MD2WithRSA:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
 		comp.CryptoProperties.OID = "1.3.14.7.2.3.1"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "MD2"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "2"
 		hash.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSA"
 
 		return signatureAlgorithmResult{
@@ -179,15 +179,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.MD5WithRSA:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
 		comp.CryptoProperties.OID = "1.3.14.3.2.3"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "MD5"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "5"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSA"
 
 		return signatureAlgorithmResult{
@@ -196,16 +196,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA1WithRSA:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.5"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA1"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "1"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSA"
 
 		return signatureAlgorithmResult{
@@ -214,16 +214,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA256WithRSA:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.11"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA256"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSA"
 
 		return signatureAlgorithmResult{
@@ -232,16 +232,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA384WithRSA:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.12"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA384"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSA"
 
 		return signatureAlgorithmResult{
@@ -250,16 +250,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA512WithRSA:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingPKCS1v15
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.13"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA512"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSA"
 
 		return signatureAlgorithmResult{
@@ -268,15 +268,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.DSAWithSHA1:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
 		comp.CryptoProperties.OID = "1.3.14.3.2.27"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA1"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "1"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "DSA"
 
 		return signatureAlgorithmResult{
@@ -285,15 +285,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.DSAWithSHA256:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.OID = "2.16.840.1.101.3.4.3.2"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA256"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "DSA"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -301,15 +301,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.ECDSAWithSHA1:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "160"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.1"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA1"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "1"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "ECDSA"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -317,15 +317,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.ECDSAWithSHA256:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.3.2"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA256"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "ECDSA"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -333,15 +333,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.ECDSAWithSHA384:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.3.3"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA384"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "ECDSA"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -349,15 +349,15 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.ECDSAWithSHA512:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 		comp.CryptoProperties.OID = "1.2.840.10045.4.3.4"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA512"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "ECDSA"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -365,16 +365,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA256WithRSAPSS:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.11"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA256"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "256"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSAPSS"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -382,16 +382,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA384WithRSAPSS:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.12"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA384"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "384"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSAPSS"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -399,16 +399,16 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.SHA512WithRSAPSS:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 		comp.CryptoProperties.AlgorithmProperties.Padding = cdx.CryptoPaddingOther
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.13"
 
-		hash := getGenericHashAlgorithmComponent()
+		hash := getGenericHashAlgorithmComponent(x509CertificateWithMetadata.path)
 		hash.Name = "SHA512"
 		hash.CryptoProperties.AlgorithmProperties.ParameterSetIdentifier = "512"
 
-		pke := getGenericPKEAlgorithmComponent()
+		pke := getGenericPKEAlgorithmComponent(x509CertificateWithMetadata.path)
 		pke.Name = "RSAPSS"
 		return signatureAlgorithmResult{
 			signature: &comp,
@@ -416,7 +416,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 			pke:       &pke,
 		}, nil
 	case x509.PureEd25519:
-		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm)
+		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519"
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return signatureAlgorithmResult{
@@ -434,7 +434,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 }
 
 // Generate a generic CycloneDX component for the signature algorithm
-func getGenericSignatureAlgorithmComponent(algo x509.SignatureAlgorithm) cdx.Component {
+func getGenericSignatureAlgorithmComponent(algo x509.SignatureAlgorithm, path string) cdx.Component {
 	return cdx.Component{
 		Type:   cdx.ComponentTypeCryptographicAsset,
 		Name:   algo.String(),
@@ -449,11 +449,17 @@ func getGenericSignatureAlgorithmComponent(algo x509.SignatureAlgorithm) cdx.Com
 				CryptoFunctions:        &[]cdx.CryptoFunction{cdx.CryptoFunctionSign},
 			},
 		},
+		Evidence: &cdx.Evidence{
+			Occurrences: &[]cdx.EvidenceOccurrence{
+				{
+					Location: path,
+				}},
+		},
 	}
 }
 
 // Generate a generic CycloneDX component for a hash algorithm
-func getGenericHashAlgorithmComponent() cdx.Component {
+func getGenericHashAlgorithmComponent(path string) cdx.Component {
 	return cdx.Component{
 		Type:   cdx.ComponentTypeCryptographicAsset,
 		BOMRef: uuid.New().String(),
@@ -467,11 +473,17 @@ func getGenericHashAlgorithmComponent() cdx.Component {
 				CryptoFunctions:        &[]cdx.CryptoFunction{cdx.CryptoFunctionDigest},
 			},
 		},
+		Evidence: &cdx.Evidence{
+			Occurrences: &[]cdx.EvidenceOccurrence{
+				{
+					Location: path,
+				}},
+		},
 	}
 }
 
 // Generate a generic CycloneDX component for a hash algorithm
-func getGenericPKEAlgorithmComponent() cdx.Component {
+func getGenericPKEAlgorithmComponent(path string) cdx.Component {
 	return cdx.Component{
 		Type:   cdx.ComponentTypeCryptographicAsset,
 		BOMRef: uuid.New().String(),
@@ -485,6 +497,12 @@ func getGenericPKEAlgorithmComponent() cdx.Component {
 				CryptoFunctions:        &[]cdx.CryptoFunction{cdx.CryptoFunctionSign},
 			},
 		},
+		Evidence: &cdx.Evidence{
+			Occurrences: &[]cdx.EvidenceOccurrence{
+				{
+					Location: path,
+				}},
+		},
 	}
 }
 
@@ -492,7 +510,7 @@ func getGenericPKEAlgorithmComponent() cdx.Component {
 func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyComponent() (cdx.Component, error) {
 	switch x509CertificateWithMetadata.PublicKey.(type) {
 	case *rsa.PublicKey:
-		comp := getGenericPublicKeyComponent()
+		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path)
 		pk := x509CertificateWithMetadata.PublicKey.(*rsa.PublicKey)
 		size := pk.Size() * 8
 		comp.Name = fmt.Sprintf("RSA-%v", size)
@@ -500,7 +518,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyComp
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.1"
 		return comp, nil
 	case *dsa.PublicKey:
-		comp := getGenericPublicKeyComponent()
+		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path)
 		pk := x509CertificateWithMetadata.PublicKey.(*dsa.PublicKey)
 		comp.Name = "DSA"
 		size := pk.Y.BitLen()
@@ -508,11 +526,11 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyComp
 		comp.CryptoProperties.OID = "1.3.14.3.2.12"
 		return comp, nil
 	case *ecdsa.PublicKey:
-		comp := getGenericPublicKeyComponent()
+		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path)
 		comp.CryptoProperties.OID = "1.2.840.10045.2.1"
 		return comp, nil
 	case *ed25519.PublicKey:
-		comp := getGenericPublicKeyComponent()
+		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path)
 		comp.Name = "ED25519"
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
@@ -522,7 +540,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyComp
 }
 
 // Generate a generic CycloneDX component for the public key
-func getGenericPublicKeyComponent() cdx.Component {
+func getGenericPublicKeyComponent(path string) cdx.Component {
 	return cdx.Component{
 		Type:   cdx.ComponentTypeCryptographicAsset,
 		BOMRef: uuid.New().String(),
@@ -530,8 +548,14 @@ func getGenericPublicKeyComponent() cdx.Component {
 			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
 			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
 				Type: cdx.RelatedCryptoMaterialTypePublicKey,
-				ID: uuid.New().String(),
+				ID:   uuid.New().String(),
 			},
+		},
+		Evidence: &cdx.Evidence{
+			Occurrences: &[]cdx.EvidenceOccurrence{
+				{
+					Location: path,
+				}},
 		},
 	}
 }
@@ -540,29 +564,29 @@ func getGenericPublicKeyComponent() cdx.Component {
 func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyAlgorithmComponent() (cdx.Component, error) {
 	switch x509CertificateWithMetadata.PublicKeyAlgorithm {
 	case x509.RSA:
-		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.OID = "1.2.840.113549.1.1.1"
 		return comp, nil
 	case x509.DSA:
-		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.OID = "1.3.14.3.2.12"
 		return comp, nil
 	case x509.ECDSA:
-		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.OID = "1.2.840.10045.2.1"
 		return comp, nil
 	case x509.Ed25519:
-		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm)
+		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519"
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
-		return getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm), errX509UnknownAlgorithm
+		return getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm, x509CertificateWithMetadata.path), errX509UnknownAlgorithm
 	}
 }
 
 // Generate a generic CycloneDX component for the public key algorithm
-func getGenericPublicKeyAlgorithmComponent(algo x509.PublicKeyAlgorithm) cdx.Component {
+func getGenericPublicKeyAlgorithmComponent(algo x509.PublicKeyAlgorithm, path string) cdx.Component {
 	return cdx.Component{
 		Type:   cdx.ComponentTypeCryptographicAsset,
 		Name:   algo.String(),
@@ -576,6 +600,12 @@ func getGenericPublicKeyAlgorithmComponent(algo x509.PublicKeyAlgorithm) cdx.Com
 				CertificationLevel:     &[]cdx.CryptoCertificationLevel{cdx.CryptoCertificationLevelUnknown},
 				CryptoFunctions:        &[]cdx.CryptoFunction{cdx.CryptoFunctionEncapsulate, cdx.CryptoFunctionDecapsulate}, // TODO: Verify if this is true
 			},
+		},
+		Evidence: &cdx.Evidence{
+			Occurrences: &[]cdx.EvidenceOccurrence{
+				{
+					Location: path,
+				}},
 		},
 	}
 }
