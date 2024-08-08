@@ -193,7 +193,7 @@ func (bomDAG *BomDAG) AddVertexWithSeparateOccurrences(value cdx.Component, opti
 	if value.Evidence != nil && value.Evidence.Occurrences != nil && len(*value.Evidence.Occurrences) > 0 {
 		occurrenceHashes = make([][32]byte, len(*value.Evidence.Occurrences))
 		for i, occurrence := range *value.Evidence.Occurrences {
-			hash, err := bomDAG.GetVertexOrAddNew(cdx.Component{
+			hash, err := bomDAG.getVertexOrAddNew(cdx.Component{
 				Name: occurrence.Location,
 				Evidence: &cdx.Evidence{
 					Occurrences: &[]cdx.EvidenceOccurrence{occurrence},
@@ -210,7 +210,7 @@ func (bomDAG *BomDAG) AddVertexWithSeparateOccurrences(value cdx.Component, opti
 	}
 
 	// Create the component and link to occurrences
-	valueHash, err = bomDAG.GetVertexOrAddNew(value, options...)
+	valueHash, err = bomDAG.getVertexOrAddNew(value, options...)
 	if err != nil {
 		return valueHash, err
 	}
@@ -222,7 +222,7 @@ func (bomDAG *BomDAG) AddVertexWithSeparateOccurrences(value cdx.Component, opti
 	return valueHash, nil
 }
 
-func (bomDAG *BomDAG) GetVertexOrAddNew(value cdx.Component, options ...func(*graph.VertexProperties)) (hash [32]byte, err error) {
+func (bomDAG *BomDAG) getVertexOrAddNew(value cdx.Component, options ...func(*graph.VertexProperties)) (hash [32]byte, err error) {
 	hash = compare.HashCDXComponentWithoutRefs(value)
 
 	// Does the component already exist?
