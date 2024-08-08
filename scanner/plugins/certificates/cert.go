@@ -76,20 +76,20 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateDAG() (b
 	}
 
 	// Adding BOM Components to DAG
-	certificateHash, err1 := dag.AddVertexWithSeparateOccurrences(certificate)
-	publicKeyAlgorithmHash, err2 := dag.AddVertexWithSeparateOccurrences(publicKeyAlgorithm)
-	publicKeyHash, err3 := dag.AddVertexWithSeparateOccurrences(publicKey)
+	certificateHash, err1 := dag.AddCDXComponent(certificate)
+	publicKeyAlgorithmHash, err2 := dag.AddCDXComponent(publicKeyAlgorithm)
+	publicKeyHash, err3 := dag.AddCDXComponent(publicKey)
 
 	var signatureAlgorithmHash, signatureAlgorithmPKEHash, signatureAlgorithmHashHash [32]byte
 	var err4, err5, err6 error
 	if signatureAlgorithm.signature != nil {
-		signatureAlgorithmHash, err4 = dag.AddVertexWithSeparateOccurrences(*signatureAlgorithm.signature)
+		signatureAlgorithmHash, err4 = dag.AddCDXComponent(*signatureAlgorithm.signature)
 	}
 	if signatureAlgorithm.pke != nil {
-		signatureAlgorithmPKEHash, err5 = dag.AddVertexWithSeparateOccurrences(*signatureAlgorithm.pke)
+		signatureAlgorithmPKEHash, err5 = dag.AddCDXComponent(*signatureAlgorithm.pke)
 	}
 	if signatureAlgorithm.hash != nil {
-		signatureAlgorithmHashHash, err6 = dag.AddVertexWithSeparateOccurrences(*signatureAlgorithm.hash)
+		signatureAlgorithmHashHash, err6 = dag.AddCDXComponent(*signatureAlgorithm.hash)
 	}
 
 	err = errors.Join(err1, err2, err3, err4, err5, err6)
