@@ -1,9 +1,6 @@
 package bomdag
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"encoding/gob"
 	"ibm/container-image-cryptography-scanner/scanner/compare"
 
 	"github.com/dominikbraun/graph"
@@ -22,16 +19,14 @@ type bomDAGVertex interface {
 	String() string
 }
 
-func hashBOMDAGVertex(bomDAGVertex bomDAGVertex) [32]byte {
+func hashBOMDAGVertex(bomDAGVertex bomDAGVertex) BomDAGVertexHash {
 	switch bomDAGVertex.GetType() {
 	case BOMDAGVertexTypeComponent:
 		return compare.HashCDXComponentWithoutRefs(bomDAGVertex.(vertexComponent).Component)
 	case BOMDAGVertexTypeRoot:
-		return sha256.Sum256([]byte{0})
+		return BomDAGVertexHash{0}
 	case BOMDAGVertexTypeOccurrence:
-		var b bytes.Buffer
-		gob.NewEncoder(&b).Encode(bomDAGVertex.(vertexOccurrence))
-		return sha256.Sum256(b.Bytes())
+		return compare.HashStruct8Byte(bomDAGVertex.(vertexOccurrence))
 	default:
 		panic("Unsupported BOM DAG Vertex Type!")
 	}

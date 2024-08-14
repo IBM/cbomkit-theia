@@ -17,7 +17,22 @@ type cleaner struct {
 	unset func(comp *cdx.Component) any
 }
 
-func HashCDXComponentWithoutRefs(a cdx.Component) [32]byte {
+func HashStruct8Byte(a any) [8]byte {
+	hash, err := hashstructure.Hash(a, hashstructure.FormatV2, &hashstructure.HashOptions{
+		ZeroNil: true,
+		SlicesAsSets: true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	var b8 [8]byte
+	b := make([]byte, 8)
+	binary.LittleEndian.PutUint64(b, hash)
+	copy(b8[:], b)
+	return b8
+}
+
+func HashCDXComponentWithoutRefs(a cdx.Component) [8]byte {
 	cleaners := []cleaner{
 		{
 			set: func(comp *cdx.Component, value any) {
@@ -118,21 +133,10 @@ func HashCDXComponentWithoutRefs(a cdx.Component) [32]byte {
 		}
 	}(cleaners, a, temp)
 
-	hash, err := hashstructure.Hash(a, hashstructure.FormatV2, &hashstructure.HashOptions{
-		ZeroNil: true,
-		SlicesAsSets: true,
-	})
-	if err != nil {
-		panic(err)
-	}
-	var b32 [32]byte
-	b := make([]byte, 32)
-	binary.LittleEndian.PutUint64(b, hash)
-	copy(b32[:], b)
-	return b32
+	return HashStruct8Byte(a)
 }
 
-func HashCDXComponentWithoutRefsWithoutEvidence(a cdx.Component) [32]byte {
+func HashCDXComponentWithoutRefsWithoutEvidence(a cdx.Component) [8]byte {
 	cleaner := cleaner{
 		set: func(comp *cdx.Component, value any) {
 			if comp.Evidence != nil {

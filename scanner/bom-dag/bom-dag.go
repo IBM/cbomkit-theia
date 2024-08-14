@@ -8,9 +8,11 @@ import (
 	"github.com/dominikbraun/graph"
 )
 
+type BomDAGVertexHash = [8]byte
+
 type BomDAG struct {
-	graph.Graph[[32]byte, bomDAGVertex]
-	Root [32]byte
+	graph.Graph[BomDAGVertexHash, bomDAGVertex]
+	Root BomDAGVertexHash
 }
 
 func NewBomDAG() BomDAG {
@@ -137,7 +139,7 @@ func (bomDAG *BomDAG) Merge(other BomDAG) error {
 	return nil
 }
 
-func (bomDAG *BomDAG) mergeEdgePropertyAttributes(otherEdge graph.Edge[[32]byte]) error {
+func (bomDAG *BomDAG) mergeEdgePropertyAttributes(otherEdge graph.Edge[BomDAGVertexHash]) error {
 	mainEdge, err := bomDAG.Edge(otherEdge.Source, otherEdge.Target)
 
 	if err != nil {
@@ -184,15 +186,15 @@ func copyVertexProperties(source graph.VertexProperties) func(*graph.VertexPrope
 	}
 }
 
-func (bomDAG *BomDAG) AddCDXComponent(value cdx.Component, options ...func(*graph.VertexProperties)) (valueHash [32]byte, err error) {
+func (bomDAG *BomDAG) AddCDXComponent(value cdx.Component, options ...func(*graph.VertexProperties)) (valueHash BomDAGVertexHash, err error) {
 	// Extract the occurrence component
-	var occurrenceHashes [][32]byte
+	var occurrenceHashes []BomDAGVertexHash
 	if value.Evidence != nil && value.Evidence.Occurrences != nil && len(*value.Evidence.Occurrences) > 0 {
-		occurrenceHashes = make([][32]byte, len(*value.Evidence.Occurrences))
+		occurrenceHashes = make([]BomDAGVertexHash, len(*value.Evidence.Occurrences))
 		for i, occurrence := range *value.Evidence.Occurrences {
 			hash, err := bomDAG.getVertexOrAddNew(vertexOccurrence{occurrence})
 			if err != nil {
-				return [32]byte{}, err
+				return BomDAGVertexHash{}, err
 			}
 			occurrenceHashes[i] = hash
 		}
@@ -214,7 +216,7 @@ func (bomDAG *BomDAG) AddCDXComponent(value cdx.Component, options ...func(*grap
 	return valueHash, nil
 }
 
-func (bomDAG *BomDAG) getVertexOrAddNew(value bomDAGVertex, options ...func(*graph.VertexProperties)) (hash [32]byte, err error) {
+func (bomDAG *BomDAG) getVertexOrAddNew(value bomDAGVertex, options ...func(*graph.VertexProperties)) (hash BomDAGVertexHash, err error) {
 	hash = hashBOMDAGVertex(value)
 
 	// Does the component already exist?

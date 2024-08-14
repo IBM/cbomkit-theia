@@ -80,7 +80,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) generateDAG() (b
 	publicKeyAlgorithmHash, err2 := dag.AddCDXComponent(publicKeyAlgorithm)
 	publicKeyHash, err3 := dag.AddCDXComponent(publicKey)
 
-	var signatureAlgorithmHash, signatureAlgorithmPKEHash, signatureAlgorithmHashHash [32]byte
+	var signatureAlgorithmHash, signatureAlgorithmPKEHash, signatureAlgorithmHashHash bomdag.BomDAGVertexHash
 	var err4, err5, err6 error
 	if signatureAlgorithm.signature != nil {
 		signatureAlgorithmHash, err4 = dag.AddCDXComponent(*signatureAlgorithm.signature)
