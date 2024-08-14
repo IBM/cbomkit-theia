@@ -24,3 +24,9 @@ __debug*
 # Configs
 .cics.yml
 .scannerwork
+
+# Graphs
+cics_graphs/
+*.svg
+*.dot
+*.png

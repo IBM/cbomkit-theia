@@ -3,6 +3,8 @@ package cmd
 import (
 	"fmt"
 	"ibm/container-image-cryptography-scanner/cmd/image"
+	"ibm/container-image-cryptography-scanner/scanner"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"os"
 	"path/filepath"
 
@@ -13,6 +15,7 @@ import (
 var cfgFile string
 var bomFilePath string
 var bomSchemaPath string
+var activatedPlugins []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
@@ -75,6 +78,17 @@ func init() {
 	rootCmd.PersistentFlags().StringVar(&bomSchemaPath, "schema", filepath.Join("provider", "cyclonedx", "bom-1.6.schema.json"), "BOM schema to validate the given BOM")
 	viper.BindPFlag("schema", rootCmd.PersistentFlags().Lookup("schema"))
 	rootCmd.MarkPersistentFlagFilename("schema", ".json")
+
+	allPluginNames := make([]string, len(scanner.GetAllPluginConstructors()))
+
+	i := 0
+	for k := range scanner.GetAllPluginConstructors() {
+		allPluginNames[i] = k
+		i++
+	}
+
+	rootCmd.PersistentFlags().StringSliceVarP(&activatedPlugins, "plugins", "p", allPluginNames, "list of plugins to use")
+	viper.BindPFlag("plugins", rootCmd.PersistentFlags().Lookup("plugins"))
 }
 
 // initConfig reads in config file and ENV variables if set.
@@ -106,4 +120,17 @@ func initConfig() {
 	if !viper.IsSet("bom") {
 		rootCmd.MarkPersistentFlagRequired("bom")
 	}
+
+	pluginConstructors := make([]plugins.PluginConstructor, 0, len(viper.GetStringSlice("plugins")))
+	for _, name := range viper.GetStringSlice("plugins") {
+		constructor, ok := scanner.GetAllPluginConstructors()[name]
+		if !ok {
+			// Error
+			panic(fmt.Sprintf("%v is not a valid plugin name!", name))
+		} else {
+			pluginConstructors = append(pluginConstructors, constructor)
+		}
+	}
+
+	viper.Set("pluginConstructors", pluginConstructors)
 }

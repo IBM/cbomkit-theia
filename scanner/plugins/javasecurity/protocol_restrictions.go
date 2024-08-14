@@ -130,11 +130,11 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 		restrictionStandardized, subAlgorithmStandardized := standardizeString(javaSecurityAlgorithmRestriction.name), standardizeString(subAlgorithm)
 		if strings.EqualFold(restrictionStandardized, subAlgorithmStandardized) {
 
-			confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeExtreme)
+			confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeHigh)
 
 			// Is the component a protocol? --> If yes, we do not have anything left to compare
 			if component.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol {
-				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeHigh)
+				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeMedium)
 				return *confidenceLevel, nil
 			}
 
@@ -144,7 +144,7 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 					confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierPositiveMedium)
 					return *confidenceLevel, scanner_errors.GetInsufficientInformationError(fmt.Sprintf("missing key size parameter in BOM for rule affecting %v", javaSecurityAlgorithmRestriction.name), "java.security Plugin", "component", component.Name) // We actually need a keySize so we cannot go on here
 				} else {
-					confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeMedium)
+					confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierNegativeHigh)
 					return *confidenceLevel, nil // Names match and we do not need a keySize --> The algorithm is not allowed!
 				}
 			}
@@ -177,7 +177,7 @@ func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(co
 			case keySizeOperatorNone:
 				allowed = false
 			default:
-				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierPositiveLow)
+				confidenceLevel.Modify(confidencelevel.ConfidenceLevelModifierPositiveMedium)
 				return *confidenceLevel, fmt.Errorf("scanner java: invalid keySizeOperator in JavaSecurityAlgorithmRestriction: %v", javaSecurityAlgorithmRestriction.keySizeOperator)
 			}
 

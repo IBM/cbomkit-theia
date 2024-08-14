@@ -5,6 +5,25 @@
   "version": 1,
   "metadata": {
     "timestamp": "2024-01-09T12:00:00Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "IBM Research"
+          },
+          "name": "Container Image Cryptography Scanner - CICS",
+          "version": "0.8",
+          "services": [
+            {
+              "name": "Certificate File Plugin"
+            },
+            {
+              "name": "java.security Plugin"
+            }
+          ]
+        }
+      ]
+    },
     "component": {
       "type": "application",
       "name": "my application",
@@ -19,7 +38,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "65"
+          "value": "35"
         }
       ],
       "evidence": {
@@ -60,12 +79,6 @@
       "bom-ref": "crypto/certificate/google.com@sha256:1e15e0fbd3ce95bde5945633ae96add551341b11e5bae7bba12e98ad84a5beb4",
       "type": "cryptographic-asset",
       "name": "google.com",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "100"
-        }
-      ],
       "cryptoProperties": {
         "assetType": "certificate",
         "certificateProperties": {
@@ -87,7 +100,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -111,12 +124,6 @@
       "bom-ref": "crypto/key/rsa-2048@1.2.840.113549.1.1.1",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "100"
-        }
-      ],
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
@@ -142,7 +149,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -168,7 +175,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {
@@ -195,7 +202,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "65"
+          "value": "35"
         }
       ],
       "cryptoProperties": {
@@ -224,7 +231,7 @@
       "properties": [
         {
           "name": "cics_confidence_level",
-          "value": "100"
+          "value": "50"
         }
       ],
       "cryptoProperties": {

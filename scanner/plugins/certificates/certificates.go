@@ -3,61 +3,144 @@ package certificates
 import (
 	"encoding/pem"
 	"errors"
+	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
+	"net/url"
+	"os"
 	"path/filepath"
 	"slices"
 
-	"go.mozilla.org/pkcs7" // TODO: Deprecated -> Replace
+	"go.mozilla.org/pkcs7"
 	"golang.org/x/exp/rand"
 
+	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/dominikbraun/graph/draw"
 	"github.com/google/uuid"
 )
 
 // Plugin to parse certificates from the filesystem
-type CertificatesPlugin struct {
-	filesystem filesystem.Filesystem
-	certs      []*x509CertificateWithMetadata
-}
+type CertificatesPlugin struct{}
 
 // Get the name of the plugin
 func (certificatesPlugin *CertificatesPlugin) GetName() string {
 	return "Certificate File Plugin"
 }
 
-// Check every file for a certificate and parse it if possible
-func (certificatesPlugin *CertificatesPlugin) walkDirFunc(path string) (err error) {
-	switch filepath.Ext(path) {
-	case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
-		certs, err := certificatesPlugin.parsex509CertFromPath(path)
-		if err != nil {
-			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
-		}
-		certificatesPlugin.certs = append(certificatesPlugin.certs, certs...)
-	case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
-		certs, err := certificatesPlugin.parsePKCS7FromPath(path)
-		if err != nil {
-			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
-		}
-		certificatesPlugin.certs = append(certificatesPlugin.certs, certs...)
-	default:
+// Get the type of the plugin
+func (certificatesPlugin *CertificatesPlugin) GetType() plugins.PluginType {
+	return plugins.PluginTypeAppend
+}
+
+// Parse all certificates from the given filesystem
+func NewCertificatePlugin() (plugins.Plugin, error) {
+	return &CertificatesPlugin{}, nil
+}
+
+// Add the found certificates to the slice of components
+func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
+	certificates := []*x509CertificateWithMetadata{}
+
+	err := fs.WalkDir(
+		func(path string) (err error) {
+			switch filepath.Ext(path) {
+			case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
+				raw, err := fs.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				certs, err := certificatesPlugin.parsex509CertFromPath(raw, path)
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
+				}
+				certificates = append(certificates, certs...)
+			case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
+				raw, err := fs.ReadFile(path)
+				if err != nil {
+					return err
+				}
+				certs, err := certificatesPlugin.parsePKCS7FromPath(raw, path)
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, certificatesPlugin.GetName())
+				}
+				certificates = append(certificates, certs...)
+			default:
+				return err
+			}
+
+			return err
+		})
+
+	if err != nil {
 		return err
 	}
 
-	return err
+	slog.Info("Certificate searching done", "count", len(certificates))
+
+	// This ensures that the generated UUIDs are deterministic
+	uuid.SetRand(rand.New(rand.NewSource(1)))
+
+	dag := bomdag.NewBomDAG()
+
+	for _, cert := range certificates {
+		certDAG, err := cert.generateDAG()
+		if errors.Is(err, errX509UnknownAlgorithm) {
+			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)
+		} else if err != nil {
+			return err
+		}
+
+		if err := dag.Merge(certDAG); err != nil {
+			slog.Error("Merging of DAGs failed", "certificate path", cert.path)
+			return err
+		}
+	}
+
+	components, dependencyMap, err := dag.GetCDXComponents()
+
+	if err != nil {
+		return err
+	}
+
+	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
+		slog.Warn("Failed to create directory for graphs. Skipping this step.", "error", err.Error())
+	} else {
+		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", fs.GetIdentifier()))))
+		if err != nil {
+			slog.Warn("Failed to generate DOT file for graph", "error", err.Error())
+		}
+		err = draw.DOT(dag, file)
+		if err != nil {
+			slog.Warn("Failed to write to DOT file for graph", "error", err.Error())
+		}
+	}
+
+	if len(components) > 0 {
+		if bom.Components == nil {
+			comps := make([]cdx.Component, 0, len(components))
+			bom.Components = &comps
+		}
+		*bom.Components = append(*bom.Components, components...)
+	}
+
+	if len(dependencyMap) > 0 {
+		if bom.Dependencies == nil {
+			deps := make([]cdx.Dependency, 0, len(dependencyMap))
+			bom.Dependencies = &deps
+		}
+		*bom.Dependencies = MergeDependencyStructSlice(*bom.Dependencies, dependencyMapToStructSlice(dependencyMap))
+	}
+
+	return nil
 }
 
 // Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
-func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string) ([]*x509CertificateWithMetadata, error) {
-	rawFileBytes, err := certificatesPlugin.filesystem.ReadFile(path)
-
-	if err != nil {
-		return make([]*x509CertificateWithMetadata, 0), nil
-	}
-
-	rest := rawFileBytes
+func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
+	rest := raw
 	var blocks []*pem.Block
 	for len(rest) != 0 {
 		var newBlock *pem.Block
@@ -74,7 +157,7 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 	}
 
 	if len(blocks) == 0 {
-		return parseCertificatesToX509CertificateWithMetadata(rawFileBytes, path)
+		return parseCertificatesToX509CertificateWithMetadata(raw, path)
 	}
 
 	certs := make([]*x509CertificateWithMetadata, 0, len(blocks))
@@ -87,16 +170,11 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(path string)
 		certs = append(certs, moreCerts...)
 	}
 
-	return certs, err
+	return certs, nil
 }
 
 // Parse X.509 certificates from a PKCS7 file (base64 PEM format)
-func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]*x509CertificateWithMetadata, error) {
-	raw, err := certificatesPlugin.filesystem.ReadFile(path)
-	if err != nil {
-		return make([]*x509CertificateWithMetadata, 0), err
-	}
-
+func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
 	block, _ := pem.Decode(raw)
 
 	pkcs7Object, err := pkcs7.Parse(block.Bytes)
@@ -117,104 +195,43 @@ func (certificatesPlugin CertificatesPlugin) parsePKCS7FromPath(path string) ([]
 	return certsWithMetadata, nil
 }
 
-// Parse all certificates from the given filesystem
-func (certificatesPlugin *CertificatesPlugin) ParseRelevantFilesFromFilesystem(filesystem filesystem.Filesystem) error {
-	certificatesPlugin.filesystem = filesystem
-	err := filesystem.WalkDir(certificatesPlugin.walkDirFunc)
-	slog.Info("Certificate searching done", "count", len(certificatesPlugin.certs))
-	return err
+func dependencyMapToStructSlice(dependencyMap map[cdx.BOMReference][]string) []cdx.Dependency {
+	dependencies := make([]cdx.Dependency, 0)
+
+	for ref, dependsOn := range dependencyMap {
+		dependencies = append(dependencies, cdx.Dependency{
+			Ref:          string(ref),
+			Dependencies: &dependsOn,
+		})
+	}
+
+	return dependencies
 }
 
-// Add the found certificates to the slice of components
-func (certificatesPlugin *CertificatesPlugin) UpdateComponents(components []cdx.Component) (updatedComponents []cdx.Component, err error) {
-	uuid.SetRand(rand.New(rand.NewSource(1)))
-
-	for _, cert := range certificatesPlugin.certs {
-		cdxComps, err := cert.generateCDXComponents()
-		if errors.Is(err, errX509UnknownAlgorithm) {
-			slog.Info("X.509 certs contained unknown algorithms. Continuing anyway", "errors", err)
-		} else if err != nil {
-			return cdxComps, err
-		}
-		components = append(components, cdxComps...)
-	}
-
-	// Removing all duplicates
-	uniqueComponents := make([]cdx.Component, 0)
-	bomRefsToReplace := make(map[cdx.BOMReference]cdx.BOMReference)
-	for _, comp := range components {
-		if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-			uniqueComponents = append(uniqueComponents, comp)
-			continue
-		}
-		contains, collider := strippedAlgorithmContains(comp, uniqueComponents)
-		if !contains {
-			uniqueComponents = append(uniqueComponents, comp)
-		} else {
-			bomRefsToReplace[cdx.BOMReference(comp.BOMRef)] = cdx.BOMReference(collider.BOMRef)
-		}
-	}
-
-	for oldRef, newRef := range bomRefsToReplace {
-		replaceBomRefUsages(oldRef, newRef, &uniqueComponents)
-	}
-
-	return uniqueComponents, nil
-}
-
-// Check if comp is contained in list while ignoring BOMReferences
-func strippedAlgorithmContains(comp cdx.Component, list []cdx.Component) (bool, cdx.Component) {
-	if comp.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-		panic("scanner: strippedAlgorithmContains was called on a non-algorithm component")
-	}
-	for _, comp2 := range list {
-		if comp2.CryptoProperties.AssetType == cdx.CryptoAssetTypeAlgorithm && strippedAlgorithmEquals(comp, comp2) {
-			return true, comp2
-		}
-	}
-
-	return false, cdx.Component{}
-}
-
-// Check if a equals b while ignoring BOMReferences
-func strippedAlgorithmEquals(a cdx.Component, b cdx.Component) bool {
-	if a.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm || b.CryptoProperties.AssetType != cdx.CryptoAssetTypeAlgorithm {
-		panic("scanner: strippedAlgorithmEquals was called on a non-algorithm component")
-	}
-
-	return a.Name == b.Name &&
-		a.CryptoProperties.AlgorithmProperties.Primitive == b.CryptoProperties.AlgorithmProperties.Primitive &&
-		a.CryptoProperties.AlgorithmProperties.ExecutionEnvironment == b.CryptoProperties.AlgorithmProperties.ExecutionEnvironment &&
-		a.CryptoProperties.AlgorithmProperties.ImplementationPlatform == b.CryptoProperties.AlgorithmProperties.ImplementationPlatform &&
-		slices.Equal(*a.CryptoProperties.AlgorithmProperties.CertificationLevel, *b.CryptoProperties.AlgorithmProperties.CertificationLevel) &&
-		slices.Equal(*a.CryptoProperties.AlgorithmProperties.CryptoFunctions, *b.CryptoProperties.AlgorithmProperties.CryptoFunctions) &&
-		a.CryptoProperties.OID == b.CryptoProperties.OID &&
-		a.CryptoProperties.AlgorithmProperties.Padding == b.CryptoProperties.AlgorithmProperties.Padding
-}
-
-// Replace all usages of oldRef by newRef in components
-func replaceBomRefUsages(oldRef cdx.BOMReference, newRef cdx.BOMReference, components *[]cdx.Component) {
-	for _, comp := range *components {
-		if comp.BOMRef == string(oldRef) {
-			comp.BOMRef = string(newRef)
-		}
-
-		if comp.CryptoProperties != nil {
-			if comp.CryptoProperties.CertificateProperties != nil {
-				if comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef == oldRef {
-					comp.CryptoProperties.CertificateProperties.SignatureAlgorithmRef = newRef
-					continue
-				}
-				if comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef == oldRef {
-					comp.CryptoProperties.CertificateProperties.SubjectPublicKeyRef = newRef
-					continue
-				}
-			} else if comp.CryptoProperties.RelatedCryptoMaterialProperties != nil {
-				if comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef == oldRef {
-					comp.CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef = newRef
-					continue
+func MergeDependencyStructSlice(this []cdx.Dependency, other []cdx.Dependency) []cdx.Dependency {
+	for _, otherStruct := range other {
+		i := IndexBomRefInDependencySlice(this, cdx.BOMReference(otherStruct.Ref))
+		if i != -1 {
+			// Merge
+			for _, s := range *otherStruct.Dependencies {
+				if !slices.Contains(*this[i].Dependencies, s) {
+					*this[i].Dependencies = append(*this[i].Dependencies, s)
 				}
 			}
+		} else {
+			this = append(this, otherStruct)
 		}
 	}
+	return this
+}
+
+// Return index in slice if bomRef is found in slice or -1 if not present
+func IndexBomRefInDependencySlice(slice []cdx.Dependency, bomRef cdx.BOMReference) int {
+	for i, dep := range slice {
+		if dep.Ref == string(bomRef) {
+			return i
+		}
+	}
+
+	return -1
 }

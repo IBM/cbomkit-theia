@@ -7,16 +7,18 @@ require (
 	github.com/anchore/go-logger v0.0.0-20240217160628-ee28a485904f
 	github.com/anchore/stereoscope v0.0.2
 	github.com/docker/docker v26.1.3+incompatible
+	github.com/dominikbraun/graph v0.23.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/google/uuid v1.6.0
 	github.com/magiconair/properties v1.8.7
+	github.com/mitchellh/hashstructure/v2 v2.0.2
 	github.com/spf13/cobra v1.8.0
 	github.com/spf13/viper v1.19.0
 	github.com/stretchr/testify v1.9.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
+	go.uber.org/dig v1.17.1
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
-	gopkg.in/ini.v1 v1.67.0
 )
 
 require (
@@ -119,6 +121,7 @@ require (
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
 	google.golang.org/grpc v1.64.0 // indirect
 	google.golang.org/protobuf v1.34.1 // indirect
+	gopkg.in/ini.v1 v1.67.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gotest.tools/v3 v3.5.1 // indirect
 )

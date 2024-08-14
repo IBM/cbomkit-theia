@@ -3,12 +3,15 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
+	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
 	"strconv"
 	"strings"
 
+	cdx "github.com/CycloneDX/cyclonedx-go"
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 	"github.com/magiconair/properties"
 )
@@ -19,29 +22,8 @@ General
 =======
 */
 
-// Checks single files while walking a file tree and parses a config if possible
-func (javaSecurityPlugin *JavaSecurityPlugin) configWalkDirFunc(path string) (err error) {
-	if javaSecurityPlugin.isConfigFile(path) {
-		slog.Info("Adding java.security config file", "path", path)
-		content, err := javaSecurityPlugin.filesystem.ReadFile(path)
-		if err != nil {
-			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
-		}
-		config, err := properties.LoadString(string(content))
-		if err != nil {
-			return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
-		}
-		javaSecurityPlugin.security = JavaSecurity{
-			config,
-			[]JavaSecurityAlgorithmRestriction{},
-		}
-	}
-
-	return err
-}
-
 // Checks whether the current file at path is a java.security config file
-func (javaSecurityPlugin *JavaSecurityPlugin) isConfigFile(path string) bool {
+func (*JavaSecurityPlugin) isConfigFile(path string) bool {
 	// Check if this file is the java.security file and if that is the case extract the path of the active crypto.policy files
 	dir, _ := filepath.Split(path)
 	dir = filepath.Clean(dir)
@@ -74,20 +56,78 @@ type JavaSecurity struct {
 	tlsDisabledAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
+func newJavaSecurity(properties *properties.Properties, filesystem filesystem.Filesystem) (JavaSecurity, error) {
+	additionalSecurityProperties, override, err := checkConfig(properties, filesystem)
+	if err != nil {
+		return JavaSecurity{}, err
+	}
+
+	if !override {
+		if additionalSecurityProperties != nil {
+			properties.Merge(additionalSecurityProperties)
+		}
+	} else {
+		properties = additionalSecurityProperties
+	}
+
+	restrictions, err := extractTLSRules(properties)
+	if err != nil {
+		return JavaSecurity{}, err
+	}
+
+	return JavaSecurity{
+		properties,
+		restrictions,
+	}, err
+}
+
+// Assesses if the component is from a source affected by this type of config (e.g. a java file), requires "Evidence" and "Occurrences" to be present in the BOM
+func (*JavaSecurity) isComponentAffectedByConfig(component cdx.Component) (bool, error) {
+	if component.Evidence == nil || component.Evidence.Occurrences == nil { // If there is no evidence telling us that whether this component comes from a java file, we cannot assess it
+		return false, scanner_errors.GetInsufficientInformationError("cannot evaluate due to missing evidence/occurrences in BOM", "java.security Plugin", "component", component.Name)
+	}
+
+	for _, occurrence := range *component.Evidence.Occurrences {
+		if filepath.Ext(occurrence.Location) == ".java" {
+			return true, nil
+		}
+	}
+
+	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
+	return false, nil
+}
+
+// Update a single component; returns nil if component is not allowed
+func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) (err error) {
+
+	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
+
+	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
+		return err
+	}
+
+	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType {
+	case cdx.CryptoAssetTypeProtocol:
+		return javaSecurity.updateProtocolComponent(index, advancedcomponentslice)
+	default:
+		return nil
+	}
+}
+
+var errNilProperties = fmt.Errorf("scanner java: properties are nil")
+
 // Remove a single item by index s from a slice
 func removeFromSlice[T interface{}](slice []T, s int) []T {
 	return append(slice[:s], slice[s+1:]...)
 }
 
-var errNilProperties = fmt.Errorf("scanner java: properties are nil")
-
 // Recursively get all comma-separated values of the property key. Recursion is necessary since values can include "include" directives which refer to other properties and include them in this property.
-func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string, err error) {
-	if javaSecurity.Properties == nil {
+func getPropertyValuesRecursively(properties *properties.Properties, key string) (values []string, err error) {
+	if properties == nil {
 		return values, errNilProperties
 	}
 
-	fullString, ok := javaSecurity.Get(key)
+	fullString, ok := properties.Get(key)
 	if ok {
 		values = strings.Split(fullString, ",")
 		for i, value := range values {
@@ -100,7 +140,7 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 			toBeRemoved = append(toBeRemoved, i)
 			split := strings.Split(value, " ")
 			if len(split) > 1 {
-				includedValues, err := javaSecurity.getPropertyValues(split[1])
+				includedValues, err := getPropertyValuesRecursively(properties, split[1])
 				if err != nil {
 					return includedValues, err
 				}
@@ -116,16 +156,16 @@ func (javaSecurity *JavaSecurity) getPropertyValues(key string) (values []string
 
 // Parses the TLS Rules from the java.security file
 // Returns a joined list of errors which occurred during parsing of algorithms
-func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
+func extractTLSRules(securityProperties *properties.Properties) (restrictions []JavaSecurityAlgorithmRestriction, err error) {
 	slog.Info("Extracting TLS rules")
 
 	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
-	algorithms, err := javaSecurity.getPropertyValues(securityPropertiesKey)
+	algorithms, err := getPropertyValuesRecursively(securityProperties, securityPropertiesKey)
 
 	if go_errors.Is(err, errNilProperties) {
 		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.")
 	} else if err != nil {
-		return err
+		return restrictions, err
 	}
 
 	var algorithmParsingErrors []error
@@ -136,7 +176,6 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 			keySizeOperator := keySizeOperatorNone
 			name := algorithm
 
-			// TODO: Include directives other than "keySize" (see java.security for reference) --> "usage" is probably the most important one
 			if strings.Contains(algorithm, "jdkCA") ||
 				strings.Contains(algorithm, "denyAfter") ||
 				strings.Contains(algorithm, "usage") {
@@ -184,7 +223,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 				}
 			}
 
-			javaSecurity.tlsDisabledAlgorithms = append(javaSecurity.tlsDisabledAlgorithms, JavaSecurityAlgorithmRestriction{
+			restrictions = append(restrictions, JavaSecurityAlgorithmRestriction{
 				name:            name,
 				keySize:         keySize,
 				keySizeOperator: keySizeOperator,
@@ -194,7 +233,7 @@ func (javaSecurity *JavaSecurity) extractTLSRules() (err error) {
 		slog.Info("No disabled algorithms specified!", "key", securityPropertiesKey)
 	}
 
-	return go_errors.Join(algorithmParsingErrors...)
+	return restrictions, go_errors.Join(algorithmParsingErrors...)
 }
 
 /*
@@ -206,42 +245,41 @@ container image related
 const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 
 // Tries to get a config from the filesystem and checks the Config for potentially relevant information
-func (javaSecurityPlugin *JavaSecurityPlugin) checkConfig() error {
+func checkConfig(securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
 	slog.Info("Checking filesystem config for additional security properties")
 
-	config, ok := javaSecurityPlugin.filesystem.GetConfig()
+	imageConfig, ok := filesystem.GetConfig()
 	if !ok {
-		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
-		return nil
+		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", filesystem.GetIdentifier())
+		return additionalSecurityProperties, override, nil
 	}
 
-	err := javaSecurityPlugin.checkForAdditionalSecurityFilesCMDParameter(config)
+	additionalSecurityProperties, override, err = checkForAdditionalSecurityFilesCMDParameter(imageConfig, securityProperties, filesystem)
 
 	if go_errors.Is(err, errNilProperties) {
-		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
-		return nil
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", filesystem.GetIdentifier())
+		return additionalSecurityProperties, override, nil
 	}
 
-	return err
+	return additionalSecurityProperties, override, err
 }
 
 // Searches the image config for potentially relevant CMD parameters and potentially adds new properties
-func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMDParameter(config v1.Config) (err error) {
+func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
 
-	if javaSecurityPlugin.security.Properties == nil { // We do not have a security file
-		return errNilProperties
+	if securityProperties == nil { // We do not have a security file
+		return securityProperties, override, errNilProperties
 	}
 
-	allowAdditionalFiles := javaSecurityPlugin.security.GetBool("security.overridePropertiesFile", true)
+	allowAdditionalFiles := securityProperties.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
-		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", javaSecurityPlugin.filesystem.GetIdentifier())
-		return nil
+		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", filesystem.GetIdentifier())
+		return additionalSecurityProperties, override, nil
 	}
 
 	// Now, let's check for additional files added via CMD
 	var value string
-	var override bool
 	var ok bool
 
 	for _, command := range append(config.Cmd, config.Entrypoint...) {
@@ -249,30 +287,22 @@ func (javaSecurityPlugin *JavaSecurityPlugin) checkForAdditionalSecurityFilesCMD
 
 		if ok {
 			slog.Info("Found command that specifies new properties", "command", command)
-			if override {
-				slog.Info("Overriding properties with empty object")
-				javaSecurityPlugin.security = JavaSecurity{
-					properties.NewProperties(), // We override the current loaded property file with an empty object
-					javaSecurityPlugin.security.tlsDisabledAlgorithms,
-				}
-			}
 
-			content, err := javaSecurityPlugin.filesystem.ReadFile(value)
+			content, err := filesystem.ReadFile(value)
 			if err != nil {
 				if strings.Contains(err.Error(), "could not find file path in Tree") {
 					slog.Warn("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
-					return nil
+					return additionalSecurityProperties, override, nil
 				} else {
-					return err
+					return additionalSecurityProperties, override, err
 				}
 			}
-			newProperties := properties.MustLoadString(string(content))
-			javaSecurityPlugin.security.Merge(newProperties)
-			return err
+			additionalSecurityProperties, err = properties.LoadString(string(content))
+			return additionalSecurityProperties, override, err
 		}
 	}
 
-	return err
+	return additionalSecurityProperties, override, err
 }
 
 // Tries to extract the value of a flag in command;

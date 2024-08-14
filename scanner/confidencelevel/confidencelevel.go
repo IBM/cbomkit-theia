@@ -6,7 +6,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
-// Represents a confidence level; a new ConfidenceLevel has maximum confidence
+// Represents a confidence level
 type ConfidenceLevel struct {
 	count int
 	sum   int
@@ -18,6 +18,7 @@ type ConfidenceLevelModifier int
 
 const (
 	confidenceLevelMax                                             = 100
+	confidenceLevelDefault                                         = 50
 	confidenceLevelMin                                             = 0
 	ConfidenceLevelModifierPositiveExtreme ConfidenceLevelModifier = 50
 	ConfidenceLevelModifierPositiveHigh    ConfidenceLevelModifier = 30
@@ -29,12 +30,12 @@ const (
 	ConfidenceLevelModifierNegativeLow     ConfidenceLevelModifier = -5
 )
 
-// Get a new ConfidenceLevel; default value is confidenceLevelMax (full confidence)
+// Get a new ConfidenceLevel; default value is confidenceLevelDefault
 func New() *ConfidenceLevel {
 	return &ConfidenceLevel{
 		count: 0,
 		sum:   0,
-		value: confidenceLevelMax,
+		value: confidenceLevelDefault,
 	}
 }
 
@@ -44,7 +45,7 @@ func (confidenceLevel *ConfidenceLevel) GetValue() int {
 }
 
 // Generate a CycloneDX component property from this confidence
-func (confidenceLevel *ConfidenceLevel) GetProp() cdx.Property {
+func (confidenceLevel *ConfidenceLevel) GetProperty() cdx.Property {
 	return cdx.Property{
 		Name:  "cics_confidence_level",
 		Value: fmt.Sprint(confidenceLevel.value),
@@ -62,7 +63,9 @@ func (confidenceLevel *ConfidenceLevel) Modify(modifier ConfidenceLevelModifier)
 	}
 }
 
-/* Sets the value of this ConfidenceLevel to the average of all sub ConfidenceLevels; set ignoreMaxConfidence to ignore sub ConfidenceLevels with value confidenceLevelMax
+/*
+	Sets the value of this ConfidenceLevel to the average of all sub ConfidenceLevels; set ignoreDefaultConfidence to ignore sub ConfidenceLevels with value confidenceLevelDefault
+
 Example:
 
 a, b, c := New(), New(),  New()
@@ -75,8 +78,8 @@ Now a.GetValue() returns the average of b.GetValue() and c.GetValue(). (a.value 
 
 Warning: a, b and c are not permanently linked by this. AddSubConfidenceLevel just calculates the average in this moment
 */
-func (confidenceLevel *ConfidenceLevel) AddSubConfidenceLevel(sub ConfidenceLevel, ignoreMaxConfidence bool) {
-	if ignoreMaxConfidence && sub.value == confidenceLevelMax {
+func (confidenceLevel *ConfidenceLevel) AddSubConfidenceLevel(sub ConfidenceLevel, ignoreDefaultConfidence bool) {
+	if ignoreDefaultConfidence && sub.value == confidenceLevelDefault {
 		return
 	}
 	confidenceLevel.count++
