@@ -26,114 +26,7 @@
   },
   "components": [
     {
-      "bom-ref": "302f51323af79512699404d14f960641559c648a4ac8dd2c774f2b7ea8acf286",
-      "type": "cryptographic-asset",
-      "name": "RSA-8192",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "public-key",
-          "id": "7fe3c707-06c6-40d8-9791-513539078fc6",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
-          "size": 8192
-        },
-        "oid": "1.2.840.113549.1.1.1"
-      }
-    },
-    {
-      "bom-ref": "488ae322f1c1148c4b4b58505747813802c049af6cec7937a5859e15b2c88e8a",
-      "type": "cryptographic-asset",
-      "name": "SHA384",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "hash",
-          "parameterSetIdentifier": "384",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "digest"
-          ]
-        }
-      }
-    },
-    {
-      "bom-ref": "0006fedb51e73a2d73de256be7f9ad3e50f8e85456363ed475829f75e8471978",
-      "type": "cryptographic-asset",
-      "name": "RSA-8192",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "public-key",
-          "id": "042f459e-fa10-4852-8047-cf8063b6242d",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
-          "size": 8192
-        },
-        "oid": "1.2.840.113549.1.1.1"
-      }
-    },
-    {
-      "bom-ref": "6eac4f305eac870ca71940a0e09ead306606e2772ab00f5b9061e4c9be86985d",
-      "type": "cryptographic-asset",
-      "name": "SHA256",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "hash",
-          "parameterSetIdentifier": "256",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "digest"
-          ]
-        }
-      }
-    },
-    {
-      "bom-ref": "5a31db76e35352b57d7558eda6536ea453eec0fe1d865f4309de40a9de4d4f3a",
-      "type": "cryptographic-asset",
-      "name": "www.example.com",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "/app/8192b-rsa-example-cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "certificate",
-        "certificateProperties": {
-          "subjectName": "www.example.com",
-          "issuerName": "Frank4DD Web CA",
-          "notValidBefore": "2012-09-27T06:07:49Z",
-          "notValidAfter": "2017-09-26T06:07:49Z",
-          "signatureAlgorithmRef": "4a2ce01b7566ec466962aacf5ceb81460c1904576989d3c1f01857b13db50faf",
-          "subjectPublicKeyRef": "302f51323af79512699404d14f960641559c648a4ac8dd2c774f2b7ea8acf286",
-          "certificateFormat": "X.509",
-          "certificateExtension": ".pem"
-        }
-      }
-    },
-    {
-      "bom-ref": "930e720ac253037af85c2d8c0c255c64127de5dbae287144d68f0b044b16c58e",
+      "bom-ref": "4f490e830b2325ab000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "GitHub, Inc.",
       "evidence": {
@@ -150,32 +43,17 @@
           "issuerName": "DigiCert SHA2 Assured ID Code Signing CA",
           "notValidBefore": "2018-09-26T00:00:00Z",
           "notValidAfter": "2021-09-30T12:00:00Z",
-          "signatureAlgorithmRef": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
-          "subjectPublicKeyRef": "58d3282714bc11372321deaca93f4d85be1d9105bbb3df0881ae5bd6d566db26",
+          "signatureAlgorithmRef": "f364f895f5391746000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "eb146156d1464ad0000000000000000000000000000000000000000000000000",
           "certificateFormat": "X.509",
           "certificateExtension": ".p7b"
         }
       }
     },
     {
-      "bom-ref": "1fac462c67fc06c48bd670659ed937a4383161e02b86d80387c4bb4de0e4055b",
+      "bom-ref": "9235e3c296b91aba000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
-      "name": "RSA-2048",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "public-key",
-          "id": "6c477c4c-d07e-45a9-bc72-8ba62939973d",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
-          "size": 2048
-        },
-        "oid": "1.2.840.113549.1.1.1"
-      }
-    },
-    {
-      "bom-ref": "b0e461b0206c63ac4f5f8323d4f2abca3fe068540f65f63ab337a6c053bf7129",
-      "type": "cryptographic-asset",
-      "name": "DigiCert SHA2 Assured ID Code Signing CA",
+      "name": "DigiCert Assured ID Root CA",
       "evidence": {
         "occurrences": [
           {
@@ -186,72 +64,66 @@
       "cryptoProperties": {
         "assetType": "certificate",
         "certificateProperties": {
-          "subjectName": "DigiCert SHA2 Assured ID Code Signing CA",
+          "subjectName": "DigiCert Assured ID Root CA",
           "issuerName": "DigiCert Assured ID Root CA",
-          "notValidBefore": "2013-10-22T12:00:00Z",
-          "notValidAfter": "2028-10-22T12:00:00Z",
-          "signatureAlgorithmRef": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
-          "subjectPublicKeyRef": "b0ca638252550a3314138e2512204a4835c316ea9e97f3d39e4b3d3268bc682e",
+          "notValidBefore": "2006-11-10T00:00:00Z",
+          "notValidAfter": "2031-11-10T00:00:00Z",
+          "signatureAlgorithmRef": "f2075f8ea94ebfc1000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "a6e76053b641c55e000000000000000000000000000000000000000000000000",
           "certificateFormat": "X.509",
           "certificateExtension": ".p7b"
         }
       }
     },
     {
-      "bom-ref": "8bc3f0b1638bbce6b746208ada99555c6f1e05c1a9a8a13ff27cfb94fcae4440",
+      "bom-ref": "fdffc31a384c0622000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
-      "name": "SHA384-RSA",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "signature",
-          "parameterSetIdentifier": "384",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "padding": "pkcs1v15",
-          "cryptoFunctions": [
-            "sign"
-          ]
-        },
-        "oid": "1.2.840.113549.1.1.12"
-      }
-    },
-    {
-      "bom-ref": "d187fb734269d51706320a508ddb176f9deb5ba3dcd3a067f8b71b4772454c59",
-      "type": "cryptographic-asset",
-      "name": "COMODO RSA Domain Validation Secure Server CA",
+      "name": "RSA-2048",
       "evidence": {
         "occurrences": [
           {
-            "location": "/app/outsourcingok_com.ca-bundle"
+            "location": "/app/chain.p7b"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA+NOzHH8OEa9ndwfTCzFJGc/Q+0WZsTrbRPV/5aid2zLXcep2nQUut4/6kkPApfmJ1DcZ17aq8JyGpdglrA55KDp+6dFn08b7KSfH03sjlOSRI5aQd4L5oYQjZhJUM1B0sSgmuyRpwsJS8hRniolF1C2ho+mILCCVrhxKhwjfDPXiTWAYvqrEsq5wMWYzcT6scKKrzn/pfMuSoeU7MRzP6vIK5Fe7SrXpdOYr/mzLfnQ5Ng2Q7+S1TqSp6moKq4TzrGdOtcT3jNEgJSPrCGQ+UpbB8g8S9MWOD8Gi6CxR93O8vYWxYoNzQYIH5DiLanMg0A9kczyen6Yzqf0Z3yWT0QIDAQAB",
+          "size": 2048
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "d2e76f38b11a355d000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "www.example.com",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/8192b-rsa-example-cert.pem"
           }
         ]
       },
       "cryptoProperties": {
         "assetType": "certificate",
         "certificateProperties": {
-          "subjectName": "COMODO RSA Domain Validation Secure Server CA",
-          "issuerName": "COMODO RSA Certification Authority",
-          "notValidBefore": "2014-02-12T00:00:00Z",
-          "notValidAfter": "2029-02-11T23:59:59Z",
-          "signatureAlgorithmRef": "8bc3f0b1638bbce6b746208ada99555c6f1e05c1a9a8a13ff27cfb94fcae4440",
-          "subjectPublicKeyRef": "ca9712ba18dbde558b46a47440c44add395a975f85bbbddfa4a417ce0b4f76f5",
+          "subjectName": "www.example.com",
+          "issuerName": "Frank4DD Web CA",
+          "notValidBefore": "2012-09-27T06:07:49Z",
+          "notValidAfter": "2017-09-26T06:07:49Z",
+          "signatureAlgorithmRef": "f2075f8ea94ebfc1000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "cbb0f301bb4992e9000000000000000000000000000000000000000000000000",
           "certificateFormat": "X.509",
-          "certificateExtension": ".ca-bundle"
+          "certificateExtension": ".pem"
         }
       }
     },
     {
-      "bom-ref": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
+      "bom-ref": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "RSA",
       "properties": [
@@ -260,6 +132,25 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/8192b-rsa-example-cert.pem"
+          },
+          {
+            "location": "/app/cert.pem"
+          },
+          {
+            "location": "/app/chain.p7b"
+          },
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          },
+          {
+            "location": "/app/8192b-rsa-example-cert.der"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -278,99 +169,9 @@
       }
     },
     {
-      "bom-ref": "f0d467cf3514941648f6c19d703c173bd94480d716a30af0259fefbb8f524869",
+      "bom-ref": "a6e76053b641c55e000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
-      "name": "RSA",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "pke",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "sign"
-          ]
-        }
-      }
-    },
-    {
-      "bom-ref": "be82ebdce0ec29e9b14f1377d917920ae0321f533cfd6eda696ac9bfc4698b2c",
-      "type": "cryptographic-asset",
-      "name": "www.example.com",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "/app/8192b-rsa-example-cert.der"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "certificate",
-        "certificateProperties": {
-          "subjectName": "www.example.com",
-          "issuerName": "Frank4DD Web CA",
-          "notValidBefore": "2012-09-27T06:07:49Z",
-          "notValidAfter": "2017-09-26T06:07:49Z",
-          "signatureAlgorithmRef": "4a2ce01b7566ec466962aacf5ceb81460c1904576989d3c1f01857b13db50faf",
-          "subjectPublicKeyRef": "0006fedb51e73a2d73de256be7f9ad3e50f8e85456363ed475829f75e8471978",
-          "certificateFormat": "X.509",
-          "certificateExtension": ".der"
-        }
-      }
-    },
-    {
-      "bom-ref": "69a0d93505f9f53cc8801235cdfee1cae37c7a593969abc02cf4c6f708f93caa",
-      "type": "cryptographic-asset",
-      "name": "RSA-4096",
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "public-key",
-          "id": "da28b8d5-2a27-411d-982e-5d272a57b293",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
-          "size": 4096
-        },
-        "oid": "1.2.840.113549.1.1.1"
-      }
-    },
-    {
-      "bom-ref": "663d44e33a931b6c59d62f7ab5a4847a68def147508d2b56b48685611bf6885a",
-      "type": "cryptographic-asset",
-      "name": "Linagora CA",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "/app/cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "certificate",
-        "certificateProperties": {
-          "subjectName": "Linagora CA",
-          "issuerName": "Linagora CA",
-          "notValidBefore": "2015-09-14T08:50:19Z",
-          "notValidAfter": "2025-09-11T08:50:19Z",
-          "signatureAlgorithmRef": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
-          "subjectPublicKeyRef": "1fac462c67fc06c48bd670659ed937a4383161e02b86d80387c4bb4de0e4055b",
-          "certificateFormat": "X.509",
-          "certificateExtension": ".pem"
-        }
-      }
-    },
-    {
-      "bom-ref": "a392828f0d6aba53eecd2c6f63d91ccdddc024f18e8467f90e17b8ca20ce7821",
-      "type": "cryptographic-asset",
-      "name": "DigiCert Assured ID Root CA",
+      "name": "RSA-2048",
       "evidence": {
         "occurrences": [
           {
@@ -379,36 +180,18 @@
         ]
       },
       "cryptoProperties": {
-        "assetType": "certificate",
-        "certificateProperties": {
-          "subjectName": "DigiCert Assured ID Root CA",
-          "issuerName": "DigiCert Assured ID Root CA",
-          "notValidBefore": "2006-11-10T00:00:00Z",
-          "notValidAfter": "2031-11-10T00:00:00Z",
-          "signatureAlgorithmRef": "4a2ce01b7566ec466962aacf5ceb81460c1904576989d3c1f01857b13db50faf",
-          "subjectPublicKeyRef": "552ffcad5c71a53d7d8ac5615ca058efdfe4ba57a8e6bb2ea156730de3011f10",
-          "certificateFormat": "X.509",
-          "certificateExtension": ".p7b"
-        }
-      }
-    },
-    {
-      "bom-ref": "552ffcad5c71a53d7d8ac5615ca058efdfe4ba57a8e6bb2ea156730de3011f10",
-      "type": "cryptographic-asset",
-      "name": "RSA-2048",
-      "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "public-key",
-          "id": "6d0f0f91-49f5-4027-870d-71957b44cf3a",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEArQ4VzuRDgFyxh/O3YPlxEqWu3CaUiKr0zvUgOShYYAz4gNqpFZUyYTy1sSiEiorcnwoMgxd6j5Csiud5U1wxhCr2D5gyNnbM3t08qKLvavsh8lJh358g1x/isdn+GGTSEltf+VgYNbxHzaE2+Wt/1LA4PsEbw4wz2dgvGP4oD7Ong9bDbkTAYTWWFv5ZnIt2bdfxoksNK/8LctqeYNCOkDXGeFWHIKHP5W0KyEl8MZgzbCLph9AyWqK6E4IR7TkXnZk6cqHm+qTZ1Rcxda6FfSKuPwFGhvYoecix2uRXF8R+HA6wtJKmVrO9spftqqfwt8WoP5UW0P+hlusIXxh3TwIDAQAB",
           "size": 2048
         },
         "oid": "1.2.840.113549.1.1.1"
       }
     },
     {
-      "bom-ref": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
+      "bom-ref": "f364f895f5391746000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
       "properties": [
@@ -417,6 +200,16 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/cert.pem"
+          },
+          {
+            "location": "/app/chain.p7b"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -436,22 +229,32 @@
       }
     },
     {
-      "bom-ref": "b0ca638252550a3314138e2512204a4835c316ea9e97f3d39e4b3d3268bc682e",
+      "bom-ref": "17a5516837e6e5f8000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
-      "name": "RSA-2048",
+      "name": "COMODO RSA Certification Authority",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
       "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "public-key",
-          "id": "14e7da89-59ec-4cc7-b30c-3caac6178538",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
-          "size": 2048
-        },
-        "oid": "1.2.840.113549.1.1.1"
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "COMODO RSA Certification Authority",
+          "issuerName": "AddTrust External CA Root",
+          "notValidBefore": "2000-05-30T10:48:38Z",
+          "notValidAfter": "2020-05-30T10:48:38Z",
+          "signatureAlgorithmRef": "d82de78eae7f51e4000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "46c3dea24ea21caa000000000000000000000000000000000000000000000000",
+          "certificateFormat": "X.509",
+          "certificateExtension": ".ca-bundle"
+        }
       }
     },
     {
-      "bom-ref": "18b4c1549e1c212961a383955f36342a91c08f326737be8d6ac34149bb55a30e",
+      "bom-ref": "30be4ce2afa50f41000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "SHA1",
       "properties": [
@@ -460,6 +263,19 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/8192b-rsa-example-cert.pem"
+          },
+          {
+            "location": "/app/chain.p7b"
+          },
+          {
+            "location": "/app/8192b-rsa-example-cert.der"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -477,47 +293,104 @@
       }
     },
     {
-      "bom-ref": "58d3282714bc11372321deaca93f4d85be1d9105bbb3df0881ae5bd6d566db26",
+      "bom-ref": "eb146156d1464ad0000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/chain.p7b"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "public-key",
-          "id": "89450057-91c4-4cdf-b566-de2720e83126",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA15A41ItCpmIq15t6YDXGpkZr8UXulHDpkOWVDafLlhwU0xuHfbWePCpa0GA0GvKCgixFD9ZmlsC9hjFT7/9llLgPBDv95hFnFea+aTss/HrktN3WbOsGQpW/zV72GC27GRmjmv5rFJ3ofYIyqD62GfK8aD3pfOz2rgKf05NiQP/Hqhm0PkKXSFYa1AdsLm6tjXP2X1oNq22vaDv9a2A1PE54BE/ul9zauqe8TLb83Kcf3TYin8LFVaEezQ/E804K/A24JwMfxzl4Ky9MHzPprdE1pLzv6GbuT3Wq7Q0ftrk8b45aeunB0O2Q1KXFAs1E9Vfs7GUUt+f+b+6cJm3cnwIDAQAB",
           "size": 2048
         },
         "oid": "1.2.840.113549.1.1.1"
       }
     },
     {
-      "bom-ref": "27f20994aae7c139cc6a5832e0562bc5a11a9694b4d532200c397d035da4f5c5",
+      "bom-ref": "cbb0f301bb4992e9000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
-      "name": "COMODO RSA Certification Authority",
+      "name": "RSA-8192",
       "evidence": {
         "occurrences": [
           {
-            "location": "/app/outsourcingok_com.ca-bundle"
+            "location": "/app/8192b-rsa-example-cert.der"
+          },
+          {
+            "location": "/app/8192b-rsa-example-cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIEIjANBgkqhkiG9w0BAQEFAAOCBA8AMIIECgKCBAEAq5lcEwG8rUflI1aL6omAaF5R1DFkCMllFaQ3HUwlwCWYNNyKxF1G2e+P3Y6SFWyp0sFfmDcvuebOY/Dw3KlC756bQUMEXH6TaubYDcXaKDyrdKgCSoufjhwHkNpRz3VxpkLADJQIHdijes2JN3daGARxSJLcjoSaZvq/LBCIHTTDGESBXJP6RtbjAjGjuLUgmcvkl029Xl8ylkrcibjTzXmOod3vioTnX5aZNT1c7evmskvixWG1NlHOhZ1HdXiPHLjKxnr4lHl9lxtTjkNSsF+Nz0bYHCpWZ9u98nkgvFAxNUmiwX5nHIqo39AK8YVuVmDGYzY+dPtD1UtCBXgj+Ryq1cPU66H7kEfvbn1kZRF0XcxqIUVDlpa/h4Aq7r8KnQ6nVF59oM8AwsrRu3llvlRzNCaRUhafZ6YUHR19j/6GpAJtOWwwV5m2qKs9EhfL9Kvz9DqWh3DBt0CuGIDS0NuBAt2/RmNQBP1u7L8pYZ/9kV+Y7YM9ocbuYpUbTy4vio33Pl2wG8iozgPIgOcbne4Vh4TGpe0hbXaL+a/84CVOWX4JyLxyBEWGB6PLfH74NyXyvh57X6Cn3P0Xr2rSgPEgEEovw5i9qDeqqzeO+GvUouhQjZgURP5USjd120IPjVoZP8RPRCAPUBQSUmi2dyHANRI3ydIhTKOEdZCVvIlVNu33wfN55kEeLCXBiDvfvozUbCGuuOkbs5Yz7vE8K9xlU/Xo2icptY/u3XMPW6YKRP6lvGtovn9295vENHOJDFCVkcJ819vHVqJnoiGAf/QX0J74NLm6fnWboH6+5BcIDl18uB3qEFAlneRflIrC2XBZju+dTuTaHy14WvVJNjTMUBgVQ4gaS1X2wmAztwv+Rk8o6k+KJuSZDWVEZyH3NaddkYSVONOMzIuuClbg4cEgLP2cxxqz8JdnyT2NNfMdGfxP4Nd/RvPtTD9kTVewlurzYVjoi8CC6VhV2Tgcp+UvT6Z0Yne+65dXi31VRqQWG8adWQ3gc9NP1oXfJqVt26ldXF9AVf7PcFcm7xzr2mwZKY+DMk1m1hBvUGeg7Iab34OABOY6J4AxXiXqKx3JV24SFydaSSevsulSrmUJU3g8TR+WwTh06Yp8DZplCU9MEvfyUSShtHED72anVRgVe8jw47k9TavJ+hPiAq0HUmmKGUeKvrqWN4bMpSiMCmHTkcqS/d4Dn4ZAI8W0DIluc9sXBaiUUSIt6t7gGNOZGUyZ+ZN4GNxVlMazB6CieGRhoPfRmXw7wq0k2R5BU1Q8PSj8jrZ88DgdfENnWCGy6Aq450OwfufGaHZDwAUD1kUoRGBkzIxvkWLVdQtmP4iZXOLSany0RtPZLGjSH+x0vQIDAQAB",
+          "size": 8192
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "8f2a8754dbf5740d000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "Linagora CA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/cert.pem"
           }
         ]
       },
       "cryptoProperties": {
         "assetType": "certificate",
         "certificateProperties": {
-          "subjectName": "COMODO RSA Certification Authority",
-          "issuerName": "AddTrust External CA Root",
-          "notValidBefore": "2000-05-30T10:48:38Z",
-          "notValidAfter": "2020-05-30T10:48:38Z",
-          "signatureAlgorithmRef": "8bc3f0b1638bbce6b746208ada99555c6f1e05c1a9a8a13ff27cfb94fcae4440",
-          "subjectPublicKeyRef": "69a0d93505f9f53cc8801235cdfee1cae37c7a593969abc02cf4c6f708f93caa",
+          "subjectName": "Linagora CA",
+          "issuerName": "Linagora CA",
+          "notValidBefore": "2015-09-14T08:50:19Z",
+          "notValidAfter": "2025-09-11T08:50:19Z",
+          "signatureAlgorithmRef": "f364f895f5391746000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "e5aaa2671c4e0c45000000000000000000000000000000000000000000000000",
           "certificateFormat": "X.509",
-          "certificateExtension": ".ca-bundle"
+          "certificateExtension": ".pem"
         }
       }
     },
     {
-      "bom-ref": "4a2ce01b7566ec466962aacf5ceb81460c1904576989d3c1f01857b13db50faf",
+      "bom-ref": "bb286eccb13a830c000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "www.example.com",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/8192b-rsa-example-cert.der"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "www.example.com",
+          "issuerName": "Frank4DD Web CA",
+          "notValidBefore": "2012-09-27T06:07:49Z",
+          "notValidAfter": "2017-09-26T06:07:49Z",
+          "signatureAlgorithmRef": "f2075f8ea94ebfc1000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "cbb0f301bb4992e9000000000000000000000000000000000000000000000000",
+          "certificateFormat": "X.509",
+          "certificateExtension": ".der"
+        }
+      }
+    },
+    {
+      "bom-ref": "f2075f8ea94ebfc1000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "SHA1-RSA",
       "properties": [
@@ -526,6 +399,19 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/8192b-rsa-example-cert.der"
+          },
+          {
+            "location": "/app/8192b-rsa-example-cert.pem"
+          },
+          {
+            "location": "/app/chain.p7b"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -545,41 +431,290 @@
       }
     },
     {
-      "bom-ref": "ca9712ba18dbde558b46a47440c44add395a975f85bbbddfa4a417ce0b4f76f5",
+      "bom-ref": "d82de78eae7f51e4000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
-      "name": "RSA-2048",
+      "name": "SHA384-RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "signature",
+          "parameterSetIdentifier": "384",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "padding": "pkcs1v15",
+          "cryptoFunctions": [
+            "sign"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.12"
+      }
+    },
+    {
+      "bom-ref": "46c3dea24ea21caa000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "RSA-4096",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "public-key",
-          "id": "185d324c-46e2-405b-8373-e20261561579",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAkehUktIKVrGsDSTdxc9EZ3SZKzejfSNwAHG8U9/E+ioSj0t/EFa9n3Byt2F/yUsPF6c947AEYe7/EZfH9IY+Cvo+XPmT5jR62RRr55yzhaCCenavcZDX7P0N+pxs+t+wgvQUfvm+xKYvT3+Zf7X8Z0NyvQwA1onrayzT7Y+YHBSrfuXjbvzYqOSSJNpDa2K4Vf3qwbxstovzDo2a5JtsaZn4eEgwRdWt4Q08RWD8MpZRJ7xnw8outmvqRsfHIKCxH2XeSAi6pE6p8oNGN4Tr6MyBSENnTnIqm1y9TBsoilwie7SrmNnu4FGDwwlGTm0+mfqVF9p8M1dBPI1R7Qu2XK8sYxrfV8g/vOldxJuvRZnio1oktLqpVj3Pb6r/SVi+8Kj/9Lit6Tf7urj0Czr56ENCHonYhMsT8dm74YlguIwoVqwUHZwK53Hrzw7dPamWoUi9PPevtQ0iTMARgexWO/bTouJbt7IEIlKVgJNp6I5MZfGRAy1wdALqi2cVKWlSArvX31BqVUa/oKMoYX9w0MOiqiwhqkfOKJwGRXa/ghgntNWutMtQ5mv0TIZxMOmm3xaG4Nj/QN370EKIf6MzOi5cHkERgWPOGHFrK+ymircxXDpqR+DDeVnWIBqv8mqYqnK8V0rSS527EPywTEHl7R09XiidnMy/s1Hap0flhFMCAwEAAQ==",
+          "size": 4096
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "a92f98db02e1307f000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "SHA256",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/cert.pem"
+          },
+          {
+            "location": "/app/chain.p7b"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "b5e3e9005173800a000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "SHA384",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "384",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "13885dcb57368606000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/8192b-rsa-example-cert.der"
+          },
+          {
+            "location": "/app/8192b-rsa-example-cert.pem"
+          },
+          {
+            "location": "/app/cert.pem"
+          },
+          {
+            "location": "/app/chain.p7b"
+          },
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "sign"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "e5aaa2671c4e0c45000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA51++lv+zQLGFvUryv4zwmN0JaS+ZTbYjffTldoQ/x5NT0ht+K8HvRshQi/+GIpHB051rpL4sytfyAxoYuPNhZZY3nFh+VMTJRxvMsVBvWobPOqTY3LMlGnwwK8lwt6HBbRpOL3tpADmrRpapVexB9qyotLeY5zF3VdrLTHorVDUhbPPosg0CuFd0+p/4V6cTvFV7AcBe73f+PoncgHAtWMFCogfjwG1L6aLfoSfDmjNauYtwlxBRG1AqyS4f6AtrKznYa+0ZOGCuqM/j8NzUE71WQQcn84hNh+mER1nUQ1XDn1odi9M+NgubQq9tywwK2sv/XbjmCpfnCynb7+MphwIDAQAB",
           "size": 2048
         },
         "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "ce9d7ad7a080ced3000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "COMODO RSA Domain Validation Secure Server CA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "COMODO RSA Domain Validation Secure Server CA",
+          "issuerName": "COMODO RSA Certification Authority",
+          "notValidBefore": "2014-02-12T00:00:00Z",
+          "notValidAfter": "2029-02-11T23:59:59Z",
+          "signatureAlgorithmRef": "d82de78eae7f51e4000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "0ddc3bc5feee4342000000000000000000000000000000000000000000000000",
+          "certificateFormat": "X.509",
+          "certificateExtension": ".ca-bundle"
+        }
+      }
+    },
+    {
+      "bom-ref": "0ddc3bc5feee4342000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "RSA-2048",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/outsourcingok_com.ca-bundle"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "public-key",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAjsICGeGgWaTrODWNLP0B0NNJwGTHC2IFRRY6qKDADAJ/HczbxKFtdwOjD4b54wacPguBiptJG60DvvpL24wg7dXOXmWOPg2vTMKwt0VeUi803kgkZLRBrgCX975n3p7QeqdTgDt8rfWWVW+XRwp8hYsil42zhOCWV9BwGGCWj+4tB5OdobrK0c176cQqmighkU1vkk8lpfJ6Nd0m3Eal0KxZNYz/TpFDUD9Zkx5sUSHuWBSr/nVQeD5MsByGE/prmLzgO5QehVLcA5MkGG7LJ1FF5nDeJUOkDeFKpe22fsjNbe4uHSdzXdxFMICq47JBC6+9RIfaueUbnX+u5YWCpQIDAQAB",
+          "size": 2048
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "39f770d7d52314aa000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "DigiCert SHA2 Assured ID Code Signing CA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "/app/chain.p7b"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "certificate",
+        "certificateProperties": {
+          "subjectName": "DigiCert SHA2 Assured ID Code Signing CA",
+          "issuerName": "DigiCert Assured ID Root CA",
+          "notValidBefore": "2013-10-22T12:00:00Z",
+          "notValidAfter": "2028-10-22T12:00:00Z",
+          "signatureAlgorithmRef": "f364f895f5391746000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "fdffc31a384c0622000000000000000000000000000000000000000000000000",
+          "certificateFormat": "X.509",
+          "certificateExtension": ".p7b"
+        }
       }
     }
   ],
   "dependencies": [
     {
-      "ref": "8bc3f0b1638bbce6b746208ada99555c6f1e05c1a9a8a13ff27cfb94fcae4440",
+      "ref": "f364f895f5391746000000000000000000000000000000000000000000000000",
       "dependsOn": [
-        "488ae322f1c1148c4b4b58505747813802c049af6cec7937a5859e15b2c88e8a",
-        "f0d467cf3514941648f6c19d703c173bd94480d716a30af0259fefbb8f524869"
+        "13885dcb57368606000000000000000000000000000000000000000000000000",
+        "a92f98db02e1307f000000000000000000000000000000000000000000000000"
       ]
     },
     {
-      "ref": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
+      "ref": "f2075f8ea94ebfc1000000000000000000000000000000000000000000000000",
       "dependsOn": [
-        "f0d467cf3514941648f6c19d703c173bd94480d716a30af0259fefbb8f524869",
-        "6eac4f305eac870ca71940a0e09ead306606e2772ab00f5b9061e4c9be86985d"
+        "13885dcb57368606000000000000000000000000000000000000000000000000",
+        "30be4ce2afa50f41000000000000000000000000000000000000000000000000"
       ]
     },
     {
-      "ref": "4a2ce01b7566ec466962aacf5ceb81460c1904576989d3c1f01857b13db50faf",
+      "ref": "d82de78eae7f51e4000000000000000000000000000000000000000000000000",
       "dependsOn": [
-        "f0d467cf3514941648f6c19d703c173bd94480d716a30af0259fefbb8f524869",
-        "18b4c1549e1c212961a383955f36342a91c08f326737be8d6ac34149bb55a30e"
+        "13885dcb57368606000000000000000000000000000000000000000000000000",
+        "b5e3e9005173800a000000000000000000000000000000000000000000000000"
       ]
     }
   ]

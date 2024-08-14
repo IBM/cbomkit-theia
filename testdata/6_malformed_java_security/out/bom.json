@@ -26,22 +26,63 @@
   },
   "components": [
     {
-      "bom-ref": "e6e0272e59b706c67e2dc2738efcc013e2898d74b2b48257353eeccdef4728ce",
+      "bom-ref": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "properties": [
+        {
+          "name": "cics_confidence_level",
+          "value": "50"
+        }
+      ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "encapsulate",
+            "decapsulate"
+          ]
+        },
+        "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "e5aaa2671c4e0c45000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "RSA-2048",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "public-key",
-          "id": "042f459e-fa10-4852-8047-cf8063b6242d",
-          "algorithmRef": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
+          "algorithmRef": "7b45e5bab540842b000000000000000000000000000000000000000000000000",
+          "value": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA51++lv+zQLGFvUryv4zwmN0JaS+ZTbYjffTldoQ/x5NT0ht+K8HvRshQi/+GIpHB051rpL4sytfyAxoYuPNhZZY3nFh+VMTJRxvMsVBvWobPOqTY3LMlGnwwK8lwt6HBbRpOL3tpADmrRpapVexB9qyotLeY5zF3VdrLTHorVDUhbPPosg0CuFd0+p/4V6cTvFV7AcBe73f+PoncgHAtWMFCogfjwG1L6aLfoSfDmjNauYtwlxBRG1AqyS4f6AtrKznYa+0ZOGCuqM/j8NzUE71WQQcn84hNh+mER1nUQ1XDn1odi9M+NgubQq9tywwK2sv/XbjmCpfnCynb7+MphwIDAQAB",
           "size": 2048
         },
         "oid": "1.2.840.113549.1.1.1"
       }
     },
     {
-      "bom-ref": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
+      "bom-ref": "f364f895f5391746000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
       "properties": [
@@ -50,6 +91,13 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -69,7 +117,7 @@
       }
     },
     {
-      "bom-ref": "f0d467cf3514941648f6c19d703c173bd94480d716a30af0259fefbb8f524869",
+      "bom-ref": "13885dcb57368606000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "RSA",
       "properties": [
@@ -78,6 +126,13 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -94,7 +149,7 @@
       }
     },
     {
-      "bom-ref": "6eac4f305eac870ca71940a0e09ead306606e2772ab00f5b9061e4c9be86985d",
+      "bom-ref": "a92f98db02e1307f000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "SHA256",
       "properties": [
@@ -103,6 +158,13 @@
           "value": "50"
         }
       ],
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
       "cryptoProperties": {
         "assetType": "algorithm",
         "algorithmProperties": {
@@ -120,7 +182,7 @@
       }
     },
     {
-      "bom-ref": "396fc340b7e02be9860a3bb0673a5f6f017c980eb72935ae7155b3fa105c13ac",
+      "bom-ref": "8f2a8754dbf5740d000000000000000000000000000000000000000000000000",
       "type": "cryptographic-asset",
       "name": "Linagora CA",
       "evidence": {
@@ -137,47 +199,20 @@
           "issuerName": "Linagora CA",
           "notValidBefore": "2015-09-14T08:50:19Z",
           "notValidAfter": "2025-09-11T08:50:19Z",
-          "signatureAlgorithmRef": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
-          "subjectPublicKeyRef": "e6e0272e59b706c67e2dc2738efcc013e2898d74b2b48257353eeccdef4728ce",
+          "signatureAlgorithmRef": "f364f895f5391746000000000000000000000000000000000000000000000000",
+          "subjectPublicKeyRef": "e5aaa2671c4e0c45000000000000000000000000000000000000000000000000",
           "certificateFormat": "X.509",
           "certificateExtension": ".pem"
         }
-      }
-    },
-    {
-      "bom-ref": "e73916e8745aafc9036d972d8ed59462e9246317e344d6010f743189fd971226",
-      "type": "cryptographic-asset",
-      "name": "RSA",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "pke",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "encapsulate",
-            "decapsulate"
-          ]
-        },
-        "oid": "1.2.840.113549.1.1.1"
       }
     }
   ],
   "dependencies": [
     {
-      "ref": "c08a66968a38202a492d72f9f9f02ca4b1d2eec39ba621ae1a8e47ca6b99e610",
+      "ref": "f364f895f5391746000000000000000000000000000000000000000000000000",
       "dependsOn": [
-        "f0d467cf3514941648f6c19d703c173bd94480d716a30af0259fefbb8f524869",
-        "6eac4f305eac870ca71940a0e09ead306606e2772ab00f5b9061e4c9be86985d"
+        "13885dcb57368606000000000000000000000000000000000000000000000000",
+        "a92f98db02e1307f000000000000000000000000000000000000000000000000"
       ]
     }
   ]

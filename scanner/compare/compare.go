@@ -1,13 +1,13 @@
 package compare
 
 import (
-	"bytes"
-	"crypto/sha256"
-	"encoding/gob"
+	"encoding/binary"
 	"encoding/hex"
 	"reflect"
 	"slices"
 	"strings"
+
+	"github.com/mitchellh/hashstructure/v2"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -118,9 +118,18 @@ func HashCDXComponentWithoutRefs(a cdx.Component) [32]byte {
 		}
 	}(cleaners, a, temp)
 
-	var b bytes.Buffer
-	gob.NewEncoder(&b).Encode(a)
-	return sha256.Sum256(b.Bytes())
+	hash, err := hashstructure.Hash(a, hashstructure.FormatV2, &hashstructure.HashOptions{
+		ZeroNil: true,
+		SlicesAsSets: true,
+	})
+	if err != nil {
+		panic(err)
+	}
+	var b32 [32]byte
+	b := make([]byte, 32)
+	binary.LittleEndian.PutUint64(b, hash)
+	copy(b32[:], b)
+	return b32
 }
 
 func HashCDXComponentWithoutRefsWithoutEvidence(a cdx.Component) [32]byte {
