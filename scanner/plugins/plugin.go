@@ -22,9 +22,9 @@ const (
 
 // Interface to be implemented by all plugins
 type Plugin interface {
-	GetName() string                                                                                                      // return a name for the plugin
-	GetType() PluginType                                                                                                  // return the plugin type
-	UpdateComponents(fs filesystem.Filesystem, components []cdx.Component) (updatedComponents []cdx.Component, err error) // Update all BOM components using found files
+	GetName() string                                        // return a name for the plugin
+	GetType() PluginType                                    // return the plugin type
+	UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error // Update BOM using found files
 }
 
 // This PluginConstructor function should be exposed by all plugin packages

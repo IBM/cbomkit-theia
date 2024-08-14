@@ -5,6 +5,25 @@
   "version": 1,
   "metadata": {
     "timestamp": "2024-01-09T12:00:00Z",
+    "tools": {
+      "services": [
+        {
+          "provider": {
+            "name": "IBM Research"
+          },
+          "name": "Container Image Cryptography Scanner - CICS",
+          "version": "0.8",
+          "services": [
+            {
+              "name": "Certificate File Plugin"
+            },
+            {
+              "name": "java.security Plugin"
+            }
+          ]
+        }
+      ]
+    },
     "component": {
       "type": "application",
       "name": "my application",

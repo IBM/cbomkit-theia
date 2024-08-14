@@ -6,7 +6,7 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
-// Represents a confidence level; a new ConfidenceLevel has maximum confidence
+// Represents a confidence level
 type ConfidenceLevel struct {
 	count int
 	sum   int
@@ -30,7 +30,7 @@ const (
 	ConfidenceLevelModifierNegativeLow     ConfidenceLevelModifier = -5
 )
 
-// Get a new ConfidenceLevel; default value is confidenceLevelMax (full confidence)
+// Get a new ConfidenceLevel; default value is confidenceLevelDefault
 func New() *ConfidenceLevel {
 	return &ConfidenceLevel{
 		count: 0,
