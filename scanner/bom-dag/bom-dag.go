@@ -3,9 +3,14 @@ package bomdag
 import (
 	"encoding/hex"
 	"fmt"
+	"log/slog"
+	"net/url"
+	"os"
+	"path/filepath"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/dominikbraun/graph"
+	"github.com/dominikbraun/graph/draw"
 )
 
 type BomDAGVertexHash = [8]byte
@@ -227,4 +232,19 @@ func (bomDAG *BomDAG) getVertexOrAddNew(value bomDAGVertex, options ...func(*gra
 
 	err = bomDAG.AddVertex(value, append(options, getLabelForBOMDAGVertex(value))...)
 	return hash, err
+}
+
+func (bomDAG *BomDAG) WriteToFile(filesystemIdentifier string) {
+	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
+		slog.Warn("Failed to create directory for graphs. Skipping this step.", "error", err.Error())
+	} else {
+		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", filesystemIdentifier))))
+		if err != nil {
+			slog.Warn("Failed to generate DOT file for graph", "error", err.Error())
+		}
+		err = draw.DOT(bomDAG, file)
+		if err != nil {
+			slog.Warn("Failed to write to DOT file for graph", "error", err.Error())
+		}
+	}
 }

@@ -3,13 +3,10 @@ package certificates
 import (
 	"encoding/pem"
 	"errors"
-	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
-	"net/url"
-	"os"
 	"path/filepath"
 	"slices"
 
@@ -19,7 +16,6 @@ import (
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/dominikbraun/graph/draw"
 	"github.com/google/uuid"
 )
 
@@ -106,18 +102,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		return err
 	}
 
-	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
-		slog.Warn("Failed to create directory for graphs. Skipping this step.", "error", err.Error())
-	} else {
-		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", fs.GetIdentifier()))))
-		if err != nil {
-			slog.Warn("Failed to generate DOT file for graph", "error", err.Error())
-		}
-		err = draw.DOT(dag, file)
-		if err != nil {
-			slog.Warn("Failed to write to DOT file for graph", "error", err.Error())
-		}
-	}
+	dag.WriteToFile(fs.GetIdentifier())
 
 	if len(components) > 0 {
 		if bom.Components == nil {

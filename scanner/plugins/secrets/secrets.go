@@ -80,6 +80,8 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 
 	secretComponents, _, err := bomDag.GetCDXComponents()
 
+	bomDag.WriteToFile(fs.GetIdentifier())
+
 	if err != nil {
 		return err
 	}
