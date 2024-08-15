@@ -2,7 +2,9 @@ package secrets
 
 import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"strings"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/zricethezav/gitleaks/v8/detect"
@@ -47,13 +49,18 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 		return nil
 	})
 
+	bomDag := bomdag.NewBomDAG()
+
 	for _, finding := range findings {
-		*bom.Components = append(*bom.Components, cdx.Component{
+		comp := cdx.Component{
 			Name:        finding.RuleID,
 			Description: finding.Description,
+			Type:        cdx.ComponentTypeCryptographicAsset,
 			CryptoProperties: &cdx.CryptoProperties{
 				AssetType:                       cdx.CryptoAssetTypeRelatedCryptoMaterial,
-				RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{},
+				RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
+					Type: getRelatedCryptoAssetTypeFromRuleID(finding.RuleID),
+				},
 			},
 			Evidence: &cdx.Evidence{
 				Occurrences: &[]cdx.EvidenceOccurrence{
@@ -62,8 +69,37 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 					},
 				},
 			},
-		})
+		}
+
+		hash, err := bomDag.AddCDXComponent(comp)
+		if err != nil {
+			return err
+		}
+		bomDag.AddEdge(bomDag.Root, hash)
 	}
 
+	secretComponents, _, err := bomDag.GetCDXComponents()
+
+	if err != nil {
+		return err
+	}
+
+	*bom.Components = append(*bom.Components, secretComponents...)
+
 	return nil
+}
+
+func getRelatedCryptoAssetTypeFromRuleID(id string) cdx.RelatedCryptoMaterialType {
+	switch {
+	case id == "private-key":
+		return cdx.RelatedCryptoMaterialTypePrivateKey
+	case strings.Contains(id, "token") || strings.Contains(id, "jwt"):
+		return cdx.RelatedCryptoMaterialTypeToken
+	case strings.Contains(id, "key"):
+		return cdx.RelatedCryptoMaterialTypeKey
+	case strings.Contains(id, "password"):
+		return cdx.RelatedCryptoMaterialTypePassword
+	default:
+		return cdx.RelatedCryptoMaterialTypeUnknown
+	}
 }

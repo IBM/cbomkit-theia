@@ -33,8 +33,11 @@ type PluginConstructor func() (Plugin, error)
 
 func PluginSliceToString(plugins []Plugin) string {
 	builder := strings.Builder{}
-	for _, plugin := range plugins {
+	for i, plugin := range plugins {
 		builder.WriteString(plugin.GetName())
+		if i < len(plugins)-1 {
+			builder.WriteString("; ")
+		}
 	}
 	return builder.String()
 }
