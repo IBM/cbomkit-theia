@@ -5,6 +5,7 @@ import (
 	"errors"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
 	"path/filepath"
@@ -125,21 +126,10 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 
 // Parse a X.509 certificate from the given path (in base64 PEM or binary DER)
 func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(raw []byte, path string) ([]*x509CertificateWithMetadata, error) {
-	rest := raw
-	var blocks []*pem.Block
-	for len(rest) != 0 {
-		var newBlock *pem.Block
-		newBlock, rest = pem.Decode(rest)
-		if newBlock != nil {
-			if newBlock.Type != "CERTIFICATE" {
-				slog.Warn("PEM file contains part that is not yet supported, continuing anyway", "unsupported_type", newBlock.Type)
-				continue
-			}
-			blocks = append(blocks, newBlock)
-		} else {
-			break
-		}
-	}
+	blocks := pemutility.ParsePEMToBlocksWithTypeFilter(raw, pemutility.Filter{
+		FilterType: pemutility.PEMTypeFilterTypeAllowlist,
+		List:       []pemutility.PEMBlockType{pemutility.PEMBlockTypeCertificate},
+	})
 
 	if len(blocks) == 0 {
 		return parseCertificatesToX509CertificateWithMetadata(raw, path)
@@ -147,7 +137,7 @@ func (certificatesPlugin *CertificatesPlugin) parsex509CertFromPath(raw []byte, 
 
 	certs := make([]*x509CertificateWithMetadata, 0, len(blocks))
 
-	for _, block := range blocks {
+	for block := range blocks {
 		moreCerts, err := parseCertificatesToX509CertificateWithMetadata(block.Bytes, path)
 		if err != nil {
 			return moreCerts, err
