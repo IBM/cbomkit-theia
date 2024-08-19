@@ -7,7 +7,6 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
@@ -82,217 +81,166 @@ func ParsePEMToBlocksWithTypeFilter(raw []byte, filter Filter) map[*pem.Block]PE
 	return filteredBlocksWithType
 }
 
-type ComponentBuilder struct {
-	C cdx.Component
-}
-
 var errUnknownKeyAlgorithm = errors.New("key block uses unknown algorithm")
 
-func GenerateComponentsFromKeyBlock(block *pem.Block, occurrences ...cdx.EvidenceOccurrence) ([]cdx.Component, error) {
-	cb := NewComponentBuilder()
-	cb.SetOccurrences(occurrences...)
-
+func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 	switch PEMBlockType(block.Type) {
 
 	case PEMBlockTypePrivateKey:
-		cb.SetPrivateKeyComponent()
-
 		genericKey, err := x509.ParsePKCS8PrivateKey(block.Bytes)
 		if err != nil {
 			return []cdx.Component{}, err
 		}
-
-		switch key := genericKey.(type) {
-		case *rsa.PrivateKey:
-			cb.SetRSAPrivateKeyComponent()
-			privateKeyComponent := cb.GetComponent()
-			cb.SetRSAPublicKeyComponent(&key.PublicKey)
-			return []cdx.Component{privateKeyComponent, cb.GetComponent()}, nil
-		case *ecdsa.PrivateKey:
-			cb.SetECDSAPrivateKeyComponent(key)
-			privateKeyComponent := cb.GetComponent()
-			cb.SetECDSAPublicKeyComponent(&key.PublicKey)
-			return []cdx.Component{privateKeyComponent, cb.GetComponent()}, nil
-		case ed25519.PrivateKey:
-			cb.SetED25519PrivateKeyComponent()
-			privateKeyComponent := cb.GetComponent()
-			cb.SetED25519PublicKeyComponent(key.Public().(ed25519.PublicKey)) // TODO: This cast might be unsafe
-			return []cdx.Component{privateKeyComponent, cb.GetComponent()}, nil
-		case *ecdh.PrivateKey:
-			cb.SetECDHPrivateKeyComponent()
-			privateKeyComponent := cb.GetComponent()
-			cb.SetECDHPublicKeyComponent(key.Public().(*ecdh.PublicKey))
-			return []cdx.Component{privateKeyComponent, cb.GetComponent()}, nil
-		default:
-			return []cdx.Component{}, errUnknownKeyAlgorithm
-		}
+		return GenerateComponentsFromKey(genericKey)
 
 	case PEMBlockTypeECPrivateKey:
-		cb.SetPrivateKeyComponent()
-
 		key, err := x509.ParseECPrivateKey(block.Bytes)
 		if err != nil {
 			return []cdx.Component{}, err
 		}
-		cb.SetECDSAPrivateKeyComponent(key)
-		privateKeyComponent := cb.GetComponent()
-		cb.SetECDSAPublicKeyComponent(&key.PublicKey)
-		return []cdx.Component{privateKeyComponent, cb.GetComponent()}, nil
+		return []cdx.Component{getECDSAPrivateKeyComponent(key), getECDSAPublicKeyComponent(&key.PublicKey)}, nil
 
 	case PEMBlockTypeRSAPrivateKey:
-		cb.SetPrivateKeyComponent()
-
 		key, err := x509.ParsePKCS1PrivateKey(block.Bytes)
 		if err != nil {
 			return []cdx.Component{}, err
 		}
-		cb.SetRSAPrivateKeyComponent()
-		privateKeyComponent := cb.GetComponent()
-		cb.SetRSAPublicKeyComponent(&key.PublicKey)
-		return []cdx.Component{privateKeyComponent, cb.GetComponent()}, nil
+		return []cdx.Component{getRSAPrivateKeyComponent(), getRSAPublicKeyComponent(&key.PublicKey)}, nil
 
 	case PEMBlockTypePublicKey:
-		cb.SetPublicKeyComponent()
-		cb.SetValue(block.Bytes)
-
 		genericKey, err := x509.ParsePKIXPublicKey(block.Bytes)
 		if err != nil {
 			return []cdx.Component{}, err
 		}
-
-		switch key := genericKey.(type) {
-		case *rsa.PublicKey:
-			cb.SetRSAPublicKeyComponent(key)
-			return []cdx.Component{cb.GetComponent()}, nil
-		case *dsa.PublicKey:
-			cb.SetDSAPublicKeyComponent(key)
-			return []cdx.Component{cb.GetComponent()}, nil
-		case *ecdsa.PublicKey:
-			cb.SetECDSAPublicKeyComponent(key)
-			return []cdx.Component{cb.GetComponent()}, nil
-		case *ed25519.PublicKey:
-			cb.SetED25519PublicKeyComponent(*key)
-			return []cdx.Component{cb.GetComponent()}, nil
-		case *ecdh.PublicKey:
-			cb.SetECDHPublicKeyComponent(key)
-			return []cdx.Component{cb.GetComponent()}, nil
-		default:
-			return []cdx.Component{}, errUnknownKeyAlgorithm
-		}
+		return GenerateComponentsFromKey(genericKey)
 
 	case PEMBlockTypeRSAPublicKey:
-		cb.SetPublicKeyComponent()
-		cb.SetValue(block.Bytes)
-
 		key, err := x509.ParsePKCS1PublicKey(block.Bytes)
 		if err != nil {
 			return []cdx.Component{}, err
 		}
-		cb.SetRSAPublicKeyComponent(key)
-		return []cdx.Component{cb.GetComponent()}, nil
+		return []cdx.Component{getRSAPublicKeyComponent(key)}, nil
 
 	default:
 		return []cdx.Component{}, fmt.Errorf("could not generate cyclone-dx component from pem: pem file block type is unknown or not a key")
 	}
 }
 
-func NewComponentBuilder() *ComponentBuilder {
-	return &ComponentBuilder{
-		C: cdx.Component{
-			BOMRef: uuid.New().String(),
+func GenerateComponentsFromKey(genericKey any) ([]cdx.Component, error) {
+	switch key := genericKey.(type) {
+	case *rsa.PublicKey:
+		return []cdx.Component{getRSAPublicKeyComponent(key)}, nil
+	case *dsa.PublicKey:
+		return []cdx.Component{getDSAPublicKeyComponent(key)}, nil
+	case *ecdsa.PublicKey:
+		return []cdx.Component{getECDSAPublicKeyComponent(key)}, nil
+	case *ed25519.PublicKey:
+		return []cdx.Component{getED25519PublicKeyComponent(*key)}, nil
+	case *ecdh.PublicKey:
+		return []cdx.Component{getECDHPublicKeyComponent(key)}, nil
+	case *rsa.PrivateKey:
+		return []cdx.Component{getRSAPrivateKeyComponent(), getRSAPublicKeyComponent(&key.PublicKey)}, nil
+	case *ecdsa.PrivateKey:
+		return []cdx.Component{getECDSAPrivateKeyComponent(key), getECDSAPublicKeyComponent(&key.PublicKey)}, nil
+	case ed25519.PrivateKey:
+		return []cdx.Component{getED25519PrivateKeyComponent(), getED25519PublicKeyComponent(key.Public().(ed25519.PublicKey))}, nil // TODO: This cast might be unsafe
+	case *ecdh.PrivateKey:
+		return []cdx.Component{getECDHPrivateKeyComponent(), getECDHPublicKeyComponent(key.Public().(*ecdh.PublicKey))}, nil
+	default:
+		return []cdx.Component{}, errUnknownKeyAlgorithm
+	}
+}
+
+func getGenericKeyComponent() cdx.Component {
+	return cdx.Component{
+		Type:   cdx.ComponentTypeCryptographicAsset,
+		BOMRef: uuid.New().String(),
+		CryptoProperties: &cdx.CryptoProperties{
+			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
+			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
+				Format: "PEM",
+			},
 		},
 	}
 }
 
-func NewComponentBuilderFromComponent(c cdx.Component) *ComponentBuilder {
-	return &ComponentBuilder{
-		C: c,
-	}
+func getGenericPublicKeyComponent() cdx.Component {
+	c := getGenericKeyComponent()
+	c.CryptoProperties.RelatedCryptoMaterialProperties.Type = cdx.RelatedCryptoMaterialTypePublicKey
+	return c
 }
 
-func (cb *ComponentBuilder) GetComponent() cdx.Component {
-	return *cb.C // We need to somehow account for the problem that we need two components
+func getGenericPrivateKeyComponent() cdx.Component {
+	c := getGenericKeyComponent()
+	c.CryptoProperties.RelatedCryptoMaterialProperties.Type = cdx.RelatedCryptoMaterialTypePrivateKey
+	return c
 }
 
-func (cb *ComponentBuilder) SetOccurrences(occurrences ...cdx.EvidenceOccurrence) {
-	cb.C.Evidence = &cdx.Evidence{
-		Occurrences: &occurrences,
-	}
-}
-
-func (cb *ComponentBuilder) SetValue(value []byte) {
-	cb.C.CryptoProperties.RelatedCryptoMaterialProperties.Value = base64.StdEncoding.EncodeToString(value)
-}
-
-func (cb *ComponentBuilder) SetPublicKeyComponent() {
-	cb.C.Type = cdx.ComponentTypeCryptographicAsset
-	cb.C.CryptoProperties = &cdx.CryptoProperties{
-		AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
-		RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
-			Type:   cdx.RelatedCryptoMaterialTypePublicKey,
-			Format: "PEM",
-		},
-	}
-}
-
-func (cb *ComponentBuilder) SetPrivateKeyComponent() {
-	cb.C.Type = cdx.ComponentTypeCryptographicAsset
-	cb.C.CryptoProperties = &cdx.CryptoProperties{
-		AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
-		RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
-			Type:   cdx.RelatedCryptoMaterialTypePrivateKey,
-			Format: "PEM",
-		},
-	}
-}
-
-func (cb *ComponentBuilder) SetRSAPublicKeyComponent(key *rsa.PublicKey) {
+func getRSAPublicKeyComponent(key *rsa.PublicKey) cdx.Component {
+	c := getGenericPublicKeyComponent()
 	size := key.Size() * 8
-	cb.C.Name = fmt.Sprintf("RSA-%v", size)
-	cb.C.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
-	cb.C.CryptoProperties.OID = "1.2.840.113549.1.1.1"
+	c.Name = fmt.Sprintf("RSA-%v", size)
+	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+	c.CryptoProperties.OID = "1.2.840.113549.1.1.1"
+	return c
 }
 
-func (cb *ComponentBuilder) SetRSAPrivateKeyComponent() {
-	cb.C.Name = "RSA"
-	cb.C.CryptoProperties.OID = "1.2.840.113549.1.1.1"
+func getRSAPrivateKeyComponent() cdx.Component {
+	c := getGenericPrivateKeyComponent()
+	c.Name = "RSA"
+	c.CryptoProperties.OID = "1.2.840.113549.1.1.1"
+	return c
 }
 
-func (cb *ComponentBuilder) SetECDSAPublicKeyComponent(key *ecdsa.PublicKey) {
-	cb.C.Name = "ECDSA"
-	cb.C.Description = fmt.Sprintf("Curve: %v", key.Curve.Params().Name)
-	cb.C.CryptoProperties.OID = "1.2.840.10045.2.1"
+func getECDSAPublicKeyComponent(key *ecdsa.PublicKey) cdx.Component {
+	c := getGenericPublicKeyComponent()
+	c.Name = "ECDSA"
+	c.Description = fmt.Sprintf("Curve: %v", key.Curve.Params().Name)
+	c.CryptoProperties.OID = "1.2.840.10045.2.1"
+	return c
 }
 
-func (cb *ComponentBuilder) SetECDSAPrivateKeyComponent(key *ecdsa.PrivateKey) {
-	cb.C.Name = "ECDSA"
-	cb.C.Description = fmt.Sprintf("Curve: %v", key.Curve.Params().Name)
+func getECDSAPrivateKeyComponent(key *ecdsa.PrivateKey) cdx.Component {
+	c := getGenericPrivateKeyComponent()
+	c.Name = "ECDSA"
+	c.Description = fmt.Sprintf("Curve: %v", key.Curve.Params().Name)
+	return c
 }
 
-func (cb *ComponentBuilder) SetED25519PublicKeyComponent(key ed25519.PublicKey) {
-	cb.C.Name = "ED25519"
+func getED25519PublicKeyComponent(key ed25519.PublicKey) cdx.Component {
+	c := getGenericPublicKeyComponent()
+	c.Name = "ED25519"
 	size := len([]byte(key)) * 8
-	cb.C.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+	return c
 }
 
-func (cb *ComponentBuilder) SetED25519PrivateKeyComponent() {
-	cb.C.Name = "ED25519"
+func getED25519PrivateKeyComponent() cdx.Component {
+	c := getGenericPrivateKeyComponent()
+	c.Name = "ED25519"
+	return c
 }
 
-func (cb *ComponentBuilder) SetECDHPublicKeyComponent(key *ecdh.PublicKey) {
-	cb.C.Name = "ECDH"
+func getECDHPublicKeyComponent(key *ecdh.PublicKey) cdx.Component {
+	c := getGenericPublicKeyComponent()
+	c.Name = "ECDH"
 	size := len(key.Bytes()) * 8
-	cb.C.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
-	cb.C.CryptoProperties.OID = "1.2.840.10045.2.1"
+	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+	c.CryptoProperties.OID = "1.2.840.10045.2.1"
+	return c
 }
 
-func (cb *ComponentBuilder) SetECDHPrivateKeyComponent() {
-	cb.C.Name = "ECDH"
+func getECDHPrivateKeyComponent() cdx.Component {
+	c := getGenericPrivateKeyComponent()
+	c.Name = "ECDH"
+	return c
 }
 
-func (cb *ComponentBuilder) SetDSAPublicKeyComponent(key *dsa.PublicKey) {
-	cb.C.Name = "DSA"
+func getDSAPublicKeyComponent(key *dsa.PublicKey) cdx.Component {
+	c := getGenericPublicKeyComponent()
+	c.Name = "DSA"
 	size := key.Y.BitLen()
-	cb.C.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
-	cb.C.CryptoProperties.OID = "1.3.14.3.2.12"
+	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+	c.CryptoProperties.OID = "1.3.14.3.2.12"
+	return c
 }

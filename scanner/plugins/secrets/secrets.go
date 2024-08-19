@@ -88,10 +88,19 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 			})
 
 			for block := range blocks {
-				currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block, cdx.EvidenceOccurrence{Location: finding.File})
+				currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block)
 				if err != nil {
 					return err
 				}
+
+				for i := range currentComponents {
+					currentComponents[i].Evidence = &cdx.Evidence{
+						Occurrences: &[]cdx.EvidenceOccurrence{
+							{Location: finding.File},
+						},
+					}
+				}
+				
 				components = append(components, currentComponents...)
 			}
 		default:

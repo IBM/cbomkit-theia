@@ -1,10 +1,6 @@
 package certificates
 
 import (
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/rsa"
 	"crypto/x509"
 	"errors"
 	"fmt"
@@ -509,31 +505,23 @@ func getGenericPKEAlgorithmComponent(path string) cdx.Component {
 
 // Generate the CycloneDX component for the public key
 func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyComponent() (cdx.Component, error) {
-	cb := pemutility.NewComponentBuilder()
-	cb.SetOccurrences(cdx.EvidenceOccurrence{
-		Location: x509CertificateWithMetadata.path,
-	})
-	cb.SetPublicKeyComponent()
-	keyValue, err := x509.MarshalPKIXPublicKey(x509CertificateWithMetadata.PublicKey)
-	if err == nil {
-		cb.SetValue(keyValue)
+	comps, err := pemutility.GenerateComponentsFromKey(x509CertificateWithMetadata.PublicKey)
+	if err != nil {
+		return cdx.Component{}, err
 	}
-	switch key := x509CertificateWithMetadata.PublicKey.(type) {
-	case *rsa.PublicKey:
-		cb.SetRSAPublicKeyComponent(key)
-		return cb.GetComponent(), nil
-	case *dsa.PublicKey:
-		cb.SetDSAPublicKeyComponent(key)
-		return cb.GetComponent(), nil
-	case *ecdsa.PublicKey:
-		cb.SetECDSAPublicKeyComponent(key)
-		return cb.GetComponent(), nil
-	case *ed25519.PublicKey:
-		cb.SetED25519PublicKeyComponent(*key)
-		return cb.GetComponent(), nil
-	default:
-		return cdx.Component{}, errX509UnknownAlgorithm
+
+	if len(comps) > 1 {
+		return cdx.Component{}, fmt.Errorf("certificate plugin: parsed several components from a single key. this should not happen. Check if getPublicKeyComponent gets only public keys")
 	}
+
+	comp := comps[0]
+	comp.Evidence = &cdx.Evidence{
+		Occurrences: &[]cdx.EvidenceOccurrence{
+			{Location: x509CertificateWithMetadata.path},
+		},
+	}
+
+	return comp, nil
 }
 
 // Generate the CycloneDX component for the public key algorithm
