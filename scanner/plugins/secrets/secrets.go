@@ -5,9 +5,9 @@ import (
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
-	"path/filepath"
-	"slices"
 	"strings"
+
+	"net/http"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/zricethezav/gitleaks/v8/detect"
@@ -38,29 +38,15 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	}
 
 	fs.WalkDir(func(path string) error {
-		pemFileExtensions := []string{
-			".pem",   // Generic PEM file
-			".crt",   // Certificate file
-			".cer",   // Alternate certificate file
-			".cert",  // Alternate certificate file
-			".key",   // Private key file
-			".pub",   // Public key file
-			".csr",   // Certificate Signing Request
-			".pfx",   // Personal Information Exchange (sometimes in PEM)
-			".p12",   // PKCS#12 (sometimes in PEM)
-			".ca-bundle", // CA bundle (chain of certificates)
-			".chain", // Certificate chain file
-		}
-		
-
-		if !slices.Contains(pemFileExtensions, filepath.Ext(path)) {
-			return nil // Skip this file
-		}
-
 		raw, err := fs.ReadFile(path)
 		if err != nil {
 			return err
 		}
+
+		if !strings.HasPrefix(http.DetectContentType(raw), "text") {
+			return nil // Skip
+		}
+
 		fragment := detect.Fragment{
 			Raw:      string(raw),
 			FilePath: path,
@@ -100,7 +86,7 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 						},
 					}
 				}
-				
+
 				components = append(components, currentComponents...)
 			}
 		default:
@@ -133,7 +119,9 @@ func getGenericSecretComponent(finding report.Finding) cdx.Component {
 	return cdx.Component{
 		Name:        finding.RuleID,
 		Description: finding.Description,
+		Type:        cdx.ComponentTypeCryptographicAsset,
 		CryptoProperties: &cdx.CryptoProperties{
+			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
 			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
 				Type: getRelatedCryptoAssetTypeFromRuleID(finding.RuleID),
 			},
