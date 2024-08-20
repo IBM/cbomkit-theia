@@ -30,3 +30,6 @@ cics_graphs/
 *.svg
 *.dot
 *.png
+
+# Test files
+/*.json
