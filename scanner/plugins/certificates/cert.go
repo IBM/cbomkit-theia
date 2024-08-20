@@ -1,18 +1,14 @@
 package certificates
 
 import (
-	"crypto/dsa"
-	"crypto/ecdsa"
-	"crypto/ed25519"
-	"crypto/rsa"
 	"crypto/x509"
-	"encoding/base64"
 	"errors"
 	"fmt"
 	"path/filepath"
 	"time"
 
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
+	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
 
 	"github.com/google/uuid"
 
@@ -509,64 +505,23 @@ func getGenericPKEAlgorithmComponent(path string) cdx.Component {
 
 // Generate the CycloneDX component for the public key
 func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyComponent() (cdx.Component, error) {
-	switch x509CertificateWithMetadata.PublicKey.(type) {
-	case *rsa.PublicKey:
-		pk := x509CertificateWithMetadata.PublicKey.(*rsa.PublicKey)
-		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path, pk)
-		size := pk.Size() * 8
-		comp.Name = fmt.Sprintf("RSA-%v", size)
-		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
-		comp.CryptoProperties.OID = "1.2.840.113549.1.1.1"
-		return comp, nil
-	case *dsa.PublicKey:
-		pk := x509CertificateWithMetadata.PublicKey.(*dsa.PublicKey)
-		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path, pk)
-		comp.Name = "DSA"
-		size := pk.Y.BitLen()
-		comp.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
-		comp.CryptoProperties.OID = "1.3.14.3.2.12"
-		return comp, nil
-	case *ecdsa.PublicKey:
-		pk := x509CertificateWithMetadata.PublicKey.(*ecdsa.PublicKey)
-		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path, pk)
-		comp.CryptoProperties.OID = "1.2.840.10045.2.1"
-		return comp, nil
-	case *ed25519.PublicKey:
-		pk := x509CertificateWithMetadata.PublicKey.(*ed25519.PublicKey)
-		comp := getGenericPublicKeyComponent(x509CertificateWithMetadata.path, *pk)
-		comp.Name = "ED25519"
-		comp.CryptoProperties.OID = "1.3.101.112"
-		return comp, nil
-	default:
-		return cdx.Component{}, errX509UnknownAlgorithm
+	comps, err := pemutility.GenerateComponentsFromKey(x509CertificateWithMetadata.PublicKey)
+	if err != nil {
+		return cdx.Component{}, err
 	}
-}
 
-// Generate a generic CycloneDX component for the public key
-func getGenericPublicKeyComponent(path string, key any) cdx.Component {
-	comp := cdx.Component{
-		Type:   cdx.ComponentTypeCryptographicAsset,
-		BOMRef: uuid.New().String(),
-		CryptoProperties: &cdx.CryptoProperties{
-			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
-			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
-				Type: cdx.RelatedCryptoMaterialTypePublicKey,
-			},
-		},
-		Evidence: &cdx.Evidence{
-			Occurrences: &[]cdx.EvidenceOccurrence{
-				{
-					Location: path,
-				}},
+	if len(comps) > 1 {
+		return cdx.Component{}, fmt.Errorf("certificate plugin: parsed several components from a single key. this should not happen. Check if getPublicKeyComponent gets only public keys")
+	}
+
+	comp := comps[0]
+	comp.Evidence = &cdx.Evidence{
+		Occurrences: &[]cdx.EvidenceOccurrence{
+			{Location: x509CertificateWithMetadata.path},
 		},
 	}
 
-	keyValue, err := x509.MarshalPKIXPublicKey(key)
-	if err == nil {
-		comp.CryptoProperties.RelatedCryptoMaterialProperties.Value = base64.StdEncoding.EncodeToString(keyValue)
-	}
-
-	return comp
+	return comp, nil
 }
 
 // Generate the CycloneDX component for the public key algorithm

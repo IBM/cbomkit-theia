@@ -2,6 +2,7 @@ package plugins
 
 import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	"strings"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -29,3 +30,14 @@ type Plugin interface {
 
 // This PluginConstructor function should be exposed by all plugin packages
 type PluginConstructor func() (Plugin, error)
+
+func PluginSliceToString(plugins []Plugin) string {
+	builder := strings.Builder{}
+	for i, plugin := range plugins {
+		builder.WriteString(plugin.GetName())
+		if i < len(plugins)-1 {
+			builder.WriteString("; ")
+		}
+	}
+	return builder.String()
+}

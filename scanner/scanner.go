@@ -4,9 +4,10 @@ import (
 	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/cyclonedx"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	plugin_package "ibm/container-image-cryptography-scanner/scanner/plugins"
 	"ibm/container-image-cryptography-scanner/scanner/plugins/certificates"
 	"ibm/container-image-cryptography-scanner/scanner/plugins/javasecurity"
+	"ibm/container-image-cryptography-scanner/scanner/plugins/secrets"
 	"log"
 	"log/slog"
 	"os"
@@ -21,15 +22,16 @@ type ScannerParameterStruct struct {
 
 	Fs            filesystem.Filesystem
 	Target        *os.File
-	BomFilePath   string           `name:"bomFilePath"`
-	BomSchemaPath string           `name:"bomSchemaPath"`
-	Plugins       []plugins.Plugin `group:"plugins"`
+	BomFilePath   string                  `name:"bomFilePath"`
+	BomSchemaPath string                  `name:"bomSchemaPath"`
+	Plugins       []plugin_package.Plugin `group:"plugins"`
 }
 
-func GetAllPluginConstructors() map[string]plugins.PluginConstructor {
-	return map[string]plugins.PluginConstructor{
+func GetAllPluginConstructors() map[string]plugin_package.PluginConstructor {
+	return map[string]plugin_package.PluginConstructor{
 		"certificates": certificates.NewCertificatePlugin,
 		"javasecurity": javasecurity.NewJavaSecurityPlugin,
+		"secrets":      secrets.NewSecretsPlugin,
 	}
 }
 
@@ -62,7 +64,7 @@ func CreateAndRunScan(params ScannerParameterStruct) error {
 
 // scanner is used internally to represent a single scanner with several plugins (e.g. java.security plugin) scanning a single filesystem (e.g. a docker image layer)
 type scanner struct {
-	configPlugins []plugins.Plugin
+	configPlugins []plugin_package.Plugin
 }
 
 // Scan a single BOM using all plugins
@@ -74,7 +76,7 @@ func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, er
 	}
 
 	// Sort the plugins based on the plugin type
-	slices.SortFunc(scanner.configPlugins, func(a plugins.Plugin, b plugins.Plugin) int {
+	slices.SortFunc(scanner.configPlugins, func(a plugin_package.Plugin, b plugin_package.Plugin) int {
 		return int(a.GetType()) - int(b.GetType())
 	})
 
@@ -89,8 +91,8 @@ func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, er
 }
 
 // Create a new scanner object for the specific filesystem
-func newScanner(plugins []plugins.Plugin) scanner {
-	slog.Debug("Initializing a new scanner", "plugins", plugins)
+func newScanner(plugins []plugin_package.Plugin) scanner {
+	slog.Debug("Initializing a new scanner", "plugins", plugin_package.PluginSliceToString(plugins))
 	return scanner{
 		configPlugins: plugins,
 	}

@@ -2,10 +2,6 @@ package compare
 
 import (
 	"encoding/binary"
-	"encoding/hex"
-	"reflect"
-	"slices"
-	"strings"
 
 	"github.com/mitchellh/hashstructure/v2"
 
@@ -19,7 +15,7 @@ type cleaner struct {
 
 func HashStruct8Byte(a any) [8]byte {
 	hash, err := hashstructure.Hash(a, hashstructure.FormatV2, &hashstructure.HashOptions{
-		ZeroNil: true,
+		ZeroNil:      true,
 		SlicesAsSets: true,
 	})
 	if err != nil {
@@ -157,82 +153,4 @@ func HashCDXComponentWithoutRefsWithoutEvidence(a cdx.Component) [8]byte {
 	defer cleaner.set(&a, temp)
 
 	return HashCDXComponentWithoutRefs(a)
-}
-
-func CompareCDXComponentWithoutRefs(a cdx.Component, b cdx.Component) int {
-	aHash := HashCDXComponentWithoutRefs(a)
-	bHash := HashCDXComponentWithoutRefs(b)
-	return strings.Compare(hex.EncodeToString(aHash[:]), hex.EncodeToString(bHash[:]))
-}
-
-func CompareComponentSliceWithoutRefs(a []cdx.Component, b []cdx.Component) int {
-	slices.SortFunc(a, CompareCDXComponentWithoutRefs)
-	slices.SortFunc(b, CompareCDXComponentWithoutRefs)
-	return slices.CompareFunc(a, b, CompareCDXComponentWithoutRefs)
-}
-
-// This should only be used in testing
-func EqualBOMWithoutRefs(a cdx.BOM, b cdx.BOM) bool {
-	if a.SerialNumber != b.SerialNumber {
-		return false
-	}
-	if a.Version != b.Version {
-		return false
-	}
-	if !reflect.DeepEqual(a.Metadata, b.Metadata) {
-		return false
-	}
-	if a.Components != nil && b.Components != nil {
-		if CompareComponentSliceWithoutRefs(*a.Components, *b.Components) != 0 {
-			return false
-		}
-	} else if !(a.Components == nil && b.Components == nil) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Services, b.Services) {
-		return false
-	}
-	if !reflect.DeepEqual(a.ExternalReferences, b.ExternalReferences) {
-		return false
-	}
-
-	// This comparison of the dependency slices could be better. It is currently pretty minimal
-	if a.Dependencies != nil && b.Dependencies != nil {
-		if len(*a.Dependencies) != len(*b.Dependencies) {
-			return false
-		}
-	} else if !(a.Dependencies == nil && b.Dependencies == nil) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Compositions, b.Compositions) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Properties, b.Properties) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Vulnerabilities, b.Vulnerabilities) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Annotations, b.Annotations) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Formulation, b.Formulation) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Declarations, b.Declarations) {
-		return false
-	}
-
-	if !reflect.DeepEqual(a.Definitions, b.Definitions) {
-		return false
-	}
-
-	return true
 }
