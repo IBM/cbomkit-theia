@@ -29,9 +29,15 @@ func (SecretsPlugin) GetType() plugins.PluginType {
 	return plugins.PluginTypeAppend
 }
 
+type findingWithMetadata struct {
+	report.Finding
+	mime string
+}
+
 func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
-	findings := make([]report.Finding, 0)
+	findings := make([]findingWithMetadata, 0)
 	detector, err := detect.NewDetectorDefaultConfig()
+	// detector.Config.Allowlist = config.Allowlist{}
 
 	if err != nil {
 		return err
@@ -43,7 +49,8 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 			return err
 		}
 
-		if !strings.HasPrefix(http.DetectContentType(raw), "text") {
+		mime := strings.Split(http.DetectContentType(raw), ";")[0]
+		if !strings.HasPrefix(mime, "text") {
 			return nil // Skip
 		}
 
@@ -52,7 +59,12 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 			FilePath: path,
 		}
 
-		findings = append(findings, detector.Detect(fragment)...)
+		for _, finding := range detector.Detect(fragment) {
+			findings = append(findings, findingWithMetadata{
+				Finding: finding,
+				mime:    mime,
+			})
+		}
 
 		return nil
 	})
@@ -70,8 +82,14 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 			}
 			blocks := pemutility.ParsePEMToBlocksWithTypeFilter(fileContent, pemutility.Filter{
 				FilterType: pemutility.PEMTypeFilterTypeAllowlist,
-				List:       []pemutility.PEMBlockType{pemutility.PEMBlockTypePrivateKey, pemutility.PEMBlockTypeECPrivateKey, pemutility.PEMBlockTypeRSAPrivateKey},
+				List:       []pemutility.PEMBlockType{pemutility.PEMBlockTypePrivateKey, pemutility.PEMBlockTypeECPrivateKey, pemutility.PEMBlockTypeRSAPrivateKey, pemutility.PEMBlockTypeOPENSSHPrivateKey},
 			})
+
+			// Fallback
+			if len(blocks) == 0 {
+				components = append(components, getGenericSecretComponent(finding))
+				continue
+			}
 
 			for block := range blocks {
 				currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block)
@@ -80,9 +98,14 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 				}
 
 				for i := range currentComponents {
+					currentComponents[i].Description += "; " + finding.Description
+					currentComponents[i].MIMEType = finding.mime
 					currentComponents[i].Evidence = &cdx.Evidence{
 						Occurrences: &[]cdx.EvidenceOccurrence{
-							{Location: finding.File},
+							{
+								Location: finding.File,
+								Line:     &finding.StartLine,
+							},
 						},
 					}
 				}
@@ -115,11 +138,12 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	return nil
 }
 
-func getGenericSecretComponent(finding report.Finding) cdx.Component {
+func getGenericSecretComponent(finding findingWithMetadata) cdx.Component {
 	return cdx.Component{
 		Name:        finding.RuleID,
 		Description: finding.Description,
 		Type:        cdx.ComponentTypeCryptographicAsset,
+		MIMEType:    finding.mime,
 		CryptoProperties: &cdx.CryptoProperties{
 			AssetType: cdx.CryptoAssetTypeRelatedCryptoMaterial,
 			RelatedCryptoMaterialProperties: &cdx.RelatedCryptoMaterialProperties{
@@ -130,6 +154,7 @@ func getGenericSecretComponent(finding report.Finding) cdx.Component {
 			Occurrences: &[]cdx.EvidenceOccurrence{
 				{
 					Location: finding.File,
+					Line:     &finding.StartLine,
 				},
 			},
 		},
