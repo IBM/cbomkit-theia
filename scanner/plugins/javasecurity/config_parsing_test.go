@@ -59,7 +59,7 @@ func TestExtractTLSRules(t *testing.T) {
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
 		restrictions, err := extractTLSRules(config)
 		javaSecurity := JavaSecurity{
-			config, 
+			config,
 			restrictions,
 		}
 		assert.NoError(t, err)
@@ -85,7 +85,7 @@ func TestExtractTLSRulesNotSupported(t *testing.T) {
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
 		restrictions, err := extractTLSRules(config)
 		javaSecurity := JavaSecurity{
-			config, 
+			config,
 			restrictions,
 		}
 		assert.NoError(t, err)
@@ -126,7 +126,7 @@ func TestExtractTLSRulesInclude(t *testing.T) {
 	t.Run("Extracting TLS Rules from security file", func(t *testing.T) {
 		restrictions, err := extractTLSRules(config)
 		javaSecurity := JavaSecurity{
-			config, 
+			config,
 			restrictions,
 		}
 		assert.NoError(t, err)

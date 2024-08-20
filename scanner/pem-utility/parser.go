@@ -57,7 +57,7 @@ const (
 	PEMBlockTypeECPrivateKey        PEMBlockType = "EC PRIVATE KEY"
 	PEMBlockTypeRSAPrivateKey       PEMBlockType = "RSA PRIVATE KEY"
 	PEMBlockTypeRSAPublicKey        PEMBlockType = "RSA PUBLIC KEY"
-	PEMBlockTypeOPENSSHPrivateKey	PEMBlockType = "OPENSSH PRIVATE KEY"
+	PEMBlockTypeOPENSSHPrivateKey   PEMBlockType = "OPENSSH PRIVATE KEY"
 	PEMBlockTypeOther               PEMBlockType = "other"
 )
 
@@ -140,7 +140,7 @@ func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 			return []cdx.Component{}, err
 		}
 		return []cdx.Component{getRSAPublicKeyComponent(key)}, nil
-	
+
 	case PEMBlockTypeOPENSSHPrivateKey:
 		genericKey, err := ssh.ParseRawPrivateKey(pem.EncodeToMemory(block))
 		if err != nil {

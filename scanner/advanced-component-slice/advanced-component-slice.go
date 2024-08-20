@@ -25,7 +25,7 @@ import (
 // CycloneDX component bundled with according ConfidenceLevel
 type componentWithConfidence struct {
 	*cdx.Component
-	Confidence *confidencelevel.ConfidenceLevel
+	Confidence           *confidencelevel.ConfidenceLevel
 	printConfidenceLevel bool
 }
 
@@ -48,8 +48,8 @@ func FromComponentSlice(slice []cdx.Component) *AdvancedComponentSlice {
 
 	for i, comp := range slice {
 		advancedComponentSlice.components = append(advancedComponentSlice.components, componentWithConfidence{
-			Component:  &comp,
-			Confidence: confidencelevel.New(),
+			Component:            &comp,
+			Confidence:           confidencelevel.New(),
 			printConfidenceLevel: false,
 		})
 
