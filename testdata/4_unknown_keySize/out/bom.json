@@ -18,6 +18,9 @@
               "name": "Certificate File Plugin"
             },
             {
+              "name": "Secret Plugin"
+            },
+            {
               "name": "java.security Plugin"
             }
           ]

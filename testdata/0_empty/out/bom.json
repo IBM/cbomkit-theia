@@ -15,6 +15,9 @@
           "version": "0.8",
           "services": [
             {
+              "name": "Secret Plugin"
+            },
+            {
               "name": "Certificate File Plugin"
             },
             {

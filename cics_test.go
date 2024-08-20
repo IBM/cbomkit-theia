@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/hex"
 	"os"
 	"path/filepath"
 	"testing"
@@ -11,8 +12,12 @@ import (
 	"ibm/container-image-cryptography-scanner/scanner"
 	"ibm/container-image-cryptography-scanner/scanner/compare"
 
+	"github.com/google/go-cmp/cmp"
+	"github.com/google/go-cmp/cmp/cmpopts"
 	"github.com/stretchr/testify/assert"
 	"go.uber.org/dig"
+
+	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
 var testfileFolder string = "./testdata"
@@ -43,6 +48,8 @@ var tests = []struct {
 	{testTypeDir, "", "/4_unknown_keySize", false},
 	{testTypeDir, "", "/5_single_certificate", false},
 	{testTypeDir, "", "/6_malformed_java_security", false},
+	{testTypeDir, "", "/7_private_key", false},
+	{testTypeDir, "", "/8_secrets", false},
 }
 
 func TestScan(t *testing.T) {
@@ -123,7 +130,27 @@ func TestScan(t *testing.T) {
 			bomCurrent, err := cyclonedx.ParseBOM(tempTarget.Name(), schemaPath)
 			assert.NoError(t, err)
 
-			assert.True(t, compare.EqualBOMWithoutRefs(*bomTrue, *bomCurrent))
+			assert.Empty(t, cmp.Diff(*bomTrue, *bomCurrent,
+				cmpopts.SortSlices(func(a cdx.Service, b cdx.Service) bool {
+					return a.Name < b.Name
+				}),
+				cmpopts.SortSlices(func(a cdx.Component, b cdx.Component) bool {
+					aHash := compare.HashCDXComponentWithoutRefs(a)
+					bHash := compare.HashCDXComponentWithoutRefs(b)
+					return hex.EncodeToString(aHash[:]) < hex.EncodeToString(bHash[:])
+				}),
+				cmpopts.SortSlices(func(a cdx.EvidenceOccurrence, b cdx.EvidenceOccurrence) bool {
+					return a.Location < b.Location
+				}),
+				cmpopts.IgnoreTypes(cdx.Dependency{}),
+				cmpopts.IgnoreFields(cdx.Component{},
+					"BOMRef",
+					"CryptoProperties.CertificateProperties.SignatureAlgorithmRef",
+					"CryptoProperties.CertificateProperties.SubjectPublicKeyRef",
+					"CryptoProperties.RelatedCryptoMaterialProperties.AlgorithmRef",
+					"CryptoProperties.RelatedCryptoMaterialProperties.SecuredBy.AlgorithmRef",
+					"CryptoProperties.ProtocolProperties.CryptoRefArray"),
+			))
 		})
 	}
 }
