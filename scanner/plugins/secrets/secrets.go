@@ -98,7 +98,10 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 				}
 
 				for i := range currentComponents {
-					currentComponents[i].Description += "; " + finding.Description
+					if currentComponents[i].Description != "" {
+						currentComponents[i].Description += "; "
+					}
+					currentComponents[i].Description += finding.Description
 					currentComponents[i].MIMEType = finding.mime
 					currentComponents[i].Evidence = &cdx.Evidence{
 						Occurrences: &[]cdx.EvidenceOccurrence{

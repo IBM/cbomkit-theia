@@ -14,10 +14,10 @@
           "version": "0.8",
           "services": [
             {
-              "name": "Certificate File Plugin"
+              "name": "Secret Plugin"
             },
             {
-              "name": "Secret Plugin"
+              "name": "Certificate File Plugin"
             },
             {
               "name": "java.security Plugin"
@@ -29,44 +29,32 @@
   },
   "components": [
     {
-      "bom-ref": "913dd0ab19470651",
+      "bom-ref": "466baea73222cdbf",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
-      "name": "private-key",
-      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "name": "planetscale-password",
+      "description": "Discovered a PlanetScale password, which could lead to unauthorized database operations and data breaches.",
       "evidence": {
         "occurrences": [
           {
-            "location": "rsa/GeekMasher_GPG_with_headers.asc",
-            "line": 0
-          },
-          {
-            "location": "rsa/rsa.js",
-            "line": 2
-          },
-          {
-            "location": "rsa/rsa.json",
-            "line": 2
-          },
-          {
-            "location": "rsa/GeekMasher GPG.asc",
-            "line": 0
+            "location": "database/connection_strings.txt",
+            "line": 3
           }
         ]
       },
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
-          "type": "private-key"
+          "type": "password"
         }
       }
     },
     {
-      "bom-ref": "462adca17ca94f90",
+      "bom-ref": "acd781c30396d7a4",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
       "name": "RSA-3072",
-      "description": "; Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
       "evidence": {
         "occurrences": [
           {
@@ -87,11 +75,11 @@
       }
     },
     {
-      "bom-ref": "bec625131670c8a3",
+      "bom-ref": "f63c8ecfcf05ac3f",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
       "name": "RSA",
-      "description": "; Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
       "evidence": {
         "occurrences": [
           {
@@ -107,6 +95,31 @@
           "format": "PEM"
         },
         "oid": "1.2.840.113549.1.1.1"
+      }
+    },
+    {
+      "bom-ref": "c7b4dc573ee20d5c",
+      "mime-type": "text/plain",
+      "type": "cryptographic-asset",
+      "name": "generic-api-key",
+      "description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "configs/web.config",
+            "line": 0
+          },
+          {
+            "location": "jwt/owasp-juice-shop.ts",
+            "line": 217
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "key"
+        }
       }
     },
     {
@@ -143,48 +156,35 @@
       }
     },
     {
-      "bom-ref": "466baea73222cdbf",
+      "bom-ref": "913dd0ab19470651",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
-      "name": "planetscale-password",
-      "description": "Discovered a PlanetScale password, which could lead to unauthorized database operations and data breaches.",
+      "name": "private-key",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
       "evidence": {
         "occurrences": [
           {
-            "location": "database/connection_strings.txt",
-            "line": 3
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "password"
-        }
-      }
-    },
-    {
-      "bom-ref": "c7b4dc573ee20d5c",
-      "mime-type": "text/plain",
-      "type": "cryptographic-asset",
-      "name": "generic-api-key",
-      "description": "Detected a Generic API Key, potentially exposing access to various services and sensitive operations.",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "configs/web.config",
+            "location": "rsa/GeekMasher GPG.asc",
             "line": 0
           },
           {
-            "location": "jwt/owasp-juice-shop.ts",
-            "line": 217
+            "location": "rsa/GeekMasher_GPG_with_headers.asc",
+            "line": 0
+          },
+          {
+            "location": "rsa/rsa.js",
+            "line": 2
+          },
+          {
+            "location": "rsa/rsa.json",
+            "line": 2
           }
         ]
       },
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
-          "type": "key"
+          "type": "private-key"
         }
       }
     }
