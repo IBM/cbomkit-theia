@@ -7,10 +7,13 @@ import (
 	"crypto/ed25519"
 	"crypto/rsa"
 	"crypto/x509"
+	"encoding/base64"
 	"encoding/pem"
 	"errors"
 	"fmt"
 	"slices"
+
+	"golang.org/x/crypto/ssh"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/google/uuid"
@@ -38,6 +41,7 @@ const (
 	PEMBlockTypeECPrivateKey        PEMBlockType = "EC PRIVATE KEY"
 	PEMBlockTypeRSAPrivateKey       PEMBlockType = "RSA PRIVATE KEY"
 	PEMBlockTypeRSAPublicKey        PEMBlockType = "RSA PUBLIC KEY"
+	PEMBlockTypeOPENSSHPrivateKey	PEMBlockType = "OPENSSH PRIVATE KEY"
 	PEMBlockTypeOther               PEMBlockType = "other"
 )
 
@@ -120,6 +124,13 @@ func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 			return []cdx.Component{}, err
 		}
 		return []cdx.Component{getRSAPublicKeyComponent(key)}, nil
+	
+	case PEMBlockTypeOPENSSHPrivateKey:
+		genericKey, err := ssh.ParseRawPrivateKey(pem.EncodeToMemory(block))
+		if err != nil {
+			return []cdx.Component{}, err
+		}
+		return GenerateComponentsFromKey(genericKey)
 
 	default:
 		return []cdx.Component{}, fmt.Errorf("could not generate cyclone-dx component from pem: pem file block type is unknown or not a key")
@@ -182,6 +193,10 @@ func getRSAPublicKeyComponent(key *rsa.PublicKey) cdx.Component {
 	c.Name = fmt.Sprintf("RSA-%v", size)
 	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
 	c.CryptoProperties.OID = "1.2.840.113549.1.1.1"
+	keyValue, err := x509.MarshalPKIXPublicKey(key)
+	if err == nil {
+		c.CryptoProperties.RelatedCryptoMaterialProperties.Value = base64.StdEncoding.EncodeToString(keyValue)
+	}
 	return c
 }
 
@@ -197,6 +212,10 @@ func getECDSAPublicKeyComponent(key *ecdsa.PublicKey) cdx.Component {
 	c.Name = "ECDSA"
 	c.Description = fmt.Sprintf("Curve: %v", key.Curve.Params().Name)
 	c.CryptoProperties.OID = "1.2.840.10045.2.1"
+	keyValue, err := x509.MarshalPKIXPublicKey(key)
+	if err == nil {
+		c.CryptoProperties.RelatedCryptoMaterialProperties.Value = base64.StdEncoding.EncodeToString(keyValue)
+	}
 	return c
 }
 
@@ -212,6 +231,10 @@ func getED25519PublicKeyComponent(key ed25519.PublicKey) cdx.Component {
 	c.Name = "ED25519"
 	size := len([]byte(key)) * 8
 	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
+	keyValue, err := x509.MarshalPKIXPublicKey(key)
+	if err == nil {
+		c.CryptoProperties.RelatedCryptoMaterialProperties.Value = base64.StdEncoding.EncodeToString(keyValue)
+	}
 	return c
 }
 
@@ -227,6 +250,10 @@ func getECDHPublicKeyComponent(key *ecdh.PublicKey) cdx.Component {
 	size := len(key.Bytes()) * 8
 	c.CryptoProperties.RelatedCryptoMaterialProperties.Size = &size
 	c.CryptoProperties.OID = "1.2.840.10045.2.1"
+	keyValue, err := x509.MarshalPKIXPublicKey(key)
+	if err == nil {
+		c.CryptoProperties.RelatedCryptoMaterialProperties.Value = base64.StdEncoding.EncodeToString(keyValue)
+	}
 	return c
 }
 
