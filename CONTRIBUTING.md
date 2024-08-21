@@ -39,12 +39,11 @@ Clean the `go.mod` and `go.sum` file. Review any changes before committing:
 go mod tidy
 ```
 
-## Get Dependencies
+## Run Tests
+
+To run all unit- and system tests, simply run:
 ```shell
-go get .
+go test ./...
 ```
 
-## Run the CICS
-```shell
-go run cics.go image build -b /path/to/my/bom.json /path/to/my/Dockerfile > updated_bom.json
-```
+If any of the tests fail, please investigate. Either fix your code or regenerate the testdata using the [script](./regenerate_test_output.sh). Feel free to open an issue if you believe that the test code is faulty.
