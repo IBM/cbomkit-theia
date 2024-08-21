@@ -133,10 +133,6 @@ func initConfig() {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
 
-	if !viper.IsSet("bom") {
-		rootCmd.MarkPersistentFlagRequired("bom")
-	}
-
 	pluginConstructors := make([]plugins.PluginConstructor, 0, len(viper.GetStringSlice("plugins")))
 	for _, name := range viper.GetStringSlice("plugins") {
 		constructor, ok := scanner.GetAllPluginConstructors()[name]

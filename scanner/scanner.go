@@ -28,8 +28,10 @@ import (
 	"log/slog"
 	"os"
 	"slices"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/google/uuid"
 	"go.uber.org/dig"
 )
 
@@ -53,10 +55,19 @@ func GetAllPluginConstructors() map[string]plugin_package.PluginConstructor {
 
 // High-level function to do most heavy lifting for scanning a filesystem with a BOM. Output is written to target.
 func CreateAndRunScan(params ScannerParameterStruct) error {
-	bom, err := cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
-
-	if err != nil {
-		return err
+	var bom *cdx.BOM
+	if params.BomFilePath != "" {
+		var err error
+		bom, err = cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
+		if err != nil {
+			return err
+		}
+	} else {
+		bom = cdx.NewBOM()
+		bom.Metadata = &cdx.Metadata{
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		bom.SerialNumber = "urn:uuid:" + uuid.New().String()
 	}
 
 	scanner := newScanner(params.Plugins)
