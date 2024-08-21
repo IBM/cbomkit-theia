@@ -1,3 +1,19 @@
+// Copyright 2024 IBM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package secrets
 
 import (
@@ -18,8 +34,7 @@ func NewSecretsPlugin() (plugins.Plugin, error) {
 	return &SecretsPlugin{}, nil
 }
 
-type SecretsPlugin struct {
-}
+type SecretsPlugin struct{}
 
 func (SecretsPlugin) GetName() string {
 	return "Secret Plugin"
@@ -35,14 +50,14 @@ type findingWithMetadata struct {
 }
 
 func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
-	findings := make([]findingWithMetadata, 0)
 	detector, err := detect.NewDetectorDefaultConfig()
-	// detector.Config.Allowlist = config.Allowlist{}
-
 	if err != nil {
 		return err
 	}
 
+	findings := make([]findingWithMetadata, 0)
+
+	// Detect findings
 	fs.WalkDir(func(path string) error {
 		raw, err := fs.ReadFile(path)
 		if err != nil {
@@ -73,53 +88,16 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 
 	components := make([]cdx.Component, 0)
 
+	// Create CDX Components
 	for _, finding := range findings {
-		switch finding.RuleID {
-		case "private-key":
-			fileContent, err := fs.ReadFile(finding.File)
-			if err != nil {
-				return err
-			}
-			blocks := pemutility.ParsePEMToBlocksWithTypeFilter(fileContent, pemutility.Filter{
-				FilterType: pemutility.PEMTypeFilterTypeAllowlist,
-				List:       []pemutility.PEMBlockType{pemutility.PEMBlockTypePrivateKey, pemutility.PEMBlockTypeECPrivateKey, pemutility.PEMBlockTypeRSAPrivateKey, pemutility.PEMBlockTypeOPENSSHPrivateKey},
-			})
-
-			// Fallback
-			if len(blocks) == 0 {
-				components = append(components, getGenericSecretComponent(finding))
-				continue
-			}
-
-			for block := range blocks {
-				currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block)
-				if err != nil {
-					return err
-				}
-
-				for i := range currentComponents {
-					if currentComponents[i].Description != "" {
-						currentComponents[i].Description += "; "
-					}
-					currentComponents[i].Description += finding.Description
-					currentComponents[i].MIMEType = finding.mime
-					currentComponents[i].Evidence = &cdx.Evidence{
-						Occurrences: &[]cdx.EvidenceOccurrence{
-							{
-								Location: finding.File,
-								Line:     &finding.StartLine,
-							},
-						},
-					}
-				}
-
-				components = append(components, currentComponents...)
-			}
-		default:
-			components = append(components, getGenericSecretComponent(finding))
+		currentComponents, err := finding.getComponents(fs)
+		if err != nil {
+			return err
 		}
+		components = append(components, currentComponents...)
 	}
 
+	// Create DAG
 	for _, comp := range components {
 		hash, err := bomDag.AddCDXComponent(comp)
 		if err != nil {
@@ -128,20 +106,65 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 		bomDag.AddEdge(bomDag.Root, hash)
 	}
 
+	// DAG to components
 	secretComponents, _, err := bomDag.GetCDXComponents()
-
-	bomDag.WriteToFile(fs.GetIdentifier())
-
 	if err != nil {
 		return err
 	}
 
+	// Write to real bom
 	*bom.Components = append(*bom.Components, secretComponents...)
 
 	return nil
 }
 
-func getGenericSecretComponent(finding findingWithMetadata) cdx.Component {
+func (finding findingWithMetadata) getComponents(fs filesystem.Filesystem) ([]cdx.Component, error) {
+	switch finding.RuleID {
+	case "private-key":
+		fileContent, err := fs.ReadFile(finding.File)
+		if err != nil {
+			return []cdx.Component{}, err
+		}
+		blocks := pemutility.ParsePEMToBlocksWithTypeFilter(fileContent, pemutility.Filter{
+			FilterType: pemutility.PEMTypeFilterTypeAllowlist,
+			List:       []pemutility.PEMBlockType{pemutility.PEMBlockTypePrivateKey, pemutility.PEMBlockTypeECPrivateKey, pemutility.PEMBlockTypeRSAPrivateKey, pemutility.PEMBlockTypeOPENSSHPrivateKey},
+		})
+
+		// Fallback
+		if len(blocks) == 0 {
+			return []cdx.Component{finding.getGenericSecretComponent()}, nil
+		}
+
+		for block := range blocks {
+			currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block)
+			if err != nil {
+				return []cdx.Component{}, err
+			}
+
+			for i := range currentComponents {
+				if currentComponents[i].Description != "" {
+					currentComponents[i].Description += "; "
+				}
+				currentComponents[i].Description += finding.Description
+				currentComponents[i].MIMEType = finding.mime
+				currentComponents[i].Evidence = &cdx.Evidence{
+					Occurrences: &[]cdx.EvidenceOccurrence{
+						{
+							Location: finding.File,
+							Line:     &finding.StartLine,
+						},
+					},
+				}
+			}
+
+			return currentComponents, nil
+		}
+	}
+
+	return []cdx.Component{finding.getGenericSecretComponent()}, nil
+}
+
+func (finding findingWithMetadata) getGenericSecretComponent() cdx.Component {
 	return cdx.Component{
 		Name:        finding.RuleID,
 		Description: finding.Description,

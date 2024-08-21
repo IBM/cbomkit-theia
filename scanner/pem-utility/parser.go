@@ -1,3 +1,19 @@
+// Copyright 2024 IBM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package pemutility
 
 import (
@@ -19,6 +35,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Filter that describes which PEMBlockTypes to allow
 type Filter struct {
 	FilterType PEMTypeFilterType
 	List       []PEMBlockType
@@ -31,6 +48,7 @@ const (
 	PEMTypeFilterTypeBlocklist PEMTypeFilterType = false
 )
 
+// A not complete list of PEMBlockTypes that can be detected currently
 type PEMBlockType string
 
 const (
@@ -41,8 +59,7 @@ const (
 	PEMBlockTypeECPrivateKey        PEMBlockType = "EC PRIVATE KEY"
 	PEMBlockTypeRSAPrivateKey       PEMBlockType = "RSA PRIVATE KEY"
 	PEMBlockTypeRSAPublicKey        PEMBlockType = "RSA PUBLIC KEY"
-	PEMBlockTypeOPENSSHPrivateKey	PEMBlockType = "OPENSSH PRIVATE KEY"
-	PEMBlockTypeOther               PEMBlockType = "other"
+	PEMBlockTypeOPENSSHPrivateKey   PEMBlockType = "OPENSSH PRIVATE KEY"
 )
 
 func parsePEMToBlocks(raw []byte) []*pem.Block {
@@ -60,6 +77,7 @@ func parsePEMToBlocks(raw []byte) []*pem.Block {
 	return blocks
 }
 
+// Parse a the []byte of a PEM file to a map containing the *pem.Block and a PEMBlockType for each block
 func ParsePEMToBlocksWithTypes(raw []byte) map[*pem.Block]PEMBlockType {
 	blocks := parsePEMToBlocks(raw)
 
@@ -72,6 +90,7 @@ func ParsePEMToBlocksWithTypes(raw []byte) map[*pem.Block]PEMBlockType {
 	return blocksWithType
 }
 
+// Just like ParsePEMToBlocksWithTypes but uses a filter for filtering
 func ParsePEMToBlocksWithTypeFilter(raw []byte, filter Filter) map[*pem.Block]PEMBlockType {
 	blocksWithType := ParsePEMToBlocksWithTypes(raw)
 	filteredBlocksWithType := make(map[*pem.Block]PEMBlockType)
@@ -87,6 +106,7 @@ func ParsePEMToBlocksWithTypeFilter(raw []byte, filter Filter) map[*pem.Block]PE
 
 var errUnknownKeyAlgorithm = errors.New("key block uses unknown algorithm")
 
+// Generate cyclonedx-go components from a block containing a key
 func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 	switch PEMBlockType(block.Type) {
 
@@ -124,7 +144,7 @@ func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 			return []cdx.Component{}, err
 		}
 		return []cdx.Component{getRSAPublicKeyComponent(key)}, nil
-	
+
 	case PEMBlockTypeOPENSSHPrivateKey:
 		genericKey, err := ssh.ParseRawPrivateKey(pem.EncodeToMemory(block))
 		if err != nil {
@@ -154,7 +174,7 @@ func GenerateComponentsFromKey(genericKey any) ([]cdx.Component, error) {
 	case *ecdsa.PrivateKey:
 		return []cdx.Component{getECDSAPrivateKeyComponent(key), getECDSAPublicKeyComponent(&key.PublicKey)}, nil
 	case ed25519.PrivateKey:
-		return []cdx.Component{getED25519PrivateKeyComponent(), getED25519PublicKeyComponent(key.Public().(ed25519.PublicKey))}, nil // TODO: This cast might be unsafe
+		return []cdx.Component{getED25519PrivateKeyComponent(), getED25519PublicKeyComponent(key.Public().(ed25519.PublicKey))}, nil
 	case *ecdh.PrivateKey:
 		return []cdx.Component{getECDHPrivateKeyComponent(), getECDHPublicKeyComponent(key.Public().(*ecdh.PublicKey))}, nil
 	default:

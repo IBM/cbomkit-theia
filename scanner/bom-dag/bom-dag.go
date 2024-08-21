@@ -1,3 +1,19 @@
+// Copyright 2024 IBM
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+//     http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+//
+// SPDX-License-Identifier: Apache-2.0
+
 package bomdag
 
 import (
@@ -13,11 +29,13 @@ import (
 	"github.com/dominikbraun/graph/draw"
 )
 
+// Type that hold the hash of a BomDAG vertex
 type BomDAGVertexHash = [8]byte
 
+// BomDAG represents a directed, acyclic graph of several interconnected components
 type BomDAG struct {
 	graph.Graph[BomDAGVertexHash, bomDAGVertex]
-	Root BomDAGVertexHash
+	Root BomDAGVertexHash // Hash of the root component
 }
 
 func NewBomDAG() BomDAG {
@@ -31,6 +49,7 @@ func NewBomDAG() BomDAG {
 	}
 }
 
+// Type defining the different types of dependencies that components can have in the BomDAG
 type BomDAGDependencyType string
 
 const (
@@ -54,6 +73,7 @@ func EdgeDependencyType(dependencyType BomDAGDependencyType) func(*graph.EdgePro
 	}
 }
 
+// Generate slice of cyclonedx-go components from the graph; also return a map of dependencies (e.g. "bomref1" depends on "bomref2" and "bomref3")
 func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference][]string, error) {
 	components := make([]cdx.Component, 0)
 	dependencyMap := make(map[cdx.BOMReference][]string, 0)
@@ -67,7 +87,7 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference]
 	for compHash, compOutgoingEdges := range adjacencyMap {
 		bomDAGVertex, _ := bomDAG.Vertex(compHash)
 
-		if bomDAGVertex.GetType() != BOMDAGVertexTypeComponent {
+		if bomDAGVertex.getType() != bomDAGVertexTypeComponent {
 			continue
 		}
 
@@ -109,6 +129,7 @@ func (bomDAG *BomDAG) GetCDXComponents() ([]cdx.Component, map[cdx.BOMReference]
 	return components, dependencyMap, nil
 }
 
+// Merge other into the BomDag this method was called on
 func (bomDAG *BomDAG) Merge(other BomDAG) error {
 	adjacencyMap, err := other.AdjacencyMap()
 	if err != nil {
@@ -191,6 +212,8 @@ func copyVertexProperties(source graph.VertexProperties) func(*graph.VertexPrope
 	}
 }
 
+// Add a component to this graph
+// This should be mainly used to add components to the graph
 func (bomDAG *BomDAG) AddCDXComponent(value cdx.Component, options ...func(*graph.VertexProperties)) (valueHash BomDAGVertexHash, err error) {
 	// Extract the occurrence component
 	var occurrenceHashes []BomDAGVertexHash
@@ -234,11 +257,12 @@ func (bomDAG *BomDAG) getVertexOrAddNew(value bomDAGVertex, options ...func(*gra
 	return hash, err
 }
 
-func (bomDAG *BomDAG) WriteToFile(filesystemIdentifier string) {
+// Write a graphical representation of the graph to a file
+func (bomDAG *BomDAG) WriteToFile(filenamePrefix string) {
 	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
 		slog.Warn("Failed to create directory for graphs. Skipping this step.", "error", err.Error())
 	} else {
-		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", filesystemIdentifier))))
+		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", filenamePrefix))))
 		if err != nil {
 			slog.Warn("Failed to generate DOT file for graph", "error", err.Error())
 		}
