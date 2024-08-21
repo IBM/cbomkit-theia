@@ -578,7 +578,7 @@ func getGenericPublicKeyAlgorithmComponent(algo x509.PublicKeyAlgorithm, path st
 				ExecutionEnvironment:   cdx.CryptoExecutionEnvironmentUnknown,
 				ImplementationPlatform: cdx.ImplementationPlatformUnknown,
 				CertificationLevel:     &[]cdx.CryptoCertificationLevel{cdx.CryptoCertificationLevelUnknown},
-				CryptoFunctions:        &[]cdx.CryptoFunction{cdx.CryptoFunctionEncapsulate, cdx.CryptoFunctionDecapsulate}, // TODO: Verify if this is true
+				CryptoFunctions:        &[]cdx.CryptoFunction{cdx.CryptoFunctionEncapsulate, cdx.CryptoFunctionDecapsulate},
 			},
 		},
 		Evidence: &cdx.Evidence{

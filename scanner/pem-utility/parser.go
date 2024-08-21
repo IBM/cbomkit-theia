@@ -174,7 +174,7 @@ func GenerateComponentsFromKey(genericKey any) ([]cdx.Component, error) {
 	case *ecdsa.PrivateKey:
 		return []cdx.Component{getECDSAPrivateKeyComponent(key), getECDSAPublicKeyComponent(&key.PublicKey)}, nil
 	case ed25519.PrivateKey:
-		return []cdx.Component{getED25519PrivateKeyComponent(), getED25519PublicKeyComponent(key.Public().(ed25519.PublicKey))}, nil // TODO: This cast might be unsafe
+		return []cdx.Component{getED25519PrivateKeyComponent(), getED25519PublicKeyComponent(key.Public().(ed25519.PublicKey))}, nil
 	case *ecdh.PrivateKey:
 		return []cdx.Component{getECDHPrivateKeyComponent(), getECDHPublicKeyComponent(key.Public().(*ecdh.PublicKey))}, nil
 	default:
