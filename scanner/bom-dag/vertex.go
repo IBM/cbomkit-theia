@@ -25,23 +25,23 @@ import (
 type bomDAGVertexType string
 
 const (
-	BOMDAGVertexTypeRoot       bomDAGVertexType = "root"
-	BOMDAGVertexTypeComponent  bomDAGVertexType = "component"
-	BOMDAGVertexTypeOccurrence bomDAGVertexType = "occurrence"
+	bomDAGVertexTypeRoot       bomDAGVertexType = "root"
+	bomDAGVertexTypeComponent  bomDAGVertexType = "component"
+	bomDAGVertexTypeOccurrence bomDAGVertexType = "occurrence"
 )
 
 type bomDAGVertex interface {
-	GetType() bomDAGVertexType
-	String() string
+	getType() bomDAGVertexType
+	string() string
 }
 
 func hashBOMDAGVertex(bomDAGVertex bomDAGVertex) BomDAGVertexHash {
-	switch bomDAGVertex.GetType() {
-	case BOMDAGVertexTypeComponent:
+	switch bomDAGVertex.getType() {
+	case bomDAGVertexTypeComponent:
 		return compare.HashCDXComponentWithoutRefs(bomDAGVertex.(vertexComponent).Component)
-	case BOMDAGVertexTypeRoot:
+	case bomDAGVertexTypeRoot:
 		return BomDAGVertexHash{0}
-	case BOMDAGVertexTypeOccurrence:
+	case bomDAGVertexTypeOccurrence:
 		return compare.HashStruct8Byte(bomDAGVertex.(vertexOccurrence))
 	default:
 		panic("Unsupported BOM DAG Vertex Type!")
@@ -49,5 +49,5 @@ func hashBOMDAGVertex(bomDAGVertex bomDAGVertex) BomDAGVertexHash {
 }
 
 func getLabelForBOMDAGVertex(bomDAGVertex bomDAGVertex) func(*graph.VertexProperties) {
-	return graph.VertexAttribute("label", bomDAGVertex.String())
+	return graph.VertexAttribute("label", bomDAGVertex.string())
 }

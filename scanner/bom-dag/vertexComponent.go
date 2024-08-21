@@ -26,11 +26,11 @@ type vertexComponent struct {
 	cdx.Component
 }
 
-func (vertexComponent) GetType() bomDAGVertexType {
-	return BOMDAGVertexTypeComponent
+func (vertexComponent) getType() bomDAGVertexType {
+	return bomDAGVertexTypeComponent
 }
 
-func (vertexComponent vertexComponent) String() string {
+func (vertexComponent vertexComponent) string() string {
 	label := vertexComponent.Name
 	if vertexComponent.CryptoProperties != nil {
 		label = fmt.Sprintf("%v (%v)", label, string(vertexComponent.CryptoProperties.AssetType))

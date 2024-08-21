@@ -24,10 +24,10 @@ type vertexOccurrence struct {
 	cdx.EvidenceOccurrence
 }
 
-func (vertexOccurrence) GetType() bomDAGVertexType {
-	return BOMDAGVertexTypeOccurrence
+func (vertexOccurrence) getType() bomDAGVertexType {
+	return bomDAGVertexTypeOccurrence
 }
 
-func (vertexOccurrence vertexOccurrence) String() string {
+func (vertexOccurrence vertexOccurrence) string() string {
 	return vertexOccurrence.Location
 }

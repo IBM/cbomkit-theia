@@ -35,6 +35,7 @@ import (
 	"github.com/google/uuid"
 )
 
+// Filter that describes which PEMBlockTypes to allow
 type Filter struct {
 	FilterType PEMTypeFilterType
 	List       []PEMBlockType
@@ -47,6 +48,7 @@ const (
 	PEMTypeFilterTypeBlocklist PEMTypeFilterType = false
 )
 
+// A not complete list of PEMBlockTypes that can be detected currently
 type PEMBlockType string
 
 const (
@@ -58,7 +60,6 @@ const (
 	PEMBlockTypeRSAPrivateKey       PEMBlockType = "RSA PRIVATE KEY"
 	PEMBlockTypeRSAPublicKey        PEMBlockType = "RSA PUBLIC KEY"
 	PEMBlockTypeOPENSSHPrivateKey   PEMBlockType = "OPENSSH PRIVATE KEY"
-	PEMBlockTypeOther               PEMBlockType = "other"
 )
 
 func parsePEMToBlocks(raw []byte) []*pem.Block {
@@ -76,6 +77,7 @@ func parsePEMToBlocks(raw []byte) []*pem.Block {
 	return blocks
 }
 
+// Parse a the []byte of a PEM file to a map containing the *pem.Block and a PEMBlockType for each block
 func ParsePEMToBlocksWithTypes(raw []byte) map[*pem.Block]PEMBlockType {
 	blocks := parsePEMToBlocks(raw)
 
@@ -88,6 +90,7 @@ func ParsePEMToBlocksWithTypes(raw []byte) map[*pem.Block]PEMBlockType {
 	return blocksWithType
 }
 
+// Just like ParsePEMToBlocksWithTypes but uses a filter for filtering
 func ParsePEMToBlocksWithTypeFilter(raw []byte, filter Filter) map[*pem.Block]PEMBlockType {
 	blocksWithType := ParsePEMToBlocksWithTypes(raw)
 	filteredBlocksWithType := make(map[*pem.Block]PEMBlockType)
@@ -103,6 +106,7 @@ func ParsePEMToBlocksWithTypeFilter(raw []byte, filter Filter) map[*pem.Block]PE
 
 var errUnknownKeyAlgorithm = errors.New("key block uses unknown algorithm")
 
+// Generate cyclonedx-go components from a block containing a key
 func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 	switch PEMBlockType(block.Type) {
 
