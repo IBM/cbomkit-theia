@@ -68,7 +68,7 @@ Use "cics [command] --help" for more information about a command.
 ## Prerequisites
 
 - Go 
-  - Version: `1.22.6` or up
+  - Version: `1.22.2` or up
 - Docker Daemon 
   - Recommended: Set the `DOCKER_HOST` environment variable (default: `unix:///var/run/docker.sock`) 
 - Internet Connection: the CICS builds and pulls docker images during runtime
