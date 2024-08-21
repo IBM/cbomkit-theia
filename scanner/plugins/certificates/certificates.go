@@ -119,8 +119,6 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		return err
 	}
 
-	dag.WriteToFile(fs.GetIdentifier())
-
 	if len(components) > 0 {
 		if bom.Components == nil {
 			comps := make([]cdx.Component, 0, len(components))
