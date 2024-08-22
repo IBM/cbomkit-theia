@@ -115,15 +115,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem
 	for i, comp := range *bom.Components {
 		if comp.Type == cdx.ComponentTypeCryptographicAsset {
 			if comp.CryptoProperties != nil {
-
-				if comp.CryptoProperties.AssetType == cdx.CryptoAssetTypeProtocol || comp.CryptoProperties.AssetType == cdx.CryptoAssetTypeAlgorithm {
-					advancedCompSlice.GetByIndex(i).SetPrintConfidenceLevel(true)
-				}
-
 				err := security.updateComponent(i, advancedCompSlice)
-
-				slog.Debug("Component has been analyzed and confidence has been set", "component", advancedCompSlice.GetByIndex(i).Name, "confidence", advancedCompSlice.GetByIndex(i).Confidence.GetValue())
-
 				if err != nil {
 					if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
 						insufficientInformationErrors = append(insufficientInformationErrors, err)
@@ -131,6 +123,8 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem
 						return fmt.Errorf("scanner java: error while updating component %v\n%w", advancedCompSlice.GetByIndex(i).Name, err)
 					}
 				}
+
+				slog.Debug("Component has been analyzed and confidence has been set", "component", advancedCompSlice.GetByIndex(i).Name, "confidence", advancedCompSlice.GetByIndex(i).Confidence.GetValue())
 			} else {
 				slog.Debug("Component is a crypto asset but has empty properties. Cannot evaluate that. Continuing.", "component", advancedCompSlice.GetByIndex(i).Name)
 			}

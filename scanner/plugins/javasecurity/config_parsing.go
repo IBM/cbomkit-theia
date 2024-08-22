@@ -116,8 +116,12 @@ func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentsl
 
 	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
 
-	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
-		return err
+	if ok {
+		advancedcomponentslice.GetByIndex(index).SetPrintConfidenceLevel(true)
+	} else {
+		if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
+			return err
+		}
 	}
 
 	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType {
