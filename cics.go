@@ -26,7 +26,7 @@ import (
 func main() {
 	// Setup logging
 	logHandler := slog.NewJSONHandler(os.Stderr, &slog.HandlerOptions{
-		Level:     slog.LevelDebug,
+		Level:     slog.LevelInfo,
 		AddSource: false,
 	})
 	logger := slog.New(logHandler)

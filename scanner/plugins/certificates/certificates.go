@@ -96,7 +96,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		return err
 	}
 
-	slog.Info("Certificate searching done", "count", len(certificates))
+	slog.Debug("Certificate searching done", "count", len(certificates))
 
 	// This ensures that the generated UUIDs are deterministic
 	uuid.SetRand(rand.New(rand.NewSource(1)))

@@ -58,6 +58,8 @@ func (JavaSecurityPlugin) GetType() plugins.PluginType {
 
 // High-level function to update a list of components (e.g. remove components and add new ones) based on the underlying filesystem
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
+	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
+
 	if bom.Components == nil {
 		return nil
 	}
@@ -130,7 +132,7 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem
 					}
 				}
 			} else {
-				slog.Info("Component is a crypto asset but has empty properties. Cannot evaluate that. Continuing.", "component", advancedCompSlice.GetByIndex(i).Name)
+				slog.Debug("Component is a crypto asset but has empty properties. Cannot evaluate that. Continuing.", "component", advancedCompSlice.GetByIndex(i).Name)
 			}
 		}
 	}

@@ -98,7 +98,7 @@ type scanner struct {
 func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, error) {
 	var err error
 	if bom.Components == nil {
-		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
+		slog.Info("BOM does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
 		bom.Components = new([]cdx.Component)
 	}
 
@@ -108,7 +108,7 @@ func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, er
 	})
 
 	for _, plugin := range scanner.configPlugins {
-		slog.Info("Updating components", "plugin", plugin.GetName())
+		slog.Info("Running plugin", "plugin", plugin.GetName())
 		err = plugin.UpdateBOM(fs, &bom)
 		if err != nil {
 			return bom, fmt.Errorf("scanner: plugin (%v) failed to updated components of bom; %w", plugin.GetName(), err)
