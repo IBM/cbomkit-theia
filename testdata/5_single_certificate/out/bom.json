@@ -29,6 +29,59 @@
   },
   "components": [
     {
+      "bom-ref": "13885dcb57368606",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "sign"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "a92f98db02e1307f",
+      "type": "cryptographic-asset",
+      "name": "SHA256",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
+      }
+    },
+    {
       "bom-ref": "8f2a8754dbf5740d",
       "type": "cryptographic-asset",
       "name": "Linagora CA",
@@ -57,12 +110,6 @@
       "bom-ref": "7b45e5bab540842b",
       "type": "cryptographic-asset",
       "name": "RSA",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
       "evidence": {
         "occurrences": [
           {
@@ -114,12 +161,6 @@
       "bom-ref": "f364f895f5391746",
       "type": "cryptographic-asset",
       "name": "SHA256-RSA",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
       "evidence": {
         "occurrences": [
           {
@@ -144,79 +185,14 @@
         },
         "oid": "1.2.840.113549.1.1.11"
       }
-    },
-    {
-      "bom-ref": "13885dcb57368606",
-      "type": "cryptographic-asset",
-      "name": "RSA",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "pke",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "sign"
-          ]
-        }
-      }
-    },
-    {
-      "bom-ref": "a92f98db02e1307f",
-      "type": "cryptographic-asset",
-      "name": "SHA256",
-      "properties": [
-        {
-          "name": "cics_confidence_level",
-          "value": "50"
-        }
-      ],
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "hash",
-          "parameterSetIdentifier": "256",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "digest"
-          ]
-        }
-      }
     }
   ],
   "dependencies": [
     {
       "ref": "f364f895f5391746",
       "dependsOn": [
-        "13885dcb57368606",
-        "a92f98db02e1307f"
+        "a92f98db02e1307f",
+        "13885dcb57368606"
       ]
     }
   ]
