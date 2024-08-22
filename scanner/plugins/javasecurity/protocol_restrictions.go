@@ -80,6 +80,7 @@ func (javaSecurity *JavaSecurity) updateProtocolComponent(index int, advancedcom
 
 					algo.Confidence.AddSubConfidenceLevel(algoConfidenceLevel, false)
 					cipherSuiteConfidenceLevel.AddSubConfidenceLevel(algoConfidenceLevel, true)
+					algo.SetPrintConfidenceLevel(true)
 				}
 			}
 

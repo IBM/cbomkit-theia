@@ -41,7 +41,7 @@ func WriteBOM(bom *cdx.BOM, file *os.File) error {
 // Parse and validate a CycloneDX BOM from path using the schema under schemaPath
 func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	// Read BOM
-	slog.Info("Reading BOM file", "path", path)
+	slog.Debug("Reading BOM file", "path", path)
 	dat, err := os.ReadFile(path)
 	if err != nil {
 		return new(cdx.BOM), err
@@ -68,7 +68,7 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 	}
 
 	// Decode BOM from JSON
-	slog.Info("Decoding BOM from JSON to GO object")
+	slog.Debug("Decoding BOM from JSON to GO object")
 	bom := new(cdx.BOM)
 	decoder := cdx.NewBOMDecoder(bytes.NewReader(dat), cdx.BOMFileFormatJSON)
 	err = decoder.Decode(bom)

@@ -32,8 +32,8 @@ var dockerHost string
 
 var ImageCmd = &cobra.Command{
 	Use:   "image",
-	Short: "Verify CBOM using a container image",
-	Long: `Verify CBOM using a container image
+	Short: "Analyze cryptographic assets in a container image",
+	Long: `Analyze cryptographic assets in a container image
 
 Supported image sources:
 - local application with dockerfile (ready to be build)

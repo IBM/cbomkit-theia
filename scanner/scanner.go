@@ -28,8 +28,10 @@ import (
 	"log/slog"
 	"os"
 	"slices"
+	"time"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/google/uuid"
 	"go.uber.org/dig"
 )
 
@@ -53,10 +55,19 @@ func GetAllPluginConstructors() map[string]plugin_package.PluginConstructor {
 
 // High-level function to do most heavy lifting for scanning a filesystem with a BOM. Output is written to target.
 func CreateAndRunScan(params ScannerParameterStruct) error {
-	bom, err := cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
-
-	if err != nil {
-		return err
+	var bom *cdx.BOM
+	if params.BomFilePath != "" {
+		var err error
+		bom, err = cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
+		if err != nil {
+			return err
+		}
+	} else {
+		bom = cdx.NewBOM()
+		bom.Metadata = &cdx.Metadata{
+			Timestamp: time.Now().Format(time.RFC3339),
+		}
+		bom.SerialNumber = "urn:uuid:" + uuid.New().String()
 	}
 
 	scanner := newScanner(params.Plugins)
@@ -87,7 +98,7 @@ type scanner struct {
 func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, error) {
 	var err error
 	if bom.Components == nil {
-		slog.Info("bom does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
+		slog.Info("BOM does not have any components, this scan will only add components", "bom-serial-number", bom.SerialNumber)
 		bom.Components = new([]cdx.Component)
 	}
 
@@ -97,7 +108,7 @@ func (scanner *scanner) scan(bom cdx.BOM, fs filesystem.Filesystem) (cdx.BOM, er
 	})
 
 	for _, plugin := range scanner.configPlugins {
-		slog.Info("Updating components", "plugin", plugin.GetName())
+		slog.Info("Running plugin", "plugin", plugin.GetName())
 		err = plugin.UpdateBOM(fs, &bom)
 		if err != nil {
 			return bom, fmt.Errorf("scanner: plugin (%v) failed to updated components of bom; %w", plugin.GetName(), err)

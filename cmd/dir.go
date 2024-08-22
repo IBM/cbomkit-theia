@@ -29,18 +29,14 @@ import (
 
 var dirCmd = &cobra.Command{
 	Use:   "dir",
-	Short: "Verify CBOM using a directory",
-	Long: `Verify CBOM using a directory
-
-- Verifies the CBOM assuming that the given directory is the filesystem the application runs in
-- Provides the most value if directory contains the whole Linux filesystem tree that the application runs in
+	Short: "Analyze cryptographic assets in a directory",
+	Long: `Analyze cryptographic assets in a directory
 
 Supported image/filesystem sources:
 - local directory
 
 Examples:
-cics dir my/cool/directory --bom my/bom.json
-
+cics dir my/cool/directory
 `,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

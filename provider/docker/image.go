@@ -82,7 +82,7 @@ func BuildNewImage(dockerfilePath string) (image ActiveImage, err error) {
 		return ActiveImage{}, err
 	}
 
-	slog.Info("Tarring directory with Dockerfile", "path", dockerfilePath)
+	slog.Debug("Tarring directory with Dockerfile", "path", dockerfilePath)
 	tar, err := archive.Tar(filepath.Dir(dockerfilePath), archive.Gzip)
 	if err != nil {
 		return ActiveImage{}, err

@@ -40,6 +40,7 @@ const (
 // Interface to be implemented by all plugins
 type Plugin interface {
 	GetName() string                                        // return a name for the plugin
+	GetExplanation() string                                 // explain the functionality of this plugin
 	GetType() PluginType                                    // return the plugin type
 	UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error // Update BOM using found files
 }

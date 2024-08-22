@@ -29,6 +29,72 @@
   },
   "components": [
     {
+      "bom-ref": "22218eae201bb456",
+      "mime-type": "text/plain",
+      "type": "cryptographic-asset",
+      "name": "jwt",
+      "description": "Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "jwt/example.txt",
+            "line": 2
+          },
+          {
+            "location": "jwt/owasp-juice-shop.ts",
+            "line": 263
+          },
+          {
+            "location": "jwt/test_jwt.txt",
+            "line": 0
+          },
+          {
+            "location": "jwt/test_jwt.txt",
+            "line": 1
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "token"
+        }
+      }
+    },
+    {
+      "bom-ref": "913dd0ab19470651",
+      "mime-type": "text/plain",
+      "type": "cryptographic-asset",
+      "name": "private-key",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "rsa/GeekMasher GPG.asc",
+            "line": 0
+          },
+          {
+            "location": "rsa/GeekMasher_GPG_with_headers.asc",
+            "line": 0
+          },
+          {
+            "location": "rsa/rsa.js",
+            "line": 2
+          },
+          {
+            "location": "rsa/rsa.json",
+            "line": 2
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key"
+        }
+      }
+    },
+    {
       "bom-ref": "466baea73222cdbf",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
@@ -119,72 +185,6 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "key"
-        }
-      }
-    },
-    {
-      "bom-ref": "22218eae201bb456",
-      "mime-type": "text/plain",
-      "type": "cryptographic-asset",
-      "name": "jwt",
-      "description": "Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "jwt/example.txt",
-            "line": 2
-          },
-          {
-            "location": "jwt/owasp-juice-shop.ts",
-            "line": 263
-          },
-          {
-            "location": "jwt/test_jwt.txt",
-            "line": 0
-          },
-          {
-            "location": "jwt/test_jwt.txt",
-            "line": 1
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "token"
-        }
-      }
-    },
-    {
-      "bom-ref": "913dd0ab19470651",
-      "mime-type": "text/plain",
-      "type": "cryptographic-asset",
-      "name": "private-key",
-      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "rsa/GeekMasher GPG.asc",
-            "line": 0
-          },
-          {
-            "location": "rsa/GeekMasher_GPG_with_headers.asc",
-            "line": 0
-          },
-          {
-            "location": "rsa/rsa.js",
-            "line": 2
-          },
-          {
-            "location": "rsa/rsa.json",
-            "line": 2
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "private-key"
         }
       }
     }

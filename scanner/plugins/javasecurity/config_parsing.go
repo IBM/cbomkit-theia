@@ -108,8 +108,6 @@ func (*JavaSecurity) isComponentAffectedByConfig(component cdx.Component) (bool,
 			return true, nil
 		}
 	}
-
-	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
 	return false, nil
 }
 
@@ -118,8 +116,12 @@ func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentsl
 
 	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
 
-	if !ok || go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
-		return err
+	if ok {
+		advancedcomponentslice.GetByIndex(index).SetPrintConfidenceLevel(true)
+	} else {
+		if go_errors.Is(err, scanner_errors.ErrInsufficientInformation) {
+			return err
+		}
 	}
 
 	switch advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType {
@@ -173,7 +175,7 @@ func getPropertyValuesRecursively(properties *properties.Properties, key string)
 // Parses the TLS Rules from the java.security file
 // Returns a joined list of errors which occurred during parsing of algorithms
 func extractTLSRules(securityProperties *properties.Properties) (restrictions []JavaSecurityAlgorithmRestriction, err error) {
-	slog.Info("Extracting TLS rules")
+	slog.Debug("Extracting TLS rules")
 
 	securityPropertiesKey := "jdk.tls.disabledAlgorithms"
 	algorithms, err := getPropertyValuesRecursively(securityProperties, securityPropertiesKey)
@@ -246,7 +248,7 @@ func extractTLSRules(securityProperties *properties.Properties) (restrictions []
 			})
 		}
 	} else {
-		slog.Info("No disabled algorithms specified!", "key", securityPropertiesKey)
+		slog.Debug("No disabled algorithms specified!", "key", securityPropertiesKey)
 	}
 
 	return restrictions, go_errors.Join(algorithmParsingErrors...)
@@ -262,11 +264,11 @@ const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 
 // Tries to get a config from the filesystem and checks the Config for potentially relevant information
 func checkConfig(securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
-	slog.Info("Checking filesystem config for additional security properties")
+	slog.Debug("Checking filesystem config for additional security properties")
 
 	imageConfig, ok := filesystem.GetConfig()
 	if !ok {
-		slog.Info("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", filesystem.GetIdentifier())
+		slog.Debug("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", filesystem.GetIdentifier())
 		return additionalSecurityProperties, override, nil
 	}
 
@@ -290,7 +292,7 @@ func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityPrope
 
 	allowAdditionalFiles := securityProperties.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
-		slog.Info("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", filesystem.GetIdentifier())
+		slog.Debug("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", filesystem.GetIdentifier())
 		return additionalSecurityProperties, override, nil
 	}
 
@@ -302,7 +304,7 @@ func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityPrope
 		value, override, ok = getJavaFlagValue(command, SECURITY_CMD_ARGUMENT)
 
 		if ok {
-			slog.Info("Found command that specifies new properties", "command", command)
+			slog.Debug("Found command that specifies new properties", "command", command)
 
 			content, err := filesystem.ReadFile(value)
 			if err != nil {

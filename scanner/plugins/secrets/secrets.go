@@ -40,6 +40,10 @@ func (SecretsPlugin) GetName() string {
 	return "Secret Plugin"
 }
 
+func (SecretsPlugin) GetExplanation() string {
+	return "Find Secrets & Keys"
+}
+
 func (SecretsPlugin) GetType() plugins.PluginType {
 	return plugins.PluginTypeAppend
 }
