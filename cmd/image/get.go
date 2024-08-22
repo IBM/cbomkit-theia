@@ -24,8 +24,8 @@ import (
 
 var getCmd = &cobra.Command{
 	Use:   "get",
-	Short: "Verify CBOM using a prebuilt container image",
-	Long: `Verify CBOM using a prebuilt container image
+	Short: "Analyze cryptographic assets in an existing container image",
+	Long: `Analyze cryptographic assets in an existing container image
 
 Supported image sources:
 - local docker image from docker daemon
@@ -37,7 +37,7 @@ Supported image sources:
 - image from singularity
 
 Examples:
-cics image get nginx --bom my/bom.json`,
+cics image get nginx`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		image, err := docker.GetPrebuiltImage(args[0])

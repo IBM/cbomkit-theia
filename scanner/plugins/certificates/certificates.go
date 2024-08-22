@@ -40,12 +40,16 @@ import (
 type CertificatesPlugin struct{}
 
 // Get the name of the plugin
-func (certificatesPlugin *CertificatesPlugin) GetName() string {
+func (CertificatesPlugin) GetName() string {
 	return "Certificate File Plugin"
 }
 
+func (CertificatesPlugin) GetExplanation() string {
+	return "Find x.509 certificates"
+}
+
 // Get the type of the plugin
-func (certificatesPlugin *CertificatesPlugin) GetType() plugins.PluginType {
+func (CertificatesPlugin) GetType() plugins.PluginType {
 	return plugins.PluginTypeAppend
 }
 

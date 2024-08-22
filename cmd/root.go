@@ -36,7 +36,7 @@ var activatedPlugins []string
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
 	Use:   "cics",
-	Short: "Container Cryptography Scanner (CICS) verifies a given CBOM based on the given image or directory",
+	Short: "Container Cryptography Scanner (CICS) analyzes cryptographic assets in a container image or directory",
 	Long: `
  ██████ ██  ██████ ███████ 
 ██      ██ ██      ██      
@@ -45,12 +45,17 @@ var rootCmd = &cobra.Command{
  ██████ ██  ██████ ███████ by IBM Research
 
 Container Image Cryptography Scanner (CICS) 
-verifies a given CBOM based on the given image or directory
+analyzes cryptographic assets in a container image or directory.
 
-The input is analyzed for any configurations limiting 
-the usage of cryptography. Using these findings, 
-the given CBOM is updated and verified. Additionally, 
-CICS adds new cryptographic assets to the CBOM. 
+--> Disclaimer: The CICS does *not* perform source code scanning <--
+--> Use https://github.com/IBM/sonar-cryptography for source code scanning <--
+
+Features
+- Find certificates in your image/directory
+- Find keys in your image/directory
+- Find secrets in your image/directory
+- Verify the executability of cryptographic assets in a CBOM (requires --bom to be set)
+- Output: Enriched CBOM to stdout/console
 
 Supported image/filesystem sources:
 - local directory 
@@ -67,9 +72,9 @@ Supported BOM formats (input & output):
 - CycloneDXv1.6
 
 Examples:
-cics dir my/cool/directory --bom my/bom.json
-cics image get nginx --bom my/bom.json
-cics image build my/Dockerfile --bom my/bom.json`,
+cics dir my/cool/directory
+cics image get nginx
+cics image build my/Dockerfile` + "\n\n" + getPluginExplanations(),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -87,7 +92,7 @@ func init() {
 
 	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cics.yaml)")
 
-	rootCmd.PersistentFlags().StringVarP(&bomFilePath, "bom", "b", "", "BOM file to verify using the given data")
+	rootCmd.PersistentFlags().StringVarP(&bomFilePath, "bom", "b", "", "BOM file to be verified and enriched")
 	viper.BindPFlag("bom", rootCmd.PersistentFlags().Lookup("bom"))
 	rootCmd.MarkPersistentFlagFilename("bom", ".json")
 
@@ -145,4 +150,16 @@ func initConfig() {
 	}
 
 	viper.Set("pluginConstructors", pluginConstructors)
+}
+
+func getPluginExplanations() string {
+	out := "Plugin Explanations:\n"
+	for name, constructor := range scanner.GetAllPluginConstructors() {
+		p, err := constructor()
+		if err != nil {
+			panic(err)
+		}
+		out += fmt.Sprintf("> \"%v\": %v\n%v\n\n", name, p.GetName(), p.GetExplanation())
+	}
+	return out
 }

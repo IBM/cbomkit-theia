@@ -24,14 +24,14 @@ import (
 
 var buildCmd = &cobra.Command{
 	Use:   "build",
-	Short: "Verify CBOM using a new container image",
-	Long: `Build a new container and verify CBOM based on that
+	Short: "Build image & analyze cryptographic assets in it",
+	Long: `Build image & analyze cryptographic assets in it
 
 Supported image sources:
 - local application with dockerfile (ready to be build)
 
 Examples:
-cics image build my/Dockerfile --bom my/bom.json`,
+cics image build my/Dockerfile`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		image, err := docker.BuildNewImage(args[0])

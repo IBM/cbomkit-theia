@@ -43,12 +43,16 @@ func NewJavaSecurityPlugin() (plugins.Plugin, error) {
 }
 
 // Get the name of the plugin for debugging purposes
-func (javaSecurityPlugin *JavaSecurityPlugin) GetName() string {
+func (JavaSecurityPlugin) GetName() string {
 	return "java.security Plugin"
 }
 
+func (JavaSecurityPlugin) GetExplanation() string {
+	return "Verify the executability of cryptographic assets from Java code\nAdds a confidence level (0-100) to the CBOM components to show how likely it is that this component is actually executable"
+}
+
 // Get the type of the plugin
-func (javaSecurityPlugin *JavaSecurityPlugin) GetType() plugins.PluginType {
+func (JavaSecurityPlugin) GetType() plugins.PluginType {
 	return plugins.PluginTypeVerify
 }
 
