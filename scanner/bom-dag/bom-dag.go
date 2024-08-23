@@ -191,6 +191,11 @@ func (bomDAG *BomDAG) mergeEdgePropertyAttributes(otherEdge graph.Edge[BomDAGVer
 	return nil
 }
 
+// Function taken from [graph] (had to copy since it is private);
+// Credit goes to [Dominik Braun]
+//
+// [graph]: https://github.com/dominikbraun/graph/blob/a999520a23a8fc232bfe3ef40f69a6f7d9f5bfde/directed.go#L305
+// [Dominik Braun]: https://github.com/dominikbraun
 func copyEdge[K comparable](edge graph.Edge[K]) (K, K, func(properties *graph.EdgeProperties)) {
 	copyProperties := func(p *graph.EdgeProperties) {
 		for k, v := range edge.Properties.Attributes {
@@ -203,6 +208,11 @@ func copyEdge[K comparable](edge graph.Edge[K]) (K, K, func(properties *graph.Ed
 	return edge.Source, edge.Target, copyProperties
 }
 
+// Function taken from [graph] (had to copy since it is private);
+// Credit goes to [Dominik Braun]
+//
+// [graph]: https://github.com/dominikbraun/graph/blob/a999520a23a8fc232bfe3ef40f69a6f7d9f5bfde/sets.go#L117
+// [Dominik Braun]: https://github.com/dominikbraun
 func copyVertexProperties(source graph.VertexProperties) func(*graph.VertexProperties) {
 	return func(p *graph.VertexProperties) {
 		for k, v := range source.Attributes {
@@ -212,7 +222,7 @@ func copyVertexProperties(source graph.VertexProperties) func(*graph.VertexPrope
 	}
 }
 
-// Add a component to this graph
+// Add a component to this graph;
 // This should be mainly used to add components to the graph
 func (bomDAG *BomDAG) AddCDXComponent(value cdx.Component, options ...func(*graph.VertexProperties)) (valueHash BomDAGVertexHash, err error) {
 	// Extract the occurrence component

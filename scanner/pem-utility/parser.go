@@ -41,11 +41,12 @@ type Filter struct {
 	List       []PEMBlockType
 }
 
+// Used to specify whether a filter is an allow- or blocklist
 type PEMTypeFilterType bool
 
 const (
-	PEMTypeFilterTypeAllowlist PEMTypeFilterType = true
-	PEMTypeFilterTypeBlocklist PEMTypeFilterType = false
+	PEMTypeFilterTypeAllowlist PEMTypeFilterType = true  // Allow List
+	PEMTypeFilterTypeBlocklist PEMTypeFilterType = false // Block List
 )
 
 // A not complete list of PEMBlockTypes that can be detected currently
@@ -107,7 +108,7 @@ func ParsePEMToBlocksWithTypeFilter(raw []byte, filter Filter) map[*pem.Block]PE
 var errUnknownKeyAlgorithm = errors.New("key block uses unknown algorithm")
 
 // Generate cyclonedx-go components from a block containing a key
-func GenerateComponentsFromKeyBlock(block *pem.Block) ([]cdx.Component, error) {
+func GenerateComponentsFromPEMKeyBlock(block *pem.Block) ([]cdx.Component, error) {
 	switch PEMBlockType(block.Type) {
 
 	case PEMBlockTypePrivateKey:

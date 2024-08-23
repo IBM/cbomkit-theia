@@ -140,7 +140,7 @@ func (finding findingWithMetadata) getComponents(fs filesystem.Filesystem) ([]cd
 		}
 
 		for block := range blocks {
-			currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block)
+			currentComponents, err := pemutility.GenerateComponentsFromPEMKeyBlock(block)
 			if err != nil {
 				return []cdx.Component{}, err
 			}

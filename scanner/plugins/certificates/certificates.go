@@ -28,12 +28,10 @@ import (
 	"slices"
 
 	"go.mozilla.org/pkcs7"
-	"golang.org/x/exp/rand"
 
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/google/uuid"
 )
 
 // Plugin to parse certificates from the filesystem
@@ -98,9 +96,6 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 
 	slog.Debug("Certificate searching done", "count", len(certificates))
 
-	// This ensures that the generated UUIDs are deterministic
-	uuid.SetRand(rand.New(rand.NewSource(1)))
-
 	dag := bomdag.NewBomDAG()
 
 	for _, cert := range certificates {
@@ -123,6 +118,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		return err
 	}
 
+	// Set the components
 	if len(components) > 0 {
 		if bom.Components == nil {
 			comps := make([]cdx.Component, 0, len(components))
@@ -131,6 +127,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		*bom.Components = append(*bom.Components, components...)
 	}
 
+	// Set the dependency map
 	if len(dependencyMap) > 0 {
 		if bom.Dependencies == nil {
 			deps := make([]cdx.Dependency, 0, len(dependencyMap))
@@ -201,21 +198,21 @@ func dependencyMapToStructSlice(dependencyMap map[cdx.BOMReference][]string) []c
 	return dependencies
 }
 
-func MergeDependencyStructSlice(this []cdx.Dependency, other []cdx.Dependency) []cdx.Dependency {
-	for _, otherStruct := range other {
-		i := IndexBomRefInDependencySlice(this, cdx.BOMReference(otherStruct.Ref))
+func MergeDependencyStructSlice(a []cdx.Dependency, b []cdx.Dependency) []cdx.Dependency {
+	for _, bStruct := range b {
+		i := IndexBomRefInDependencySlice(a, cdx.BOMReference(bStruct.Ref))
 		if i != -1 {
 			// Merge
-			for _, s := range *otherStruct.Dependencies {
-				if !slices.Contains(*this[i].Dependencies, s) {
-					*this[i].Dependencies = append(*this[i].Dependencies, s)
+			for _, s := range *bStruct.Dependencies {
+				if !slices.Contains(*a[i].Dependencies, s) {
+					*a[i].Dependencies = append(*a[i].Dependencies, s)
 				}
 			}
 		} else {
-			this = append(this, otherStruct)
+			a = append(a, bStruct)
 		}
 	}
-	return this
+	return a
 }
 
 // Return index in slice if bomRef is found in slice or -1 if not present

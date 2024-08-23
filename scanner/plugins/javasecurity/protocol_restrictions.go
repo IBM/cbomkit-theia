@@ -19,7 +19,7 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/componentwithconfidenceslice"
 	"ibm/container-image-cryptography-scanner/scanner/confidencelevel"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
@@ -51,7 +51,7 @@ const (
 
 // High-Level function to update a protocol component based on the restriction in the JavaSecurity object
 // Returns nil if the updateComponent is not allowed
-func (javaSecurity *JavaSecurity) updateProtocolComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) error {
+func (javaSecurity *JavaSecurity) updateProtocolComponent(index int, advancedcomponentslice *advancedcomponentslice.ComponentWithConfidenceSlice) error {
 	if advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType != cdx.CryptoAssetTypeProtocol {
 		return fmt.Errorf("scanner java: component of type %v cannot be used in function updateProtocolComponent", advancedcomponentslice.GetByIndex(index).CryptoProperties.AssetType)
 	}
@@ -123,7 +123,9 @@ func standardizeString(in string) string {
 }
 
 // Evaluates if a single component is allowed based on a single restriction; returns true if the component is allowed, false otherwise;
-// Follows the JDK implementation https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
+// Follows the [JDK implementation]
+//
+// [JDK implementation]: https://github.com/openjdk/jdk/blob/master/src/java.base/share/classes/sun/security/util/DisabledAlgorithmConstraints.java
 func (javaSecurityAlgorithmRestriction JavaSecurityAlgorithmRestriction) eval(component cdx.Component) (confidencelevel.ConfidenceLevel, error) {
 	slog.Debug("Evaluating component with restriction", "component", component.Name, "restriction_name", javaSecurityAlgorithmRestriction.name, "restriction_operator", javaSecurityAlgorithmRestriction.keySizeOperator, "restriction_value", javaSecurityAlgorithmRestriction.keySize)
 

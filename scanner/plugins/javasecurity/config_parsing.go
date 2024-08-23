@@ -20,7 +20,7 @@ import (
 	go_errors "errors"
 	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/componentwithconfidenceslice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"log/slog"
 	"path/filepath"
@@ -112,7 +112,7 @@ func (*JavaSecurity) isComponentAffectedByConfig(component cdx.Component) (bool,
 }
 
 // Update a single component; returns nil if component is not allowed
-func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.AdvancedComponentSlice) (err error) {
+func (javaSecurity *JavaSecurity) updateComponent(index int, advancedcomponentslice *advancedcomponentslice.ComponentWithConfidenceSlice) (err error) {
 
 	ok, err := javaSecurity.isComponentAffectedByConfig(*advancedcomponentslice.GetByIndex(index).Component)
 

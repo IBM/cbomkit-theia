@@ -20,7 +20,7 @@ import (
 	go_errors "errors"
 	"fmt"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/advanced-component-slice"
+	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/componentwithconfidenceslice"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"

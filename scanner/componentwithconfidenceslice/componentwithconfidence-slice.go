@@ -14,7 +14,7 @@
 //
 // SPDX-License-Identifier: Apache-2.0
 
-package advancedcomponentslice
+package componentwithconfidenceslice
 
 import (
 	"ibm/container-image-cryptography-scanner/scanner/confidencelevel"
@@ -34,14 +34,14 @@ func (componentWithConfidence *componentWithConfidence) SetPrintConfidenceLevel(
 }
 
 // Slice of componentWithConfidence with a map mapping BOMReference to index in the components slice; bomRefMap can be used to access members of components by BOMReference without searching for the BOMReference in the structs itself
-type AdvancedComponentSlice struct {
+type ComponentWithConfidenceSlice struct {
 	components []componentWithConfidence
 	bomRefMap  map[cdx.BOMReference]int
 }
 
 // Generate a AdvancedComponentSlice from a slice of components
-func FromComponentSlice(slice []cdx.Component) *AdvancedComponentSlice {
-	advancedComponentSlice := AdvancedComponentSlice{
+func FromComponentSlice(slice []cdx.Component) *ComponentWithConfidenceSlice {
+	advancedComponentSlice := ComponentWithConfidenceSlice{
 		components: make([]componentWithConfidence, 0, len(slice)),
 		bomRefMap:  make(map[cdx.BOMReference]int),
 	}
@@ -62,12 +62,12 @@ func FromComponentSlice(slice []cdx.Component) *AdvancedComponentSlice {
 }
 
 // Get member of AdvancedComponentSlice by index
-func (advancedComponentSlice *AdvancedComponentSlice) GetByIndex(i int) *componentWithConfidence {
+func (advancedComponentSlice *ComponentWithConfidenceSlice) GetByIndex(i int) *componentWithConfidence {
 	return &advancedComponentSlice.components[i]
 }
 
 // Get member of AdvancedComponentSlice by BOMReference
-func (advancedComponentSlice *AdvancedComponentSlice) GetByRef(ref cdx.BOMReference) (*componentWithConfidence, bool) {
+func (advancedComponentSlice *ComponentWithConfidenceSlice) GetByRef(ref cdx.BOMReference) (*componentWithConfidence, bool) {
 	i, ok := advancedComponentSlice.bomRefMap[ref]
 	if !ok {
 		return &componentWithConfidence{}, false
@@ -77,7 +77,7 @@ func (advancedComponentSlice *AdvancedComponentSlice) GetByRef(ref cdx.BOMRefere
 }
 
 // Generate CycloneDX Components from this AdvancedComponentSlice; automatically sets the cics_confidence_level property
-func (advancedComponentSlice *AdvancedComponentSlice) GetComponentSlice() []cdx.Component {
+func (advancedComponentSlice *ComponentWithConfidenceSlice) GetComponentSlice() []cdx.Component {
 	finalCompSlice := make([]cdx.Component, 0, len(advancedComponentSlice.components))
 
 	for _, compWithConf := range advancedComponentSlice.components {

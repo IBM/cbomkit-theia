@@ -54,6 +54,10 @@ func NewPlainFilesystem(rootPath string) PlainFilesystem {
 // Walk the whole PlainFilesystem using fn
 func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 	return filepath.WalkDir(plainFilesystem.rootPath, func(path string, d fs.DirEntry, err error) error {
+		if err != nil {
+			return err
+		}
+
 		if d.IsDir() {
 			return nil
 		}
@@ -61,7 +65,7 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 		relativePath, err := filepath.Rel(plainFilesystem.rootPath, path)
 
 		if err != nil {
-			panic(err)
+			return err
 		}
 
 		err = fn(relativePath)
@@ -77,8 +81,7 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 
 // Read a file from this filesystem; path should be relative to PlainFilesystem.rootPath
 func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
-	contentBytes, err := os.ReadFile(filepath.Join(plainFilesystem.rootPath, path))
-	return contentBytes, err
+	return os.ReadFile(filepath.Join(plainFilesystem.rootPath, path))
 }
 
 // A plain directory does not have filesystem, so we return an empty object and false

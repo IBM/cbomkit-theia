@@ -22,7 +22,10 @@ import (
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
 
-// Represents a confidence level
+// A confidence level represents a level of confidence 
+//
+// Example: 
+// A ConfidenceLevel could be used to represent the confidence that an algorithm is executable in a certain environment.
 type ConfidenceLevel struct {
 	count int
 	sum   int
@@ -32,6 +35,7 @@ type ConfidenceLevel struct {
 // Modifiers for the ConfidenceLevel
 type ConfidenceLevelModifier int
 
+// Constant value that can be used for the modification of a ConfidenceLevel
 const (
 	confidenceLevelMax                                             = 100
 	confidenceLevelDefault                                         = 50
@@ -84,15 +88,13 @@ func (confidenceLevel *ConfidenceLevel) Modify(modifier ConfidenceLevelModifier)
 
 Example:
 
-a, b, c := New(), New(),  New()
-
-a.AddSubConfidenceLevel(b, false)
-
-a.AddSubConfidenceLevel(c, false)
+	a, b, c := New(), New(),  New()
+	a.AddSubConfidenceLevel(b, false)
+	a.AddSubConfidenceLevel(c, false)
 
 Now a.GetValue() returns the average of b.GetValue() and c.GetValue(). (a.value = (b.value+c.value)/2)
 
-Warning: a, b and c are not permanently linked by this. AddSubConfidenceLevel just calculates the average in this moment
+Warning: a, b and c are not permanently linked by this. AddSubConfidenceLevel just calculates the average once this function is called
 */
 func (confidenceLevel *ConfidenceLevel) AddSubConfidenceLevel(sub ConfidenceLevel, ignoreDefaultConfidence bool) {
 	if ignoreDefaultConfidence && sub.value == confidenceLevelDefault {
