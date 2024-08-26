@@ -20,6 +20,7 @@ import (
 	go_errors "errors"
 	"fmt"
 	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	"io"
 	"io/fs"
 	"log/slog"
 	"os"
@@ -33,10 +34,10 @@ type SimpleWalkDirFunc func(path string) error
 
 // Filesystem interface is mainly used to interact with all types of possible data source (e.g. directories, docker images etc.); for images this represents a squashed layer
 type Filesystem interface {
-	WalkDir(fn SimpleWalkDirFunc) (err error)         // Walk the full filesystem using the SimpleWalkDirFunc fn
-	ReadFile(path string) (content []byte, err error) // Read a specific file with a path from root of the filesystem
-	GetConfig() (config v1.Config, ok bool)           // Get a config of this filesystem in container image format (if it exists)
-	GetIdentifier() string                            // Identifier for this specific filesystem; can be used for logging
+	WalkDir(fn SimpleWalkDirFunc) (err error)               // Walk the full filesystem using the SimpleWalkDirFunc fn
+	Open(path string) (readCloser io.ReadCloser, err error) // Read a specific file with a path from root of the filesystem
+	GetConfig() (config v1.Config, ok bool)                 // Get a config of this filesystem in container image format (if it exists)
+	GetIdentifier() string                                  // Identifier for this specific filesystem; can be used for logging
 }
 
 // Simple plain filesystem that is constructed from the directory
@@ -80,8 +81,8 @@ func (plainFilesystem PlainFilesystem) WalkDir(fn SimpleWalkDirFunc) error {
 }
 
 // Read a file from this filesystem; path should be relative to PlainFilesystem.rootPath
-func (plainFilesystem PlainFilesystem) ReadFile(path string) ([]byte, error) {
-	return os.ReadFile(filepath.Join(plainFilesystem.rootPath, path))
+func (plainFilesystem PlainFilesystem) Open(path string) (io.ReadCloser, error) {
+	return os.Open(filepath.Join(plainFilesystem.rootPath, path))
 }
 
 // A plain directory does not have filesystem, so we return an empty object and false
@@ -92,4 +93,10 @@ func (plainFilesystem PlainFilesystem) GetConfig() (config v1.Config, ok bool) {
 // Get a unique string for this PlainFilesystem; can be used for logging etc.
 func (plainFilesystem PlainFilesystem) GetIdentifier() string {
 	return fmt.Sprintf("Plain Filesystem (%v)", plainFilesystem.rootPath)
+}
+
+func ReadAllClose(rc io.ReadCloser) ([]byte, error) {
+	defer rc.Close()
+	b, err := io.ReadAll(rc)
+	return b, err
 }

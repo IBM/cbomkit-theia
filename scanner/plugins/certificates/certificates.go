@@ -64,7 +64,11 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		func(path string) (err error) {
 			switch filepath.Ext(path) {
 			case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
-				raw, err := fs.ReadFile(path)
+				readCloser, err := fs.Open(path)
+				if err != nil {
+					return err
+				}
+				raw, err := filesystem.ReadAllClose(readCloser)
 				if err != nil {
 					return err
 				}
@@ -74,7 +78,11 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 				}
 				certificates = append(certificates, certs...)
 			case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
-				raw, err := fs.ReadFile(path)
+				readCloser, err := fs.Open(path)
+				if err != nil {
+					return err
+				}
+				raw, err := filesystem.ReadAllClose(readCloser)
 				if err != nil {
 					return err
 				}

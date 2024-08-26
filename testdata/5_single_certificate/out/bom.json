@@ -14,10 +14,10 @@
           "version": "0.8",
           "services": [
             {
-              "name": "Certificate File Plugin"
+              "name": "Secret Plugin"
             },
             {
-              "name": "Secret Plugin"
+              "name": "Certificate File Plugin"
             },
             {
               "name": "java.security Plugin"
@@ -28,32 +28,6 @@
     }
   },
   "components": [
-    {
-      "bom-ref": "13885dcb57368606",
-      "type": "cryptographic-asset",
-      "name": "RSA",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "pke",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "sign"
-          ]
-        }
-      }
-    },
     {
       "bom-ref": "a92f98db02e1307f",
       "type": "cryptographic-asset",
@@ -185,14 +159,40 @@
         },
         "oid": "1.2.840.113549.1.1.11"
       }
+    },
+    {
+      "bom-ref": "13885dcb57368606",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "sign"
+          ]
+        }
+      }
     }
   ],
   "dependencies": [
     {
       "ref": "f364f895f5391746",
       "dependsOn": [
-        "a92f98db02e1307f",
-        "13885dcb57368606"
+        "13885dcb57368606",
+        "a92f98db02e1307f"
       ]
     }
   ]

@@ -75,7 +75,11 @@ func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem
 		func(path string) (err error) {
 			if javaSecurityPlugin.isConfigFile(path) {
 				slog.Info("Adding java.security config file", "path", path)
-				content, err := fs.ReadFile(path)
+				readCloser, err := fs.Open(path)
+				if err != nil {
+					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
+				}
+				content, err := filesystem.ReadAllClose(readCloser)
 				if err != nil {
 					return scanner_errors.GetParsingFailedAlthoughCheckedError(err, javaSecurityPlugin.GetName())
 				}

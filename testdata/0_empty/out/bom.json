@@ -15,10 +15,10 @@
           "version": "0.8",
           "services": [
             {
-              "name": "Secret Plugin"
+              "name": "Certificate File Plugin"
             },
             {
-              "name": "Certificate File Plugin"
+              "name": "Secret Plugin"
             },
             {
               "name": "java.security Plugin"

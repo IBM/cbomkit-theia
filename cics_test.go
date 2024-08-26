@@ -156,7 +156,11 @@ func TestScan(t *testing.T) {
 					return hex.EncodeToString(aHash[:]) < hex.EncodeToString(bHash[:])
 				}),
 				cmpopts.SortSlices(func(a cdx.EvidenceOccurrence, b cdx.EvidenceOccurrence) bool {
-					return a.Location < b.Location
+					if a.Location != b.Location {
+						return a.Location < b.Location
+					} else {
+						return *a.Line < *b.Line
+					}
 				}),
 				cmpopts.IgnoreTypes(cdx.Dependency{}),
 				cmpopts.IgnoreFields(cdx.Component{},

@@ -72,8 +72,8 @@ type JavaSecurity struct {
 	tlsDisabledAlgorithms []JavaSecurityAlgorithmRestriction
 }
 
-func newJavaSecurity(properties *properties.Properties, filesystem filesystem.Filesystem) (JavaSecurity, error) {
-	additionalSecurityProperties, override, err := checkConfig(properties, filesystem)
+func newJavaSecurity(properties *properties.Properties, fs filesystem.Filesystem) (JavaSecurity, error) {
+	additionalSecurityProperties, override, err := checkConfig(properties, fs)
 	if err != nil {
 		return JavaSecurity{}, err
 	}
@@ -262,20 +262,20 @@ container image related
 
 const SECURITY_CMD_ARGUMENT = "-Djava.security.properties="
 
-// Tries to get a config from the filesystem and checks the Config for potentially relevant information
-func checkConfig(securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
+// Tries to get a config from the fs and checks the Config for potentially relevant information
+func checkConfig(securityProperties *properties.Properties, fs filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
 	slog.Debug("Checking filesystem config for additional security properties")
 
-	imageConfig, ok := filesystem.GetConfig()
+	imageConfig, ok := fs.GetConfig()
 	if !ok {
-		slog.Debug("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "filesystem", filesystem.GetIdentifier())
+		slog.Debug("Filesystem did not provide a config. This can be normal if the specified filesystem is not a docker image layer.", "fs", fs.GetIdentifier())
 		return additionalSecurityProperties, override, nil
 	}
 
-	additionalSecurityProperties, override, err = checkForAdditionalSecurityFilesCMDParameter(imageConfig, securityProperties, filesystem)
+	additionalSecurityProperties, override, err = checkForAdditionalSecurityFilesCMDParameter(imageConfig, securityProperties, fs)
 
 	if go_errors.Is(err, errNilProperties) {
-		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "filesystem", filesystem.GetIdentifier())
+		slog.Warn("Properties of javaSecurity object are nil. This should not happen. Continuing anyway.", "fs", fs.GetIdentifier())
 		return additionalSecurityProperties, override, nil
 	}
 
@@ -283,7 +283,7 @@ func checkConfig(securityProperties *properties.Properties, filesystem filesyste
 }
 
 // Searches the image config for potentially relevant CMD parameters and potentially adds new properties
-func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityProperties *properties.Properties, filesystem filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
+func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityProperties *properties.Properties, fs filesystem.Filesystem) (additionalSecurityProperties *properties.Properties, override bool, err error) {
 	// We have to check if adding additional security files via CMD is even allowed via the java.security file (security.overridePropertiesFile property)
 
 	if securityProperties == nil { // We do not have a security file
@@ -292,7 +292,7 @@ func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityPrope
 
 	allowAdditionalFiles := securityProperties.GetBool("security.overridePropertiesFile", true)
 	if !allowAdditionalFiles {
-		slog.Debug("Security properties don't allow additional security files. Stopping searching directly.", "filesystem", filesystem.GetIdentifier())
+		slog.Debug("Security properties don't allow additional security files. Stopping searching directly.", "fs", fs.GetIdentifier())
 		return additionalSecurityProperties, override, nil
 	}
 
@@ -306,7 +306,7 @@ func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityPrope
 		if ok {
 			slog.Debug("Found command that specifies new properties", "command", command)
 
-			content, err := filesystem.ReadFile(value)
+			readCloser, err := fs.Open(value)
 			if err != nil {
 				if strings.Contains(err.Error(), "could not find file path in Tree") {
 					slog.Warn("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
@@ -314,6 +314,11 @@ func checkForAdditionalSecurityFilesCMDParameter(config v1.Config, securityPrope
 				} else {
 					return additionalSecurityProperties, override, err
 				}
+			}
+			content, err := filesystem.ReadAllClose(readCloser)
+			if err != nil {
+				slog.Warn("failed to read file specified via a command flag in the image configuration (e.g. Dockerfile); the image or image config is probably malformed; continuing without adding it.", "file", value)
+				return additionalSecurityProperties, override, nil
 			}
 			additionalSecurityProperties, err = properties.LoadString(string(content))
 			return additionalSecurityProperties, override, err

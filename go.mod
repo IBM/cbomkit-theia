@@ -8,6 +8,7 @@ require (
 	github.com/anchore/stereoscope v0.0.2
 	github.com/docker/docker v26.1.3+incompatible
 	github.com/dominikbraun/graph v0.23.0
+	github.com/gabriel-vasile/mimetype v1.4.5
 	github.com/google/go-cmp v0.6.0
 	github.com/google/go-containerregistry v0.19.1
 	github.com/google/uuid v1.6.0
@@ -20,7 +21,7 @@ require (
 	github.com/zricethezav/gitleaks/v8 v8.18.4
 	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
 	go.uber.org/dig v1.17.1
-	golang.org/x/crypto v0.24.0
+	golang.org/x/crypto v0.25.0
 	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
 )
 
@@ -56,7 +57,6 @@ require (
 	github.com/fatih/semgroup v1.2.0 // indirect
 	github.com/felixge/httpsnoop v1.0.4 // indirect
 	github.com/fsnotify/fsnotify v1.7.0 // indirect
-	github.com/gabriel-vasile/mimetype v1.4.4 // indirect
 	github.com/gitleaks/go-gitdiff v0.9.0 // indirect
 	github.com/go-logr/logr v1.4.2 // indirect
 	github.com/go-logr/stdr v1.2.2 // indirect
@@ -125,10 +125,10 @@ require (
 	go.opentelemetry.io/otel/sdk v1.21.0 // indirect
 	go.opentelemetry.io/otel/trace v1.27.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
-	golang.org/x/net v0.26.0 // indirect
+	golang.org/x/net v0.27.0 // indirect
 	golang.org/x/sync v0.7.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
-	golang.org/x/term v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
+	golang.org/x/term v0.22.0 // indirect
 	golang.org/x/text v0.16.0 // indirect
 	google.golang.org/genproto v0.0.0-20240604185151-ef581f913117 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20240604185151-ef581f913117 // indirect
