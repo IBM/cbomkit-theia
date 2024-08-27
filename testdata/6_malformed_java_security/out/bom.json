@@ -29,59 +29,6 @@
   },
   "components": [
     {
-      "bom-ref": "13885dcb57368606",
-      "type": "cryptographic-asset",
-      "name": "RSA",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "pke",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "sign"
-          ]
-        }
-      }
-    },
-    {
-      "bom-ref": "a92f98db02e1307f",
-      "type": "cryptographic-asset",
-      "name": "SHA256",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "cert.pem"
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "algorithm",
-        "algorithmProperties": {
-          "primitive": "hash",
-          "parameterSetIdentifier": "256",
-          "executionEnvironment": "unknown",
-          "implementationPlatform": "unknown",
-          "certificationLevel": [
-            "unknown"
-          ],
-          "cryptoFunctions": [
-            "digest"
-          ]
-        }
-      }
-    },
-    {
       "bom-ref": "8f2a8754dbf5740d",
       "type": "cryptographic-asset",
       "name": "Linagora CA",
@@ -184,6 +131,59 @@
           ]
         },
         "oid": "1.2.840.113549.1.1.11"
+      }
+    },
+    {
+      "bom-ref": "13885dcb57368606",
+      "type": "cryptographic-asset",
+      "name": "RSA",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "pke",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "sign"
+          ]
+        }
+      }
+    },
+    {
+      "bom-ref": "a92f98db02e1307f",
+      "type": "cryptographic-asset",
+      "name": "SHA256",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "cert.pem"
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "algorithm",
+        "algorithmProperties": {
+          "primitive": "hash",
+          "parameterSetIdentifier": "256",
+          "executionEnvironment": "unknown",
+          "implementationPlatform": "unknown",
+          "certificationLevel": [
+            "unknown"
+          ],
+          "cryptoFunctions": [
+            "digest"
+          ]
+        }
       }
     }
   ],

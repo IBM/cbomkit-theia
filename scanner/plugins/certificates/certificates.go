@@ -24,16 +24,16 @@ import (
 	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"go.mozilla.org/pkcs7"
-	"golang.org/x/exp/rand"
 
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
-	"github.com/google/uuid"
 )
 
 // Plugin to parse certificates from the filesystem
@@ -62,11 +62,18 @@ func NewCertificatePlugin() (plugins.Plugin, error) {
 func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	certificates := []*x509CertificateWithMetadata{}
 
+	// Set GODEBUG to allow negative serial numbers (see https://github.com/golang/go/commit/db13584baedce4909915cb4631555f6dbd7b8c38)
+	setX509NegativeSerial()
+
 	err := fs.WalkDir(
 		func(path string) (err error) {
 			switch filepath.Ext(path) {
 			case ".pem", ".cer", ".cert", ".der", ".ca-bundle", ".crt":
-				raw, err := fs.ReadFile(path)
+				readCloser, err := fs.Open(path)
+				if err != nil {
+					return err
+				}
+				raw, err := filesystem.ReadAllClose(readCloser)
 				if err != nil {
 					return err
 				}
@@ -76,7 +83,11 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 				}
 				certificates = append(certificates, certs...)
 			case ".p7a", ".p7b", ".p7c", ".p7r", ".p7s", ".spc":
-				raw, err := fs.ReadFile(path)
+				readCloser, err := fs.Open(path)
+				if err != nil {
+					return err
+				}
+				raw, err := filesystem.ReadAllClose(readCloser)
 				if err != nil {
 					return err
 				}
@@ -86,20 +97,20 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 				}
 				certificates = append(certificates, certs...)
 			default:
-				return err
+				return nil
 			}
 
-			return err
+			return nil
 		})
 
 	if err != nil {
 		return err
 	}
 
-	slog.Debug("Certificate searching done", "count", len(certificates))
+	// Set GODEBUG to old setting
+	removeX509NegativeSerial()
 
-	// This ensures that the generated UUIDs are deterministic
-	uuid.SetRand(rand.New(rand.NewSource(1)))
+	slog.Debug("Certificate searching done", "count", len(certificates))
 
 	dag := bomdag.NewBomDAG()
 
@@ -123,6 +134,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		return err
 	}
 
+	// Set the components
 	if len(components) > 0 {
 		if bom.Components == nil {
 			comps := make([]cdx.Component, 0, len(components))
@@ -131,6 +143,7 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 		*bom.Components = append(*bom.Components, components...)
 	}
 
+	// Set the dependency map
 	if len(dependencyMap) > 0 {
 		if bom.Dependencies == nil {
 			deps := make([]cdx.Dependency, 0, len(dependencyMap))
@@ -201,21 +214,21 @@ func dependencyMapToStructSlice(dependencyMap map[cdx.BOMReference][]string) []c
 	return dependencies
 }
 
-func MergeDependencyStructSlice(this []cdx.Dependency, other []cdx.Dependency) []cdx.Dependency {
-	for _, otherStruct := range other {
-		i := IndexBomRefInDependencySlice(this, cdx.BOMReference(otherStruct.Ref))
+func MergeDependencyStructSlice(a []cdx.Dependency, b []cdx.Dependency) []cdx.Dependency {
+	for _, bStruct := range b {
+		i := IndexBomRefInDependencySlice(a, cdx.BOMReference(bStruct.Ref))
 		if i != -1 {
 			// Merge
-			for _, s := range *otherStruct.Dependencies {
-				if !slices.Contains(*this[i].Dependencies, s) {
-					*this[i].Dependencies = append(*this[i].Dependencies, s)
+			for _, s := range *bStruct.Dependencies {
+				if !slices.Contains(*a[i].Dependencies, s) {
+					*a[i].Dependencies = append(*a[i].Dependencies, s)
 				}
 			}
 		} else {
-			this = append(this, otherStruct)
+			a = append(a, bStruct)
 		}
 	}
-	return this
+	return a
 }
 
 // Return index in slice if bomRef is found in slice or -1 if not present
@@ -227,4 +240,50 @@ func IndexBomRefInDependencySlice(slice []cdx.Dependency, bomRef cdx.BOMReferenc
 	}
 
 	return -1
+}
+
+// Set x509negativeserial=1 in the GODEBUG environment variable.
+func setX509NegativeSerial() error {
+	godebug := os.Getenv("GODEBUG")
+	var newGodebug string
+
+	if strings.Contains(godebug, "x509negativeserial=") {
+		// Replace the existing x509negativeserial value with 1
+		newGodebug = strings.ReplaceAll(godebug, "x509negativeserial=0", "x509negativeserial=1")
+	} else {
+		// Append x509negativeserial=1 to the GODEBUG variable
+		if godebug != "" {
+			newGodebug = godebug + ",x509negativeserial=1"
+		} else {
+			newGodebug = "x509negativeserial=1"
+		}
+	}
+
+	// Set the modified GODEBUG environment variable
+	return os.Setenv("GODEBUG", newGodebug)
+}
+
+// Remove x509negativeserial from the GODEBUG environment variable.
+func removeX509NegativeSerial() error {
+	godebug := os.Getenv("GODEBUG")
+	if godebug == "" {
+		return nil // GODEBUG is not set, nothing to remove
+	}
+
+	// Split the GODEBUG variable by commas
+	parts := strings.Split(godebug, ",")
+	var newParts []string
+
+	for _, part := range parts {
+		// Skip the part that contains x509negativeserial
+		if !strings.HasPrefix(part, "x509negativeserial=") {
+			newParts = append(newParts, part)
+		}
+	}
+
+	// Join the remaining parts back together
+	newGodebug := strings.Join(newParts, ",")
+
+	// Set the modified GODEBUG environment variable
+	return os.Setenv("GODEBUG", newGodebug)
 }

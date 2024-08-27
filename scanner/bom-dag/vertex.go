@@ -17,7 +17,7 @@
 package bomdag
 
 import (
-	"ibm/container-image-cryptography-scanner/scanner/compare"
+	"ibm/container-image-cryptography-scanner/scanner/hash"
 
 	"github.com/dominikbraun/graph"
 )
@@ -38,11 +38,11 @@ type bomDAGVertex interface {
 func hashBOMDAGVertex(bomDAGVertex bomDAGVertex) BomDAGVertexHash {
 	switch bomDAGVertex.getType() {
 	case bomDAGVertexTypeComponent:
-		return compare.HashCDXComponentWithoutRefs(bomDAGVertex.(vertexComponent).Component)
+		return hash.HashCDXComponentWithoutRefs(bomDAGVertex.(vertexComponent).Component)
 	case bomDAGVertexTypeRoot:
 		return BomDAGVertexHash{0}
 	case bomDAGVertexTypeOccurrence:
-		return compare.HashStruct8Byte(bomDAGVertex.(vertexOccurrence))
+		return hash.HashStruct8Byte(bomDAGVertex.(vertexOccurrence))
 	default:
 		panic("Unsupported BOM DAG Vertex Type!")
 	}

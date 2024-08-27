@@ -21,11 +21,11 @@ import (
 	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
 	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"log/slog"
 	"strings"
 
-	"net/http"
-
 	cdx "github.com/CycloneDX/cyclonedx-go"
+	"github.com/gabriel-vasile/mimetype"
 	"github.com/zricethezav/gitleaks/v8/detect"
 	"github.com/zricethezav/gitleaks/v8/report"
 )
@@ -51,6 +51,7 @@ func (SecretsPlugin) GetType() plugins.PluginType {
 type findingWithMetadata struct {
 	report.Finding
 	mime string
+	raw  []byte
 }
 
 func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
@@ -63,25 +64,40 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 
 	// Detect findings
 	fs.WalkDir(func(path string) error {
-		raw, err := fs.ReadFile(path)
+		readCloser, err := fs.Open(path)
 		if err != nil {
 			return err
 		}
 
-		mime := strings.Split(http.DetectContentType(raw), ";")[0]
-		if !strings.HasPrefix(mime, "text") {
+		mime, err := mimetype.DetectReader(readCloser)
+		if err != nil {
+			slog.Warn("Error reading file; continuing", "path", path)
+			return nil
+		}
+
+		if !(strings.HasPrefix(mime.String(), "text") ||  mime.Parent() != nil && strings.HasPrefix(mime.Parent().String(), "text")) {
 			return nil // Skip
 		}
 
+		readCloser, err = fs.Open(path)
+		if err != nil {
+			return err
+		}
+		content, err := filesystem.ReadAllClose(readCloser)
+		if err != nil {
+			return err
+		}
+
 		fragment := detect.Fragment{
-			Raw:      string(raw),
+			Raw:      string(content),
 			FilePath: path,
 		}
 
 		for _, finding := range detector.Detect(fragment) {
 			findings = append(findings, findingWithMetadata{
 				Finding: finding,
-				mime:    mime,
+				mime:    strings.Split(mime.String(), ";")[0],
+				raw:     content,
 			})
 		}
 
@@ -94,7 +110,7 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 
 	// Create CDX Components
 	for _, finding := range findings {
-		currentComponents, err := finding.getComponents(fs)
+		currentComponents, err := finding.getComponents()
 		if err != nil {
 			return err
 		}
@@ -122,14 +138,10 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	return nil
 }
 
-func (finding findingWithMetadata) getComponents(fs filesystem.Filesystem) ([]cdx.Component, error) {
+func (finding findingWithMetadata) getComponents() ([]cdx.Component, error) {
 	switch finding.RuleID {
 	case "private-key":
-		fileContent, err := fs.ReadFile(finding.File)
-		if err != nil {
-			return []cdx.Component{}, err
-		}
-		blocks := pemutility.ParsePEMToBlocksWithTypeFilter(fileContent, pemutility.Filter{
+		blocks := pemutility.ParsePEMToBlocksWithTypeFilter(finding.raw, pemutility.Filter{
 			FilterType: pemutility.PEMTypeFilterTypeAllowlist,
 			List:       []pemutility.PEMBlockType{pemutility.PEMBlockTypePrivateKey, pemutility.PEMBlockTypeECPrivateKey, pemutility.PEMBlockTypeRSAPrivateKey, pemutility.PEMBlockTypeOPENSSHPrivateKey},
 		})
@@ -140,7 +152,7 @@ func (finding findingWithMetadata) getComponents(fs filesystem.Filesystem) ([]cd
 		}
 
 		for block := range blocks {
-			currentComponents, err := pemutility.GenerateComponentsFromKeyBlock(block)
+			currentComponents, err := pemutility.GenerateComponentsFromPEMKeyBlock(block)
 			if err != nil {
 				return []cdx.Component{}, err
 			}

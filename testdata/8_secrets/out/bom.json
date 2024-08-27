@@ -29,58 +29,13 @@
   },
   "components": [
     {
-      "bom-ref": "22218eae201bb456",
-      "mime-type": "text/plain",
-      "type": "cryptographic-asset",
-      "name": "jwt",
-      "description": "Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.",
-      "evidence": {
-        "occurrences": [
-          {
-            "location": "jwt/example.txt",
-            "line": 2
-          },
-          {
-            "location": "jwt/owasp-juice-shop.ts",
-            "line": 263
-          },
-          {
-            "location": "jwt/test_jwt.txt",
-            "line": 0
-          },
-          {
-            "location": "jwt/test_jwt.txt",
-            "line": 1
-          }
-        ]
-      },
-      "cryptoProperties": {
-        "assetType": "related-crypto-material",
-        "relatedCryptoMaterialProperties": {
-          "type": "token"
-        }
-      }
-    },
-    {
-      "bom-ref": "913dd0ab19470651",
-      "mime-type": "text/plain",
+      "bom-ref": "9df38f1a9a9c8867",
+      "mime-type": "application/json",
       "type": "cryptographic-asset",
       "name": "private-key",
       "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
       "evidence": {
         "occurrences": [
-          {
-            "location": "rsa/GeekMasher GPG.asc",
-            "line": 0
-          },
-          {
-            "location": "rsa/GeekMasher_GPG_with_headers.asc",
-            "line": 0
-          },
-          {
-            "location": "rsa/rsa.js",
-            "line": 2
-          },
           {
             "location": "rsa/rsa.json",
             "line": 2
@@ -95,23 +50,35 @@
       }
     },
     {
-      "bom-ref": "466baea73222cdbf",
+      "bom-ref": "22218eae201bb456",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
-      "name": "planetscale-password",
-      "description": "Discovered a PlanetScale password, which could lead to unauthorized database operations and data breaches.",
+      "name": "jwt",
+      "description": "Uncovered a JSON Web Token, which may lead to unauthorized access to web applications and sensitive user data.",
       "evidence": {
         "occurrences": [
           {
-            "location": "database/connection_strings.txt",
-            "line": 3
+            "location": "jwt/test_jwt.txt",
+            "line": 0
+          },
+          {
+            "location": "jwt/test_jwt.txt",
+            "line": 1
+          },
+          {
+            "location": "jwt/example.txt",
+            "line": 2
+          },
+          {
+            "location": "jwt/owasp-juice-shop.ts",
+            "line": 263
           }
         ]
       },
       "cryptoProperties": {
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
-          "type": "password"
+          "type": "token"
         }
       }
     },
@@ -164,6 +131,35 @@
       }
     },
     {
+      "bom-ref": "913dd0ab19470651",
+      "mime-type": "text/plain",
+      "type": "cryptographic-asset",
+      "name": "private-key",
+      "description": "Identified a Private Key, which may compromise cryptographic security and sensitive data encryption.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "rsa/GeekMasher_GPG_with_headers.asc",
+            "line": 0
+          },
+          {
+            "location": "rsa/rsa.js",
+            "line": 2
+          },
+          {
+            "location": "rsa/GeekMasher GPG.asc",
+            "line": 0
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "private-key"
+        }
+      }
+    },
+    {
       "bom-ref": "c7b4dc573ee20d5c",
       "mime-type": "text/plain",
       "type": "cryptographic-asset",
@@ -185,6 +181,27 @@
         "assetType": "related-crypto-material",
         "relatedCryptoMaterialProperties": {
           "type": "key"
+        }
+      }
+    },
+    {
+      "bom-ref": "466baea73222cdbf",
+      "mime-type": "text/plain",
+      "type": "cryptographic-asset",
+      "name": "planetscale-password",
+      "description": "Discovered a PlanetScale password, which could lead to unauthorized database operations and data breaches.",
+      "evidence": {
+        "occurrences": [
+          {
+            "location": "database/connection_strings.txt",
+            "line": 3
+          }
+        ]
+      },
+      "cryptoProperties": {
+        "assetType": "related-crypto-material",
+        "relatedCryptoMaterialProperties": {
+          "type": "password"
         }
       }
     }

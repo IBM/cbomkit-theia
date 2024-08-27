@@ -26,7 +26,7 @@ import (
 	"ibm/container-image-cryptography-scanner/provider/docker"
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	"ibm/container-image-cryptography-scanner/scanner"
-	"ibm/container-image-cryptography-scanner/scanner/compare"
+	"ibm/container-image-cryptography-scanner/scanner/hash"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"
@@ -151,12 +151,16 @@ func TestScan(t *testing.T) {
 					return a.Name < b.Name
 				}),
 				cmpopts.SortSlices(func(a cdx.Component, b cdx.Component) bool {
-					aHash := compare.HashCDXComponentWithoutRefs(a)
-					bHash := compare.HashCDXComponentWithoutRefs(b)
+					aHash := hash.HashCDXComponentWithoutRefs(a)
+					bHash := hash.HashCDXComponentWithoutRefs(b)
 					return hex.EncodeToString(aHash[:]) < hex.EncodeToString(bHash[:])
 				}),
 				cmpopts.SortSlices(func(a cdx.EvidenceOccurrence, b cdx.EvidenceOccurrence) bool {
-					return a.Location < b.Location
+					if a.Location != b.Location {
+						return a.Location < b.Location
+					} else {
+						return *a.Line < *b.Line
+					}
 				}),
 				cmpopts.IgnoreTypes(cdx.Dependency{}),
 				cmpopts.IgnoreFields(cdx.Component{},

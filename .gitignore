@@ -33,3 +33,5 @@ cics_graphs/
 
 # Test files
 /*.json
+cics
+*.prof

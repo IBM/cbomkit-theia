@@ -58,17 +58,13 @@ func (layer Layer) WalkDir(fn filesystem.SimpleWalkDirFunc) error {
 }
 
 // Read a file from this layer
-func (layer Layer) ReadFile(path string) ([]byte, error) {
+func (layer Layer) Open(path string) (io.ReadCloser, error) {
 	readCloser, err := layer.OpenPathFromSquash(file.Path(path))
 	if err != nil {
-		return []byte{}, err
+		return nil, err
 	}
 
-	defer readCloser.Close()
-
-	contentBytes, err := io.ReadAll(readCloser)
-
-	return contentBytes, err
+	return readCloser, err
 }
 
 // Get the image config
