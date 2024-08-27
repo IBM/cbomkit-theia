@@ -24,8 +24,10 @@ import (
 	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
 	"log/slog"
+	"os"
 	"path/filepath"
 	"slices"
+	"strings"
 
 	"go.mozilla.org/pkcs7"
 
@@ -60,6 +62,9 @@ func NewCertificatePlugin() (plugins.Plugin, error) {
 func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 	certificates := []*x509CertificateWithMetadata{}
 
+	// Set GODEBUG to allow negative serial numbers (see https://github.com/golang/go/commit/db13584baedce4909915cb4631555f6dbd7b8c38)
+	setX509NegativeSerial()
+
 	err := fs.WalkDir(
 		func(path string) (err error) {
 			switch filepath.Ext(path) {
@@ -92,15 +97,18 @@ func (certificatesPlugin *CertificatesPlugin) UpdateBOM(fs filesystem.Filesystem
 				}
 				certificates = append(certificates, certs...)
 			default:
-				return err
+				return nil
 			}
 
-			return err
+			return nil
 		})
 
 	if err != nil {
 		return err
 	}
+
+	// Set GODEBUG to old setting
+	removeX509NegativeSerial()
 
 	slog.Debug("Certificate searching done", "count", len(certificates))
 
@@ -232,4 +240,50 @@ func IndexBomRefInDependencySlice(slice []cdx.Dependency, bomRef cdx.BOMReferenc
 	}
 
 	return -1
+}
+
+// Set x509negativeserial=1 in the GODEBUG environment variable.
+func setX509NegativeSerial() error {
+	godebug := os.Getenv("GODEBUG")
+	var newGodebug string
+
+	if strings.Contains(godebug, "x509negativeserial=") {
+		// Replace the existing x509negativeserial value with 1
+		newGodebug = strings.ReplaceAll(godebug, "x509negativeserial=0", "x509negativeserial=1")
+	} else {
+		// Append x509negativeserial=1 to the GODEBUG variable
+		if godebug != "" {
+			newGodebug = godebug + ",x509negativeserial=1"
+		} else {
+			newGodebug = "x509negativeserial=1"
+		}
+	}
+
+	// Set the modified GODEBUG environment variable
+	return os.Setenv("GODEBUG", newGodebug)
+}
+
+// Remove x509negativeserial from the GODEBUG environment variable.
+func removeX509NegativeSerial() error {
+	godebug := os.Getenv("GODEBUG")
+	if godebug == "" {
+		return nil // GODEBUG is not set, nothing to remove
+	}
+
+	// Split the GODEBUG variable by commas
+	parts := strings.Split(godebug, ",")
+	var newParts []string
+
+	for _, part := range parts {
+		// Skip the part that contains x509negativeserial
+		if !strings.HasPrefix(part, "x509negativeserial=") {
+			newParts = append(newParts, part)
+		}
+	}
+
+	// Join the remaining parts back together
+	newGodebug := strings.Join(newParts, ",")
+
+	// Set the modified GODEBUG environment variable
+	return os.Setenv("GODEBUG", newGodebug)
 }
