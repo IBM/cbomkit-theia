@@ -21,9 +21,10 @@ import (
 	"fmt"
 	"os"
 
+	"log/slog"
+
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/xeipuuv/gojsonschema"
-	"golang.org/x/exp/slog"
 )
 
 // Write bom to the file
