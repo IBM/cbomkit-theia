@@ -430,11 +430,11 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 		}, nil
 	case x509.PureEd25519:
 		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
-		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519"
-		comp.CryptoProperties.OID = "1.3.101.112"
+		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519" // https://datatracker.ietf.org/doc/html/rfc8032
+		comp.CryptoProperties.OID = "1.3.101.112" 
 		return signatureAlgorithmResult{
 			signature: &comp,
-			hash:      nil,
+			hash:      nil, // No Hash, see: https://datatracker.ietf.org/doc/html/rfc8032#section-4
 			pke:       nil,
 		}, nil
 	default:
@@ -557,7 +557,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getPublicKeyAlgo
 		return comp, nil
 	case x509.Ed25519:
 		comp := getGenericPublicKeyAlgorithmComponent(x509CertificateWithMetadata.PublicKeyAlgorithm, x509CertificateWithMetadata.path)
-		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519"
+		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519" // https://datatracker.ietf.org/doc/html/rfc8032
 		comp.CryptoProperties.OID = "1.3.101.112"
 		return comp, nil
 	default:
