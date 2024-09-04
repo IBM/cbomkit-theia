@@ -108,6 +108,13 @@ Server: Docker Engine - Community
 
 ## Running
 
+### Docker
+
+```shell
+docker build -t cics . 
+docker run -v /var/run/docker.sock:/var/run/docker.sock cics [command] > enriched_CBOM.json
+```
+
 ### Compiled
 
 ```shell
