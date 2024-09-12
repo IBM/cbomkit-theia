@@ -20,6 +20,7 @@ import (
 	"ibm/container-image-cryptography-scanner/provider/filesystem"
 	"ibm/container-image-cryptography-scanner/scanner"
 	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"io"
 	"os"
 
 	"github.com/spf13/cobra"
@@ -72,13 +73,13 @@ cics dir my/cool/directory
 			}
 		}
 
-		if err := container.Provide(func() *os.File {
+		if err := container.Provide(func() io.Writer {
 			return os.Stdout
 		}); err != nil {
 			panic(err)
 		}
 
-		if err := container.Invoke(scanner.CreateAndRunScan); err != nil {
+		if err := container.Invoke(scanner.ReadFilesAndRunScan); err != nil {
 			panic(err)
 		}
 	},
