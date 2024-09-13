@@ -17,7 +17,7 @@
 package image
 
 import (
-	"ibm/container-image-cryptography-scanner/provider/docker"
+	"ibm/cbomkit-theia/provider/docker"
 
 	"github.com/spf13/cobra"
 )
@@ -37,7 +37,7 @@ Supported image sources:
 - image from singularity
 
 Examples:
-cics image get nginx`,
+cbomkit-theia image get nginx`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		image, err := docker.GetPrebuiltImage(args[0])

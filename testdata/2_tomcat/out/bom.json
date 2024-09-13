@@ -18,8 +18,8 @@
           "provider": {
             "name": "IBM Research"
           },
-          "name": "Container Image Cryptography Scanner - CICS",
-          "version": "0.8",
+          "name": "CBOMkit-theia",
+          "version": "0.9",
           "services": [
             {
               "name": "Certificate File Plugin"
@@ -42,7 +42,7 @@
       "name": "sha-256",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -74,7 +74,7 @@
       "name": "desede-168-cbc-pkcs5",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -106,7 +106,7 @@
       "name": "sha-1",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -145,7 +145,7 @@
       "name": "aes-128",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -177,7 +177,7 @@
       "name": "pbkdf2withhmacsha1",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -206,7 +206,7 @@
       "name": "aes-128-cbc-pkcs5",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -239,7 +239,7 @@
       "name": "hmacsha1",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -266,7 +266,7 @@
       "name": "des-56-cbc-pkcs5",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -298,7 +298,7 @@
       "name": "key:pbkdf2withhmacsha1",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -324,7 +324,7 @@
       "name": "key:aes",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -351,7 +351,7 @@
       "name": "md5",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -399,7 +399,7 @@
       "name": "TLSv1.2",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "0"
         }
       ],
@@ -439,7 +439,7 @@
       "name": "RSA",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -466,7 +466,7 @@
       "name": "3DES_EDE_CBC",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "0"
         }
       ],
@@ -495,7 +495,7 @@
       "name": "SHA1",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],

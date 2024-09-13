@@ -19,10 +19,10 @@ package certificates
 import (
 	"encoding/pem"
 	"errors"
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
-	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/cbomkit-theia/provider/filesystem"
+	scanner_errors "ibm/cbomkit-theia/scanner/errors"
+	pemutility "ibm/cbomkit-theia/scanner/pem-utility"
+	"ibm/cbomkit-theia/scanner/plugins"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -31,7 +31,7 @@ import (
 
 	"go.mozilla.org/pkcs7"
 
-	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
+	bomdag "ibm/cbomkit-theia/scanner/bom-dag"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

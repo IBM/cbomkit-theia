@@ -17,7 +17,7 @@
 package plugins
 
 import (
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
+	"ibm/cbomkit-theia/provider/filesystem"
 	"strings"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"

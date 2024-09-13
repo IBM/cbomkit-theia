@@ -23,8 +23,8 @@ import (
 	"path/filepath"
 	"time"
 
-	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
-	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
+	bomdag "ibm/cbomkit-theia/scanner/bom-dag"
+	pemutility "ibm/cbomkit-theia/scanner/pem-utility"
 
 	"github.com/google/uuid"
 
@@ -431,7 +431,7 @@ func (x509CertificateWithMetadata *x509CertificateWithMetadata) getSignatureAlgo
 	case x509.PureEd25519:
 		comp := getGenericSignatureAlgorithmComponent(x509CertificateWithMetadata.SignatureAlgorithm, x509CertificateWithMetadata.path)
 		comp.CryptoProperties.AlgorithmProperties.Curve = "Ed25519" // https://datatracker.ietf.org/doc/html/rfc8032
-		comp.CryptoProperties.OID = "1.3.101.112" 
+		comp.CryptoProperties.OID = "1.3.101.112"
 		return signatureAlgorithmResult{
 			signature: &comp,
 			hash:      nil, // No Hash, see: https://datatracker.ietf.org/doc/html/rfc8032#section-4

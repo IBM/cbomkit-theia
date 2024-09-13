@@ -19,9 +19,9 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/componentwithconfidenceslice"
-	"ibm/container-image-cryptography-scanner/scanner/confidencelevel"
-	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	advancedcomponentslice "ibm/cbomkit-theia/scanner/componentwithconfidenceslice"
+	"ibm/cbomkit-theia/scanner/confidencelevel"
+	scanner_errors "ibm/cbomkit-theia/scanner/errors"
 	"log/slog"
 	"strconv"
 	"strings"

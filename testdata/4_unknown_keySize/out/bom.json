@@ -11,8 +11,8 @@
           "provider": {
             "name": "IBM Research"
           },
-          "name": "Container Image Cryptography Scanner - CICS",
-          "version": "0.8",
+          "name": "CBOMkit-theia",
+          "version": "0.9",
           "services": [
             {
               "name": "Secret Plugin"
@@ -40,7 +40,7 @@
       "name": "TLSv1.2",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "35"
         }
       ],
@@ -145,7 +145,7 @@
       "name": "ECDH",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -171,7 +171,7 @@
       "name": "RSA-2048",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],
@@ -198,7 +198,7 @@
       "name": "AES",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "35"
         }
       ],
@@ -227,7 +227,7 @@
       "name": "SHA384",
       "properties": [
         {
-          "name": "cics_confidence_level",
+          "name": "confidence_level",
           "value": "50"
         }
       ],

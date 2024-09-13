@@ -22,16 +22,16 @@ go.work
 __debug*
 
 # Configs
-.cics.yml
+.cbomkit-theia.yml
 .scannerwork
 
 # Graphs
-cics_graphs/
+cbomkit-theia_graphs/
 *.svg
 *.dot
 *.png
 
 # Test files
 /*.json
-cics
+cbomkit-theia
 *.prof

@@ -22,11 +22,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"ibm/container-image-cryptography-scanner/provider/cyclonedx"
-	"ibm/container-image-cryptography-scanner/provider/docker"
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	"ibm/container-image-cryptography-scanner/scanner"
-	"ibm/container-image-cryptography-scanner/scanner/hash"
+	"ibm/cbomkit-theia/provider/cyclonedx"
+	"ibm/cbomkit-theia/provider/docker"
+	"ibm/cbomkit-theia/provider/filesystem"
+	"ibm/cbomkit-theia/scanner"
+	"ibm/cbomkit-theia/scanner/hash"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"

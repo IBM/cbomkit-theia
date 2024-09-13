@@ -18,9 +18,9 @@ package cmd
 
 import (
 	"fmt"
-	"ibm/container-image-cryptography-scanner/cmd/image"
-	"ibm/container-image-cryptography-scanner/scanner"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/cbomkit-theia/cmd/image"
+	"ibm/cbomkit-theia/scanner"
+	"ibm/cbomkit-theia/scanner/plugins"
 	"os"
 	"path/filepath"
 
@@ -35,19 +35,20 @@ var activatedPlugins []string
 
 // rootCmd represents the base command when called without any subcommands
 var rootCmd = &cobra.Command{
-	Use:   "cics",
-	Short: "Container Cryptography Scanner (CICS) analyzes cryptographic assets in a container image or directory",
+	Use:   "cbomkit-theia",
+	Short: "CBOMkit-theia analyzes cryptographic assets in a container image or directory",
 	Long: `
- ██████ ██  ██████ ███████ 
-██      ██ ██      ██      
-██      ██ ██      ███████ 
-██      ██ ██           ██ 
- ██████ ██  ██████ ███████ by IBM Research
+ ██████╗██████╗  ██████╗ ███╗   ███╗██╗  ██╗██╗████████╗████████╗██╗  ██╗███████╗██╗ █████╗ 
+██╔════╝██╔══██╗██╔═══██╗████╗ ████║██║ ██╔╝██║╚══██╔══╝╚══██╔══╝██║  ██║██╔════╝██║██╔══██╗
+██║     ██████╔╝██║   ██║██╔████╔██║█████╔╝ ██║   ██║█████╗██║   ███████║█████╗  ██║███████║
+██║     ██╔══██╗██║   ██║██║╚██╔╝██║██╔═██╗ ██║   ██║╚════╝██║   ██╔══██║██╔══╝  ██║██╔══██║
+╚██████╗██████╔╝╚██████╔╝██║ ╚═╝ ██║██║  ██╗██║   ██║      ██║   ██║  ██║███████╗██║██║  ██║
+ ╚═════╝╚═════╝  ╚═════╝ ╚═╝     ╚═╝╚═╝  ╚═╝╚═╝   ╚═╝      ╚═╝   ╚═╝  ╚═╝╚══════╝╚═╝╚═╝  ╚═╝ by IBM Research
 
-Container Image Cryptography Scanner (CICS) 
-analyzes cryptographic assets in a container image or directory.
+CBOMkit-theia analyzes cryptographic assets in a container image or directory.
+It is part of cbomkit (https://github.com/IBM/cbomkit) by IBM Research.
 
---> Disclaimer: The CICS does *not* perform source code scanning <--
+--> Disclaimer: CBOMkit-theia does *not* perform source code scanning <--
 --> Use https://github.com/IBM/sonar-cryptography for source code scanning <--
 
 Features
@@ -72,9 +73,9 @@ Supported BOM formats (input & output):
 - CycloneDXv1.6
 
 Examples:
-cics dir my/cool/directory
-cics image get nginx
-cics image build my/Dockerfile` + "\n\n" + getPluginExplanations(),
+cbomkit-theia dir my/cool/directory
+cbomkit-theia image get nginx
+cbomkit-theia image build my/Dockerfile` + "\n\n" + getPluginExplanations(),
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.
@@ -90,7 +91,7 @@ func init() {
 	rootCmd.AddCommand(image.ImageCmd)
 	cobra.OnInitialize(initConfig)
 
-	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cics.yaml)")
+	rootCmd.PersistentFlags().StringVar(&cfgFile, "config", "", "config file (default is $HOME/.cbomkit-theia.yaml)")
 
 	rootCmd.PersistentFlags().StringVarP(&bomFilePath, "bom", "b", "", "BOM file to be verified and enriched")
 	viper.BindPFlag("bom", rootCmd.PersistentFlags().Lookup("bom"))
@@ -122,10 +123,10 @@ func initConfig() {
 		home, err := os.UserHomeDir()
 		cobra.CheckErr(err)
 
-		// Search config in home directory with name ".cics" (without extension).
+		// Search config in home directory with name ".cbomkit-theia" (without extension).
 		viper.AddConfigPath(home)
 		viper.SetConfigType("yaml")
-		viper.SetConfigName(".cics")
+		viper.SetConfigName(".cbomkit-theia")
 	}
 
 	viper.BindPFlag("docker_host", image.ImageCmd.PersistentFlags().Lookup("docker_host"))

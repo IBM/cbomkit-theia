@@ -19,9 +19,9 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/componentwithconfidenceslice"
-	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	"ibm/cbomkit-theia/provider/filesystem"
+	advancedcomponentslice "ibm/cbomkit-theia/scanner/componentwithconfidenceslice"
+	scanner_errors "ibm/cbomkit-theia/scanner/errors"
 	"log/slog"
 	"path/filepath"
 	"strconv"
@@ -197,7 +197,7 @@ func extractTLSRules(securityProperties *properties.Properties) (restrictions []
 			if strings.Contains(algorithm, "jdkCA") ||
 				strings.Contains(algorithm, "denyAfter") ||
 				strings.Contains(algorithm, "usage") {
-				slog.Warn("found constraint in java.security that is not supported in this version of CICS", "algorithm", algorithm)
+				slog.Warn("found constraint in java.security that is not supported in this version of CBOMkit-theia", "algorithm", algorithm)
 				continue
 			}
 

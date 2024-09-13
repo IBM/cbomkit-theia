@@ -17,10 +17,10 @@
 package secrets
 
 import (
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	bomdag "ibm/container-image-cryptography-scanner/scanner/bom-dag"
-	pemutility "ibm/container-image-cryptography-scanner/scanner/pem-utility"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/cbomkit-theia/provider/filesystem"
+	bomdag "ibm/cbomkit-theia/scanner/bom-dag"
+	pemutility "ibm/cbomkit-theia/scanner/pem-utility"
+	"ibm/cbomkit-theia/scanner/plugins"
 	"log/slog"
 	"strings"
 
@@ -75,7 +75,7 @@ func (SecretsPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
 			return nil
 		}
 
-		if !(strings.HasPrefix(mime.String(), "text") ||  mime.Parent() != nil && strings.HasPrefix(mime.Parent().String(), "text")) {
+		if !(strings.HasPrefix(mime.String(), "text") || mime.Parent() != nil && strings.HasPrefix(mime.Parent().String(), "text")) {
 			return nil // Skip
 		}
 

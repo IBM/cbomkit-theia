@@ -22,8 +22,8 @@ import (
 	"io"
 	"log/slog"
 
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
+	"ibm/cbomkit-theia/provider/filesystem"
+	scanner_errors "ibm/cbomkit-theia/scanner/errors"
 
 	"github.com/anchore/stereoscope/pkg/file"
 	"github.com/anchore/stereoscope/pkg/filetree/filenode"

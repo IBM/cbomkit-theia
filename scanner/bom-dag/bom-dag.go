@@ -269,10 +269,10 @@ func (bomDAG *BomDAG) getVertexOrAddNew(value bomDAGVertex, options ...func(*gra
 
 // Write a graphical representation of the graph to a file
 func (bomDAG *BomDAG) WriteToFile(filenamePrefix string) {
-	if err := os.MkdirAll(filepath.Join(".", "cics_graphs"), os.ModePerm); err != nil {
+	if err := os.MkdirAll(filepath.Join(".", "cbomkit-theia_graphs"), os.ModePerm); err != nil {
 		slog.Warn("Failed to create directory for graphs. Skipping this step.", "error", err.Error())
 	} else {
-		file, err := os.Create(filepath.Join(".", "cics_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", filenamePrefix))))
+		file, err := os.Create(filepath.Join(".", "cbomkit-theia_graphs", url.PathEscape(fmt.Sprintf("%v_certificate_graph.dot", filenamePrefix))))
 		if err != nil {
 			slog.Warn("Failed to generate DOT file for graph", "error", err.Error())
 		}
