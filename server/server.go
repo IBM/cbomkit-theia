@@ -108,7 +108,7 @@ func Serve() {
 			c.DataFromReader(http.StatusOK, int64(len(output.Bytes())), "application/vnd.cyclonedx+json; version=1.6", output, map[string]string{})
 		}
 	})
-	r.Run("localhost:8080") // listen and serve on 0.0.0.0:8080
+	r.Run("0.0.0.0:8080") // listen and serve on 0.0.0.0:8080
 }
 
 func returnError(c *gin.Context, err error) {

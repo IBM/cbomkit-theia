@@ -14,10 +14,7 @@
 #
 # SPDX-License-Identifier: Apache-2.0
 
-# MUST BE RUN WITH -v /var/run/docker.sock:/var/run/docker.sock
-
 FROM golang:1.23.0-alpine3.20
-RUN apk add docker
 
 WORKDIR /app
 
@@ -28,4 +25,6 @@ COPY . ./
 
 RUN CGO_ENABLED=0 GOOS=linux go build -o /cics
 
+EXPOSE 8080
 ENTRYPOINT ["/cics"]
+CMD ["server"]
