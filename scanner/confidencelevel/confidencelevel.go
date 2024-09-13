@@ -67,7 +67,7 @@ func (confidenceLevel *ConfidenceLevel) GetValue() int {
 // Generate a CycloneDX component property from this confidence
 func (confidenceLevel *ConfidenceLevel) GetProperty() cdx.Property {
 	return cdx.Property{
-		Name:  "cics_confidence_level",
+		Name:  "confidence_level",
 		Value: fmt.Sprint(confidenceLevel.value),
 	}
 }

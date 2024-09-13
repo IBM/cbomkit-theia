@@ -23,8 +23,8 @@ RUN go mod download
 
 COPY . ./
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /cics
+RUN CGO_ENABLED=0 GOOS=linux go build -o /cbomkit-theia
 
 EXPOSE 8080
-ENTRYPOINT ["/cics"]
+ENTRYPOINT ["/cbomkit-theia"]
 CMD ["server"]

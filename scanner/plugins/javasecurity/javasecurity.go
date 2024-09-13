@@ -19,10 +19,10 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	advancedcomponentslice "ibm/container-image-cryptography-scanner/scanner/componentwithconfidenceslice"
-	scanner_errors "ibm/container-image-cryptography-scanner/scanner/errors"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/cbomkit-theia/provider/filesystem"
+	advancedcomponentslice "ibm/cbomkit-theia/scanner/componentwithconfidenceslice"
+	scanner_errors "ibm/cbomkit-theia/scanner/errors"
+	"ibm/cbomkit-theia/scanner/plugins"
 	"log/slog"
 	"os"
 	"path/filepath"
@@ -58,7 +58,7 @@ func (JavaSecurityPlugin) GetType() plugins.PluginType {
 
 // High-level function to update a list of components (e.g. remove components and add new ones) based on the underlying filesystem
 func (javaSecurityPlugin *JavaSecurityPlugin) UpdateBOM(fs filesystem.Filesystem, bom *cdx.BOM) error {
-	slog.Warn("Current version of CICS does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
+	slog.Warn("Current version of CBOMkit-theia does not take dynamic changes of java security properties (e.g. via System.setProperty) into account. Use with caution!")
 
 	if bom.Components == nil {
 		return nil

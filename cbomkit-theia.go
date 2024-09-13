@@ -17,7 +17,7 @@
 package main
 
 import (
-	"ibm/container-image-cryptography-scanner/cmd"
+	"ibm/cbomkit-theia/cmd"
 	"log/slog"
 	"os"
 )

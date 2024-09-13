@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: CICS
+  title: CBOMkit-theia
   license:
     name: Apache 2.0
     url: http://www.apache.org/licenses/LICENSE-2.0.html
@@ -52,6 +52,6 @@ paths:
                   error:
                     type: string
 components:
-schemas:
-    BOM:
-      $ref: "https://raw.githubusercontent.com/CycloneDX/specification/master/schema/bom-1.6.schema.json"
+  schemas:
+      BOM:
+        $ref: "https://raw.githubusercontent.com/CycloneDX/specification/master/schema/bom-1.6.schema.json"

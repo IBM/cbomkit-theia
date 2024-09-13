@@ -17,7 +17,7 @@
 package image
 
 import (
-	"ibm/container-image-cryptography-scanner/provider/docker"
+	"ibm/cbomkit-theia/provider/docker"
 
 	"github.com/spf13/cobra"
 )
@@ -31,7 +31,7 @@ Supported image sources:
 - local application with dockerfile (ready to be build)
 
 Examples:
-cics image build my/Dockerfile`,
+cbomkit-theia image build my/Dockerfile`,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {
 		image, err := docker.BuildNewImage(args[0])

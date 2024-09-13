@@ -17,7 +17,7 @@
 package bomdag
 
 import (
-	"ibm/container-image-cryptography-scanner/scanner/hash"
+	"ibm/cbomkit-theia/scanner/hash"
 
 	"github.com/dominikbraun/graph"
 )

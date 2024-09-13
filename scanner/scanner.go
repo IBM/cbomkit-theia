@@ -19,12 +19,12 @@ package scanner
 import (
 	"errors"
 	"fmt"
-	"ibm/container-image-cryptography-scanner/provider/cyclonedx"
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	plugin_package "ibm/container-image-cryptography-scanner/scanner/plugins"
-	"ibm/container-image-cryptography-scanner/scanner/plugins/certificates"
-	"ibm/container-image-cryptography-scanner/scanner/plugins/javasecurity"
-	"ibm/container-image-cryptography-scanner/scanner/plugins/secrets"
+	"ibm/cbomkit-theia/provider/cyclonedx"
+	"ibm/cbomkit-theia/provider/filesystem"
+	plugin_package "ibm/cbomkit-theia/scanner/plugins"
+	"ibm/cbomkit-theia/scanner/plugins/certificates"
+	"ibm/cbomkit-theia/scanner/plugins/javasecurity"
+	"ibm/cbomkit-theia/scanner/plugins/secrets"
 	"io"
 	"log"
 	"log/slog"
@@ -181,8 +181,8 @@ func (scanner *scanner) addMetadata(bom *cdx.BOM) {
 		Provider: &cdx.OrganizationalEntity{
 			Name: "IBM Research",
 		},
-		Name:     "Container Image Cryptography Scanner - CICS",
-		Version:  "0.8",
+		Name:     "CBOMkit-theia",
+		Version:  "0.9",
 		Services: &pluginServices,
 	})
 }

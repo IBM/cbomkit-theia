@@ -17,7 +17,7 @@
 package cmd
 
 import (
-	"ibm/container-image-cryptography-scanner/server"
+	"ibm/cbomkit-theia/server"
 
 	"github.com/spf13/cobra"
 )

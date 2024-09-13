@@ -17,9 +17,9 @@
 package cmd
 
 import (
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	"ibm/container-image-cryptography-scanner/scanner"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/cbomkit-theia/provider/filesystem"
+	"ibm/cbomkit-theia/scanner"
+	"ibm/cbomkit-theia/scanner/plugins"
 	"io"
 	"os"
 
@@ -37,7 +37,7 @@ Supported image/filesystem sources:
 - local directory
 
 Examples:
-cics dir my/cool/directory
+cbomkit-theia dir my/cool/directory
 `,
 	Args: cobra.ExactArgs(1),
 	Run: func(cmd *cobra.Command, args []string) {

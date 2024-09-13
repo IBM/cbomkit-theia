@@ -18,7 +18,7 @@ package javasecurity
 
 import (
 	"fmt"
-	"ibm/container-image-cryptography-scanner/provider/docker"
+	"ibm/cbomkit-theia/provider/docker"
 	"os"
 	"strconv"
 	"testing"
@@ -34,7 +34,7 @@ java.security related
 */
 
 func setUpExtractionOfRule(javaSecurityContent string) *properties.Properties {
-	filesystem, err := os.MkdirTemp("", "CICS_CMD_ARGUMENT_TEST")
+	filesystem, err := os.MkdirTemp("", "cbomkit-theia_CMD_ARGUMENT_TEST")
 	if err != nil {
 		panic(err)
 	}
@@ -156,7 +156,7 @@ container image related
 */
 
 func setUpCMD(originalKey string, originalValue string, newKey string, newValue string, dockerArgument string, dockerCommand string, securityOverridePropertiesFileValue bool) (*properties.Properties, []string, docker.ActiveImage) {
-	filesystem, err := os.MkdirTemp("", "CICS_CMD_ARGUMENT_TEST")
+	filesystem, err := os.MkdirTemp("", "cbomkit-theia_CMD_ARGUMENT_TEST")
 	if err != nil {
 		panic(err)
 	}

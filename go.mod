@@ -1,4 +1,4 @@
-module ibm/container-image-cryptography-scanner
+module ibm/cbomkit-theia
 
 go 1.23.0
 

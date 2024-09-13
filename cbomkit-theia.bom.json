@@ -2,10 +2,10 @@
   "$schema": "http://cyclonedx.org/schema/bom-1.5.schema.json",
   "bomFormat": "CycloneDX",
   "specVersion": "1.5",
-  "serialNumber": "urn:uuid:8c6710c1-896b-422e-95fc-3502108b39ea",
+  "serialNumber": "urn:uuid:41b2fd6b-2644-4a5e-a9d0-535c8adc2bed",
   "version": 1,
   "metadata": {
-    "timestamp": "2024-09-04T14:47:14+02:00",
+    "timestamp": "2024-09-13T09:42:52+02:00",
     "tools": [
       {
         "vendor": "CycloneDX",
@@ -46,11 +46,11 @@
       }
     ],
     "component": {
-      "bom-ref": "pkg:golang/ibm/container-image-cryptography-scanner@v0.0.0-20240904124639-54ff19baa8ba?type=module",
+      "bom-ref": "pkg:golang/ibm/cbomkit-theia@v0.0.0-20240913073940-823776db3ebe?type=module",
       "type": "application",
-      "name": "ibm/container-image-cryptography-scanner",
-      "version": "v0.0.0-20240904124639-54ff19baa8ba",
-      "purl": "pkg:golang/ibm/container-image-cryptography-scanner@v0.0.0-20240904124639-54ff19baa8ba?type=module\u0026goos=darwin\u0026goarch=arm64",
+      "name": "ibm/cbomkit-theia",
+      "version": "v0.0.0-20240913073940-823776db3ebe",
+      "purl": "pkg:golang/ibm/cbomkit-theia@v0.0.0-20240913073940-823776db3ebe?type=module\u0026goos=darwin\u0026goarch=arm64",
       "properties": [
         {
           "name": "cdx:gomod:build:env:CGO_ENABLED",
@@ -2940,6 +2940,29 @@
       }
     },
     {
+      "bom-ref": "pkg:golang/golang.org/x/exp@v0.0.0-20240823005443-9b4947da3948?type=module",
+      "type": "library",
+      "name": "golang.org/x/exp",
+      "version": "v0.0.0-20240823005443-9b4947da3948",
+      "scope": "required",
+      "hashes": [
+        {
+          "alg": "SHA-256",
+          "content": "931e83b37325a625072a3eecc959dba79efefbc5a9b8a3dc479ca32c18ef2c40"
+        }
+      ],
+      "purl": "pkg:golang/golang.org/x/exp@v0.0.0-20240823005443-9b4947da3948?type=module\u0026goos=darwin\u0026goarch=arm64",
+      "evidence": {
+        "licenses": [
+          {
+            "license": {
+              "id": "BSD-Source-Code"
+            }
+          }
+        ]
+      }
+    },
+    {
       "bom-ref": "pkg:golang/golang.org/x/net@v0.28.0?type=module",
       "type": "library",
       "name": "golang.org/x/net",
@@ -3207,7 +3230,7 @@
   ],
   "dependencies": [
     {
-      "ref": "pkg:golang/ibm/container-image-cryptography-scanner@v0.0.0-20240904124639-54ff19baa8ba?type=module",
+      "ref": "pkg:golang/ibm/cbomkit-theia@v0.0.0-20240913073940-823776db3ebe?type=module",
       "dependsOn": [
         "pkg:golang/github.com/CycloneDX/cyclonedx-go@v0.9.0?type=module",
         "pkg:golang/github.com/anchore/go-logger@v0.0.0-20240217160628-ee28a485904f?type=module",
@@ -3226,7 +3249,8 @@
         "pkg:golang/github.com/zricethezav/gitleaks/v8@v8.18.4?type=module",
         "pkg:golang/go.mozilla.org/pkcs7@v0.0.0-20210826202110-33d05740a352?type=module",
         "pkg:golang/go.uber.org/dig@v1.18.0?type=module",
-        "pkg:golang/golang.org/x/crypto@v0.26.0?type=module"
+        "pkg:golang/golang.org/x/crypto@v0.26.0?type=module",
+        "pkg:golang/golang.org/x/exp@v0.0.0-20240823005443-9b4947da3948?type=module"
       ]
     },
     {
@@ -3774,7 +3798,10 @@
       ]
     },
     {
-      "ref": "pkg:golang/github.com/sagikazarmark/slog-shim@v0.1.0?type=module"
+      "ref": "pkg:golang/github.com/sagikazarmark/slog-shim@v0.1.0?type=module",
+      "dependsOn": [
+        "pkg:golang/golang.org/x/exp@v0.0.0-20240823005443-9b4947da3948?type=module"
+      ]
     },
     {
       "ref": "pkg:golang/github.com/scylladb/go-set@v1.0.3-0.20200225121959-cc7b2070d91e?type=module"
@@ -3845,6 +3872,7 @@
         "pkg:golang/go.opentelemetry.io/otel/metric@v1.29.0?type=module",
         "pkg:golang/go.opentelemetry.io/otel/trace@v1.29.0?type=module",
         "pkg:golang/golang.org/x/crypto@v0.26.0?type=module",
+        "pkg:golang/golang.org/x/exp@v0.0.0-20240823005443-9b4947da3948?type=module",
         "pkg:golang/golang.org/x/net@v0.28.0?type=module",
         "pkg:golang/golang.org/x/sync@v0.8.0?type=module",
         "pkg:golang/golang.org/x/sys@v0.24.0?type=module",
@@ -4015,6 +4043,13 @@
         "pkg:golang/golang.org/x/sys@v0.24.0?type=module",
         "pkg:golang/golang.org/x/term@v0.23.0?type=module",
         "pkg:golang/golang.org/x/text@v0.17.0?type=module"
+      ]
+    },
+    {
+      "ref": "pkg:golang/golang.org/x/exp@v0.0.0-20240823005443-9b4947da3948?type=module",
+      "dependsOn": [
+        "pkg:golang/github.com/google/go-cmp@v0.6.0?type=module",
+        "pkg:golang/golang.org/x/sync@v0.8.0?type=module"
       ]
     },
     {

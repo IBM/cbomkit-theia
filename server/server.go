@@ -18,10 +18,10 @@ package server
 
 import (
 	"bytes"
-	"ibm/container-image-cryptography-scanner/provider/docker"
-	"ibm/container-image-cryptography-scanner/provider/filesystem"
-	"ibm/container-image-cryptography-scanner/scanner"
-	"ibm/container-image-cryptography-scanner/scanner/plugins"
+	"ibm/cbomkit-theia/provider/docker"
+	"ibm/cbomkit-theia/provider/filesystem"
+	"ibm/cbomkit-theia/scanner"
+	"ibm/cbomkit-theia/scanner/plugins"
 	"io"
 	"net/http"
 

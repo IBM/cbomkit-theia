@@ -17,7 +17,7 @@
 package componentwithconfidenceslice
 
 import (
-	"ibm/container-image-cryptography-scanner/scanner/confidencelevel"
+	"ibm/cbomkit-theia/scanner/confidencelevel"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )
@@ -76,7 +76,7 @@ func (advancedComponentSlice *ComponentWithConfidenceSlice) GetByRef(ref cdx.BOM
 	}
 }
 
-// Generate CycloneDX Components from this AdvancedComponentSlice; automatically sets the cics_confidence_level property
+// Generate CycloneDX Components from this AdvancedComponentSlice; automatically sets the confidence_level property
 func (advancedComponentSlice *ComponentWithConfidenceSlice) GetComponentSlice() []cdx.Component {
 	finalCompSlice := make([]cdx.Component, 0, len(advancedComponentSlice.components))
 

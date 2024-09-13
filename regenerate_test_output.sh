@@ -17,13 +17,13 @@ for dir in testdata/*; do
             echo "Regenerating output for test case in $dir"
             
             if [ -d "$dir/dir" ]; then
-                go run cics.go dir -b "$input" "$dirinput" > "$output"
+                go run cbomkit-theia.go dir -b "$input" "$dirinput" > "$output"
             elif [ -d "$dir/image" ]; then
                 if [ ! -f "$dockerfile" ]; then
                     echo "Dockerfile not found in $dir/image, skipping..."
                     continue
                 fi
-                go run cics.go image build -b "$input" "$dockerfile" > "$output"
+                go run cbomkit-theia.go image build -b "$input" "$dockerfile" > "$output"
             else
                 echo "Directory 'dir' or 'image' not found in $dir, skipping..."
             fi
