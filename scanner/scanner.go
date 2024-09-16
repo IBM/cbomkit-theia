@@ -17,6 +17,7 @@
 package scanner
 
 import (
+	"errors"
 	"fmt"
 	"ibm/cbomkit-theia/provider/cyclonedx"
 	"ibm/cbomkit-theia/provider/filesystem"
@@ -24,6 +25,7 @@ import (
 	"ibm/cbomkit-theia/scanner/plugins/certificates"
 	"ibm/cbomkit-theia/scanner/plugins/javasecurity"
 	"ibm/cbomkit-theia/scanner/plugins/secrets"
+	"io"
 	"log"
 	"log/slog"
 	"os"
@@ -39,10 +41,18 @@ type ScannerParameterStruct struct {
 	dig.In
 
 	Fs            filesystem.Filesystem
-	Target        *os.File
+	Target        io.Writer
 	BomFilePath   string                  `name:"bomFilePath"`
 	BomSchemaPath string                  `name:"bomSchemaPath"`
 	Plugins       []plugin_package.Plugin `group:"plugins"`
+}
+
+func GetAllPluginNames() []string {
+	out := make([]string, 0, len(GetAllPluginConstructors()))
+	for name := range GetAllPluginConstructors() {
+		out = append(out, name)
+	}
+	return out
 }
 
 func GetAllPluginConstructors() map[string]plugin_package.PluginConstructor {
@@ -53,25 +63,53 @@ func GetAllPluginConstructors() map[string]plugin_package.PluginConstructor {
 	}
 }
 
+func GetPluginConstructorsFromNames(names []string) ([]plugin_package.PluginConstructor, error) {
+	pluginConstructors := make([]plugin_package.PluginConstructor, 0, len(names))
+	for _, name := range names {
+		constructor, ok := GetAllPluginConstructors()[name]
+		if !ok {
+			// Error
+			return pluginConstructors, fmt.Errorf("%v is not a valid plugin name", name)
+		} else {
+			pluginConstructors = append(pluginConstructors, constructor)
+		}
+	}
+	return pluginConstructors, nil
+}
+
 // High-level function to do most heavy lifting for scanning a filesystem with a BOM. Output is written to target.
-func CreateAndRunScan(params ScannerParameterStruct) error {
+func ReadFilesAndRunScan(params ScannerParameterStruct) error {
 	var bom *cdx.BOM
 	if params.BomFilePath != "" {
 		var err error
-		bom, err = cyclonedx.ParseBOM(params.BomFilePath, params.BomSchemaPath)
+		bomReader, err1 := os.Open(params.BomFilePath)
+		schemaReader, err2 := os.Open(params.BomSchemaPath)
+		if errors.Join(err1, err2) != nil {
+			return errors.Join(err1, err2)
+		}
+		bom, err = cyclonedx.ParseBOM(bomReader, schemaReader)
 		if err != nil {
 			return err
 		}
 	} else {
-		bom = cdx.NewBOM()
-		bom.Metadata = &cdx.Metadata{
-			Timestamp: time.Now().Format(time.RFC3339),
-		}
-		bom.SerialNumber = "urn:uuid:" + uuid.New().String()
+		bom = NewBOMWithMetadata()
 	}
 
-	scanner := newScanner(params.Plugins)
-	newBom, err := scanner.scan(*bom, params.Fs)
+	return RunScan(bom, params.Plugins, params.Fs, params.Target)
+}
+
+func NewBOMWithMetadata() *cdx.BOM {
+	bom := cdx.NewBOM()
+	bom.Metadata = &cdx.Metadata{
+		Timestamp: time.Now().Format(time.RFC3339),
+	}
+	bom.SerialNumber = "urn:uuid:" + uuid.New().String()
+	return bom
+}
+
+func RunScan(bom *cdx.BOM, plugins []plugin_package.Plugin, fs filesystem.Filesystem, target io.Writer) error {
+	scanner := newScanner(plugins)
+	newBom, err := scanner.scan(*bom, fs)
 	if err != nil {
 		return err
 	}
@@ -80,13 +118,7 @@ func CreateAndRunScan(params ScannerParameterStruct) error {
 
 	log.Default().Println("FINISHED SCANNING")
 
-	err = cyclonedx.WriteBOM(&newBom, params.Target)
-
-	if err != nil {
-		return err
-	}
-
-	return err
+	return cyclonedx.WriteBOM(&newBom, target)
 }
 
 // scanner is used internally to represent a single scanner with several plugins (e.g. java.security plugin) scanning a single filesystem (e.g. a docker image layer)

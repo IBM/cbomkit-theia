@@ -19,17 +19,19 @@ package cyclonedx
 import (
 	"bytes"
 	"fmt"
+	"io"
 	"os"
+
+	"log/slog"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/xeipuuv/gojsonschema"
-	"golang.org/x/exp/slog"
 )
 
 // Write bom to the file
-func WriteBOM(bom *cdx.BOM, file *os.File) error {
+func WriteBOM(bom *cdx.BOM, writer io.Writer) error {
 	// Encode the BOM
-	err := cdx.NewBOMEncoder(file, cdx.BOMFileFormatJSON).
+	err := cdx.NewBOMEncoder(writer, cdx.BOMFileFormatJSON).
 		SetPretty(true).
 		Encode(bom)
 	if err != nil {
@@ -39,22 +41,20 @@ func WriteBOM(bom *cdx.BOM, file *os.File) error {
 }
 
 // Parse and validate a CycloneDX BOM from path using the schema under schemaPath
-func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
-	// Read BOM
-	slog.Debug("Reading BOM file", "path", path)
-	dat, err := os.ReadFile(path)
+func ParseBOM(bomReader io.Reader, schemaReader io.Reader) (*cdx.BOM, error) {
+	bomBytes, err := io.ReadAll(bomReader)
 	if err != nil {
 		return new(cdx.BOM), err
 	}
 
-	slog.Info("Validating BOM file using schema", "path", path, "schema", schemaPath)
 	// JSON Validation via Schema
-	schemaLoader := gojsonschema.NewReferenceLoader("file://" + schemaPath)
-	documentLoader := gojsonschema.NewStringLoader(string(dat))
+	schema, _ := io.ReadAll(schemaReader)
+	schemaLoader := gojsonschema.NewBytesLoader(schema) // Tried it with NewReaderLoader(schemaReader) but this failed for whatever reason
+	documentLoader := gojsonschema.NewBytesLoader(bomBytes)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return new(cdx.BOM), err
+		return new(cdx.BOM), fmt.Errorf("json schema validator failed: %w", err)
 	}
 
 	if result.Valid() {
@@ -64,13 +64,13 @@ func ParseBOM(path string, schemaPath string) (*cdx.BOM, error) {
 		for _, desc := range result.Errors() {
 			fmt.Fprintf(os.Stderr, "- %s\n", desc)
 		}
-		return new(cdx.BOM), fmt.Errorf("provider: bom is not valid due to schema %v", schemaPath)
+		return new(cdx.BOM), fmt.Errorf("provider: bom is not valid due to schema")
 	}
 
 	// Decode BOM from JSON
 	slog.Debug("Decoding BOM from JSON to GO object")
 	bom := new(cdx.BOM)
-	decoder := cdx.NewBOMDecoder(bytes.NewReader(dat), cdx.BOMFileFormatJSON)
+	decoder := cdx.NewBOMDecoder(bytes.NewReader(bomBytes), cdx.BOMFileFormatJSON)
 	err = decoder.Decode(bom)
 	if err != nil {
 		return new(cdx.BOM), err

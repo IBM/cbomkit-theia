@@ -20,7 +20,6 @@ import (
 	"fmt"
 	"ibm/cbomkit-theia/cmd/image"
 	"ibm/cbomkit-theia/scanner"
-	"ibm/cbomkit-theia/scanner/plugins"
 	"os"
 	"path/filepath"
 
@@ -139,17 +138,10 @@ func initConfig() {
 		fmt.Fprintln(os.Stderr, "Using config file:", viper.ConfigFileUsed())
 	}
 
-	pluginConstructors := make([]plugins.PluginConstructor, 0, len(viper.GetStringSlice("plugins")))
-	for _, name := range viper.GetStringSlice("plugins") {
-		constructor, ok := scanner.GetAllPluginConstructors()[name]
-		if !ok {
-			// Error
-			panic(fmt.Sprintf("%v is not a valid plugin name!", name))
-		} else {
-			pluginConstructors = append(pluginConstructors, constructor)
-		}
+	pluginConstructors, err := scanner.GetPluginConstructorsFromNames(viper.GetStringSlice("plugins"))
+	if err != nil {
+		panic(err)
 	}
-
 	viper.Set("pluginConstructors", pluginConstructors)
 }
 

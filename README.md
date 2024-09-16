@@ -5,8 +5,7 @@
 This repository contains CBOMkit-theia: a tool that detects cryptographic assets in container images as well as directories and generates [CBOM](https://cyclonedx.org/capabilities/cbom/).
 
 > [!NOTE] 
-> CBOMkit-theia is meant to run in conjunction with the [Sonar Cryptography Plugin](https://github.com/IBM/sonar-cryptography) by IBM Research.
-> Is is part of [cbomkit](https://github.com/IBM/cbomkit) by IBM Research 
+> CBOMkit-theia is part of [CBOMkit](https://github.com/IBM/cbomkit) and meant to run in conjunction with the [Sonar Cryptography Plugin](https://github.com/IBM/sonar-cryptography) by IBM Research.
 
 ```
  ██████╗██████╗  ██████╗ ███╗   ███╗██╗  ██╗██╗████████╗████████╗██╗  ██╗███████╗██╗ █████╗ 
@@ -81,7 +80,7 @@ Use "cbomkit-theia [command] --help" for more information about a command.
 ## Prerequisites
 
 - Go 
-  - Version: `1.22.2` or up
+  - Version: `1.23` or up
 - Docker Daemon (if using `cbomkit-theia image build`)
   - Recommended: Set the `DOCKER_HOST` environment variable (default: `unix:///var/run/docker.sock`) 
 - Internet Connection: CBOMkit-theia builds and pulls docker images during runtime
@@ -109,6 +108,13 @@ Server: Docker Engine - Community
 ```
 
 ## Running
+
+### Docker
+
+```shell
+docker build -t cbomkit-theia . 
+docker run cbomkit-theia [command] > enriched_CBOM.json
+```
 
 ### Compiled
 
@@ -144,3 +150,13 @@ Additional plugins can be added by implementing the `Plugin` interface from [`ib
 
 ## Security Disclaimer
 CBOMkit-theia performs several filesystem reads based on the user input and may print the contents of these files to the stderr console. Do not use this tools on untrusted input or provide the output to untrusted parties.
+
+## Contribution Guidelines
+
+If you'd like to contribute to CBOMkit-theia, please take a look at our [contribution guidelines](CONTRIBUTING.md). By participating, you are expected to uphold our [code of conduct](CODE_OF_CONDUCT.md).
+
+We use [GitHub issues](https://github.com/IBM/cbomkit-theia/issues) for tracking requests and bugs. For questions start a discussion using [GitHub Discussions](https://github.com/IBM/cbomkit-theia/discussions).
+
+## License
+
+[Apache License 2.0](LICENSE)

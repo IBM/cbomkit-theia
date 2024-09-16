@@ -17,7 +17,9 @@
 package main
 
 import (
+	"bytes"
 	"encoding/hex"
+	"io"
 	"os"
 	"path/filepath"
 	"testing"
@@ -73,11 +75,7 @@ func TestScan(t *testing.T) {
 
 	for _, test := range tests {
 		t.Run(test.in+", BOM: "+test.in, func(t *testing.T) {
-			tempTarget, err := os.CreateTemp("", "TestParseBOM")
-			if err != nil {
-				panic(err)
-			}
-			defer os.Remove(tempTarget.Name())
+			tempTarget := new(bytes.Buffer)
 
 			var runErr error
 
@@ -95,14 +93,14 @@ func TestScan(t *testing.T) {
 				panic(err)
 			}
 
-			if err := container.Provide(func() *os.File {
+			if err := container.Provide(func() io.Writer {
 				return tempTarget
 			}); err != nil {
 				panic(err)
 			}
 
 			for _, pluginConstructor := range scanner.GetAllPluginConstructors() {
-				if err = container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
+				if err := container.Provide(pluginConstructor, dig.Group("plugins")); err != nil {
 					panic(err)
 				}
 			}
@@ -117,7 +115,7 @@ func TestScan(t *testing.T) {
 					return docker.GetSquashedFilesystem(image)
 				})
 				assert.NoError(t, err)
-				runErr = container.Invoke(scanner.CreateAndRunScan)
+				runErr = container.Invoke(scanner.ReadFilesAndRunScan)
 			case testTypeImageGet:
 				image, err := docker.GetPrebuiltImage(test.additionalInfo)
 				assert.NoError(t, err)
@@ -126,13 +124,13 @@ func TestScan(t *testing.T) {
 					return docker.GetSquashedFilesystem(image)
 				})
 				assert.NoError(t, err)
-				runErr = container.Invoke(scanner.CreateAndRunScan)
+				runErr = container.Invoke(scanner.ReadFilesAndRunScan)
 			case testTypeDir:
 				err := container.Provide(func() filesystem.Filesystem {
 					return filesystem.NewPlainFilesystem(filepath.Join(testfileFolder, test.in, dirExtension))
 				})
 				assert.NoError(t, err)
-				runErr = container.Invoke(scanner.CreateAndRunScan)
+				runErr = container.Invoke(scanner.ReadFilesAndRunScan)
 			}
 
 			if test.err {
@@ -141,9 +139,13 @@ func TestScan(t *testing.T) {
 				assert.NoError(t, runErr, "scan did fail although it should not")
 			}
 
-			bomTrue, err := cyclonedx.ParseBOM(filepath.Join(testfileFolder, test.in, outputExtension), schemaPath)
+			bomReaderTrue, _ := os.Open(filepath.Join(testfileFolder, test.in, outputExtension))
+			schemaReader, _ := os.Open(schemaPath)
+			bomTrue, err := cyclonedx.ParseBOM(bomReaderTrue, schemaReader)
 			assert.NoError(t, err)
-			bomCurrent, err := cyclonedx.ParseBOM(tempTarget.Name(), schemaPath)
+
+			schemaReader.Seek(0, 0)
+			bomCurrent, err := cyclonedx.ParseBOM(tempTarget, schemaReader)
 			assert.NoError(t, err)
 
 			assert.Empty(t, cmp.Diff(*bomTrue, *bomCurrent,
