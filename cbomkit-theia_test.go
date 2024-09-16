@@ -143,6 +143,8 @@ func TestScan(t *testing.T) {
 			schemaReader, _ := os.Open(schemaPath)
 			bomTrue, err := cyclonedx.ParseBOM(bomReaderTrue, schemaReader)
 			assert.NoError(t, err)
+
+			schemaReader.Seek(0, 0)
 			bomCurrent, err := cyclonedx.ParseBOM(tempTarget, schemaReader)
 			assert.NoError(t, err)
 

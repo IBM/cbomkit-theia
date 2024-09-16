@@ -47,14 +47,14 @@ func ParseBOM(bomReader io.Reader, schemaReader io.Reader) (*cdx.BOM, error) {
 		return new(cdx.BOM), err
 	}
 
-	slog.Info("Validating BOM file using schema")
 	// JSON Validation via Schema
-	schemaLoader, _ := gojsonschema.NewReaderLoader(schemaReader)
+	schema, _ := io.ReadAll(schemaReader)
+	schemaLoader := gojsonschema.NewBytesLoader(schema) // Tried it with NewReaderLoader(schemaReader) but this failed for whatever reason
 	documentLoader := gojsonschema.NewBytesLoader(bomBytes)
 
 	result, err := gojsonschema.Validate(schemaLoader, documentLoader)
 	if err != nil {
-		return new(cdx.BOM), err
+		return new(cdx.BOM), fmt.Errorf("json schema validator failed: %w", err)
 	}
 
 	if result.Valid() {
