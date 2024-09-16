@@ -29,29 +29,12 @@ import (
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 
-	_ "ibm/cbomkit-theia/docs"
-
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	swaggerFiles "github.com/swaggo/files"
-	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-//	@title			CBOMkit-theia
-//	@version		1.0
-//	@description	CBOMkit-theia analyzes cryptographic assets in a container image or directory.
-
-//	@license.name	Apache 2.0
-//	@license.url	http://www.apache.org/licenses/LICENSE-2.0.html
-
-//	@host		localhost:8080
-//	@BasePath	/api/v1
-
-//	@accept		json
-//	@produce	application/vnd.cyclonedx+json; version=1.6
-
 type imageGetRequest struct {
-	Image   string   `json:"image" binding:"required" example:"nginx"`
+	Image   string   `json:"image" binding:"required"`
 	Plugins []string `json:"plugins" example:"certificates"`
 	Bom     *cdx.BOM `json:"bom"`
 }
@@ -61,9 +44,6 @@ type errorResponse struct {
 }
 
 func Serve() {
-
-	_ = cdx.BOM{SerialNumber: "urn:uuid:e6e36f08-21a0-4a53-bb4c-96e489e6a453"}
-
 	gin.SetMode(gin.ReleaseMode)
 	r := gin.Default()
 	r.Use(cors.Default()) // Allow all origins
@@ -72,21 +52,9 @@ func Serve() {
 	{
 		v1.POST("/image/get", imageGet)
 	}
-	r.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 	r.Run(":8080") // listen and serve on 0.0.0.0:8080
 }
 
-// imageGet godoc
-//
-//	@Summary	Generate CBOM from existing image
-//	@Tags		image
-//	@Accept		json
-//
-//	@Param		request	body	imageGetRequest	false	"Request body containing the image identifier, list of activated plugins and BOM."
-//	@Produce	application/vnd.cyclonedx+json; version=1.6
-//	@Success	200	{object}	cdx.BOM
-//	@Failure	400	{object}	errorResponse
-//	@Router		/image/get [post]
 func imageGet(c *gin.Context) {
 	request := imageGetRequest{
 		Plugins: scanner.GetAllPluginNames(),
