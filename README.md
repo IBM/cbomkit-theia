@@ -80,7 +80,7 @@ Use "cbomkit-theia [command] --help" for more information about a command.
 ## Prerequisites
 
 - Go 
-  - Version: `1.22.2` or up
+  - Version: `1.23` or up
 - Docker Daemon (if using `cbomkit-theia image build`)
   - Recommended: Set the `DOCKER_HOST` environment variable (default: `unix:///var/run/docker.sock`) 
 - Internet Connection: CBOMkit-theia builds and pulls docker images during runtime
