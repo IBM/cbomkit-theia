@@ -24,7 +24,7 @@ import (
 
 var serverCmd = &cobra.Command{
 	Use:   "server",
-	Short: "Start a server",
+	Short: "Start a server (port: 8080, see openapi.yaml)",
 	Run: func(cmd *cobra.Command, args []string) {
 		server.Serve()
 	},

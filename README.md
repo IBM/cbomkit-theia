@@ -66,6 +66,7 @@ Available Commands:
   dir         Analyze cryptographic assets in a directory
   help        Help about any command
   image       Analyze cryptographic assets in a container image
+  server      Start a server (port: 8080, see openapi.yaml)
 
 Flags:
   -b, --bom string        BOM file to be verified and enriched
@@ -113,7 +114,10 @@ Server: Docker Engine - Community
 
 ```shell
 docker build -t cbomkit-theia . 
+# CLI
 docker run cbomkit-theia [command] > enriched_CBOM.json
+# Server
+docker run -d -p 8080:8080 cbomkit-theia
 ```
 
 ### Compiled
