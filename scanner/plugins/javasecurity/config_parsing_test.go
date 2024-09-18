@@ -18,10 +18,11 @@ package javasecurity
 
 import (
 	"fmt"
-	"ibm/cbomkit-theia/provider/docker"
 	"os"
 	"strconv"
 	"testing"
+
+	"github.com/IBM/cbomkit-theia/provider/docker"
 
 	"github.com/magiconair/properties"
 	"github.com/stretchr/testify/assert"

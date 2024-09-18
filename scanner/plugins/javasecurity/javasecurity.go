@@ -19,14 +19,15 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	"ibm/cbomkit-theia/provider/filesystem"
-	advancedcomponentslice "ibm/cbomkit-theia/scanner/componentwithconfidenceslice"
-	scanner_errors "ibm/cbomkit-theia/scanner/errors"
-	"ibm/cbomkit-theia/scanner/plugins"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
+
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
+	advancedcomponentslice "github.com/IBM/cbomkit-theia/scanner/componentwithconfidenceslice"
+	scanner_errors "github.com/IBM/cbomkit-theia/scanner/errors"
+	"github.com/IBM/cbomkit-theia/scanner/plugins"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	v1 "github.com/google/go-containerregistry/pkg/v1"

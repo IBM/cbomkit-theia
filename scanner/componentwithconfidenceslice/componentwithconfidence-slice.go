@@ -17,7 +17,7 @@
 package componentwithconfidenceslice
 
 import (
-	"ibm/cbomkit-theia/scanner/confidencelevel"
+	"github.com/IBM/cbomkit-theia/scanner/confidencelevel"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

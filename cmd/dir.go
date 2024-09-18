@@ -17,11 +17,12 @@
 package cmd
 
 import (
-	"ibm/cbomkit-theia/provider/filesystem"
-	"ibm/cbomkit-theia/scanner"
-	"ibm/cbomkit-theia/scanner/plugins"
 	"io"
 	"os"
+
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
+	"github.com/IBM/cbomkit-theia/scanner"
+	"github.com/IBM/cbomkit-theia/scanner/plugins"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

@@ -19,12 +19,13 @@ package filesystem
 import (
 	go_errors "errors"
 	"fmt"
-	scanner_errors "ibm/cbomkit-theia/scanner/errors"
 	"io"
 	"io/fs"
 	"log/slog"
 	"os"
 	"path/filepath"
+
+	scanner_errors "github.com/IBM/cbomkit-theia/scanner/errors"
 
 	v1 "github.com/google/go-containerregistry/pkg/v1"
 )

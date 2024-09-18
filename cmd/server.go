@@ -17,7 +17,7 @@
 package cmd
 
 import (
-	"ibm/cbomkit-theia/server"
+	"github.com/IBM/cbomkit-theia/server"
 
 	"github.com/spf13/cobra"
 )

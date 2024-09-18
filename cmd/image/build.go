@@ -17,7 +17,7 @@
 package image
 
 import (
-	"ibm/cbomkit-theia/provider/docker"
+	"github.com/IBM/cbomkit-theia/provider/docker"
 
 	"github.com/spf13/cobra"
 )

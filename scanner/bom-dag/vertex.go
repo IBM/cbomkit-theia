@@ -17,7 +17,7 @@
 package bomdag
 
 import (
-	"ibm/cbomkit-theia/scanner/hash"
+	"github.com/IBM/cbomkit-theia/scanner/hash"
 
 	"github.com/dominikbraun/graph"
 )

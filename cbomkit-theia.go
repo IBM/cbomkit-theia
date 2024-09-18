@@ -17,7 +17,7 @@
 package main
 
 import (
-	"ibm/cbomkit-theia/cmd"
+	"github.com/IBM/cbomkit-theia/cmd"
 	"log/slog"
 	"os"
 )

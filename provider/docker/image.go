@@ -27,7 +27,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"ibm/cbomkit-theia/provider/filesystem"
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
 
 	"github.com/anchore/go-logger"
 	"github.com/anchore/go-logger/adapter/logrus"
