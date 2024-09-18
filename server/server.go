@@ -50,7 +50,7 @@ func Serve() {
 	r.SetTrustedProxies(nil)
 	v1 := r.Group("/api/v1")
 	{
-		v1.POST("/image/get", imageGet)
+		v1.POST("/image", imageGet)
 	}
 	r.Run(":8080") // listen and serve on 0.0.0.0:8080
 }

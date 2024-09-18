@@ -6,9 +6,9 @@ info:
     url: http://www.apache.org/licenses/LICENSE-2.0.html
   version: 0.0.1
 paths:
-  /api/v1/image/get:
+  /api/v1/image:
     post:
-      summary: Generate CBOM from existing image
+      summary: Generate CBOM from a Container Image
       requestBody:
         required: true
         content:
@@ -17,7 +17,7 @@ paths:
               type: object
               properties:
                 image:
-                  description: Identifier for Image
+                  description: Identifier for the Container Image
                   example: "nginx"
                   type: string
                 plugins:
