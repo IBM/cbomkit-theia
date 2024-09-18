@@ -150,7 +150,7 @@ go run ./cbomkit-theia.go [command] > enriched_CBOM.json
     - Leverages [gitleaks](https://github.com/gitleaks/gitleaks) to find secrets and keys in the data source
     - Adds the secrets and keys to the CBOM
 
-Additional plugins can be added by implementing the `Plugin` interface from [`ibm/cbomkit-theia/scanner/plugins`](./scanner/plugins/plugin.go#L41) and adding the plugins constructor to the `GetAllPluginConstructors` function in [`ibm/cbomkit-theia/scanner/scanner.go`](./scanner/scanner.go#L48): 
+Additional plugins can be added by implementing the `Plugin` interface from [`ibm/cbomkit-theia/scanner/plugins`](./scanner/plugins/plugin.go#L41) and adding the plugins constructor to the `GetAllPluginConstructors` function in [`ibm/cbomkit-theia/scanner/scanner.go`](./scanner/scanner.go#L58): 
 
 ## Security Disclaimer
 CBOMkit-theia performs several filesystem reads based on the user input and may print the contents of these files to the stderr console. Do not use this tools on untrusted input or provide the output to untrusted parties.
