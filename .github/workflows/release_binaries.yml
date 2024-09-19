@@ -3,9 +3,6 @@ name: Build Release Binaries
 on:
   push:
     branches: [ "chore/release_binaries" ]
-  release:
-    types:
-      - created
 
 jobs:
   build:
@@ -25,13 +22,7 @@ jobs:
         uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-      
-      - name: Install dependencies
-        run: go get .
-
-      - name: Display the release tag
-        run: echo ${{ github.event.release.tag_name }}
-
+    
       - name: Cache Go modules
         uses: actions/cache@v3
         with:
@@ -52,11 +43,3 @@ jobs:
         with:
           name: binaries
           path: dist/
-
-      - name: Upload the binaries
-        uses: svenstaro/upload-release-action@2.9.0
-        with:
-          repo_token: ${{ secrets.GITHUB_TOKEN }}
-          tag: ${{ github.ref }}
-          file: dist/*
-          file_glob: true
