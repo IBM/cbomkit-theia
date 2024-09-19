@@ -1,8 +1,8 @@
-name: Build Release Binaries
+name: Build Binaries
 
 on:
   push:
-    branches: [ "chore/release_binaries" ]
+    branches: [ "main" ]
 
 jobs:
   build:
@@ -36,7 +36,7 @@ jobs:
       - name: Build binary
         run: |
           mkdir -p dist
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/app-${{ matrix.goos }}-${{ matrix.goarch }} .
+          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o dist/${{ github.event.repository.name }}_${{ matrix.goos }}_${{ matrix.goarch }} .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v3
