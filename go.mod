@@ -3,7 +3,7 @@ module ibm/cbomkit-theia
 go 1.23.0
 
 require (
-	github.com/CycloneDX/cyclonedx-go v0.9.0
+	github.com/CycloneDX/cyclonedx-go v0.9.1
 	github.com/anchore/go-logger v0.0.0-20240217160628-ee28a485904f
 	github.com/anchore/stereoscope v0.0.3
 	github.com/docker/docker v27.2.1+incompatible
