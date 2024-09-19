@@ -6,7 +6,7 @@ require (
 	github.com/CycloneDX/cyclonedx-go v0.9.0
 	github.com/anchore/go-logger v0.0.0-20240217160628-ee28a485904f
 	github.com/anchore/stereoscope v0.0.3
-	github.com/docker/docker v27.1.2+incompatible
+	github.com/docker/docker v27.2.1+incompatible
 	github.com/dominikbraun/graph v0.23.0
 	github.com/gabriel-vasile/mimetype v1.4.5
 	github.com/gin-contrib/cors v1.7.2
