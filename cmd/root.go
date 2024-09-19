@@ -18,10 +18,11 @@ package cmd
 
 import (
 	"fmt"
-	"ibm/cbomkit-theia/cmd/image"
-	"ibm/cbomkit-theia/scanner"
 	"os"
 	"path/filepath"
+
+	"github.com/IBM/cbomkit-theia/cmd/image"
+	"github.com/IBM/cbomkit-theia/scanner"
 
 	"github.com/spf13/cobra"
 	"github.com/spf13/viper"

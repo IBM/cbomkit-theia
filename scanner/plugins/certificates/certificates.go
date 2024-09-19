@@ -19,19 +19,20 @@ package certificates
 import (
 	"encoding/pem"
 	"errors"
-	"ibm/cbomkit-theia/provider/filesystem"
-	scanner_errors "ibm/cbomkit-theia/scanner/errors"
-	pemutility "ibm/cbomkit-theia/scanner/pem-utility"
-	"ibm/cbomkit-theia/scanner/plugins"
 	"log/slog"
 	"os"
 	"path/filepath"
 	"slices"
 	"strings"
 
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
+	scanner_errors "github.com/IBM/cbomkit-theia/scanner/errors"
+	pemutility "github.com/IBM/cbomkit-theia/scanner/pem-utility"
+	"github.com/IBM/cbomkit-theia/scanner/plugins"
+
 	"go.mozilla.org/pkcs7"
 
-	bomdag "ibm/cbomkit-theia/scanner/bom-dag"
+	bomdag "github.com/IBM/cbomkit-theia/scanner/bom-dag"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

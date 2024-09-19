@@ -19,12 +19,13 @@ package javasecurity
 import (
 	go_errors "errors"
 	"fmt"
-	advancedcomponentslice "ibm/cbomkit-theia/scanner/componentwithconfidenceslice"
-	"ibm/cbomkit-theia/scanner/confidencelevel"
-	scanner_errors "ibm/cbomkit-theia/scanner/errors"
 	"log/slog"
 	"strconv"
 	"strings"
+
+	advancedcomponentslice "github.com/IBM/cbomkit-theia/scanner/componentwithconfidenceslice"
+	"github.com/IBM/cbomkit-theia/scanner/confidencelevel"
+	scanner_errors "github.com/IBM/cbomkit-theia/scanner/errors"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 )

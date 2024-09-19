@@ -17,12 +17,13 @@
 package secrets
 
 import (
-	"ibm/cbomkit-theia/provider/filesystem"
-	bomdag "ibm/cbomkit-theia/scanner/bom-dag"
-	pemutility "ibm/cbomkit-theia/scanner/pem-utility"
-	"ibm/cbomkit-theia/scanner/plugins"
 	"log/slog"
 	"strings"
+
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
+	bomdag "github.com/IBM/cbomkit-theia/scanner/bom-dag"
+	pemutility "github.com/IBM/cbomkit-theia/scanner/pem-utility"
+	"github.com/IBM/cbomkit-theia/scanner/plugins"
 
 	cdx "github.com/CycloneDX/cyclonedx-go"
 	"github.com/gabriel-vasile/mimetype"

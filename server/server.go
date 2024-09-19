@@ -18,12 +18,13 @@ package server
 
 import (
 	"bytes"
-	"ibm/cbomkit-theia/provider/docker"
-	"ibm/cbomkit-theia/provider/filesystem"
-	"ibm/cbomkit-theia/scanner"
-	"ibm/cbomkit-theia/scanner/plugins"
 	"io"
 	"net/http"
+
+	"github.com/IBM/cbomkit-theia/provider/docker"
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
+	"github.com/IBM/cbomkit-theia/scanner"
+	"github.com/IBM/cbomkit-theia/scanner/plugins"
 
 	"go.uber.org/dig"
 

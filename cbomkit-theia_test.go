@@ -24,11 +24,11 @@ import (
 	"path/filepath"
 	"testing"
 
-	"ibm/cbomkit-theia/provider/cyclonedx"
-	"ibm/cbomkit-theia/provider/docker"
-	"ibm/cbomkit-theia/provider/filesystem"
-	"ibm/cbomkit-theia/scanner"
-	"ibm/cbomkit-theia/scanner/hash"
+	"github.com/IBM/cbomkit-theia/provider/cyclonedx"
+	"github.com/IBM/cbomkit-theia/provider/docker"
+	"github.com/IBM/cbomkit-theia/provider/filesystem"
+	"github.com/IBM/cbomkit-theia/scanner"
+	"github.com/IBM/cbomkit-theia/scanner/hash"
 
 	"github.com/google/go-cmp/cmp"
 	"github.com/google/go-cmp/cmp/cmpopts"

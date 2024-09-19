@@ -23,8 +23,8 @@ import (
 	"path/filepath"
 	"time"
 
-	bomdag "ibm/cbomkit-theia/scanner/bom-dag"
-	pemutility "ibm/cbomkit-theia/scanner/pem-utility"
+	bomdag "github.com/IBM/cbomkit-theia/scanner/bom-dag"
+	pemutility "github.com/IBM/cbomkit-theia/scanner/pem-utility"
 
 	"github.com/google/uuid"
 
