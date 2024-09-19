@@ -21,7 +21,7 @@ require (
 	github.com/stretchr/testify v1.9.0
 	github.com/xeipuuv/gojsonschema v1.2.0
 	github.com/zricethezav/gitleaks/v8 v8.18.4
-	go.mozilla.org/pkcs7 v0.0.0-20210826202110-33d05740a352
+	go.mozilla.org/pkcs7 v0.9.0
 	go.uber.org/dig v1.18.0
 	golang.org/x/crypto v0.27.0
 )
